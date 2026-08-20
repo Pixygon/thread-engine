@@ -41,10 +41,16 @@ the folder is self-contained and a rebuild is byte-identical.
 
 ## The specification
 
-The normative documents live in [Pixygon/thread-spec](https://github.com/Pixygon/thread-spec);
-`spec/` here is a snapshot of the same files. **The spec is the standard and
-this is one implementation of it** — where they disagree, the spec is right and
-this is a bug.
+The normative documents live in **[Pixygon/thread-spec](https://github.com/Pixygon/thread-spec)**,
+and there is deliberately **no copy of them here**. This repository had one for
+a day; it was labelled "a snapshot of the same files" and was already a hundred
+lines ahead of the standard it claimed to mirror — ten normative sections that
+existed only in the implementation. A directory that says it is a copy and is
+not is worse than no copy: it makes the wrong document look authoritative, and
+it is how this drift happened in the first place.
+
+**The spec is the standard and this is one implementation of it.** Where they
+disagree, the spec is right and this is a bug.
 
 `worlds/` is the reference constellation: nineteen conformant worlds, the same
 ones served at `thread://pixygon.io`. Point the conformance suite at them:
