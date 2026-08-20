@@ -10,7 +10,6 @@ authors.workspace = true
 license.workspace = true
 description = "Portable avatars for the Thread (avatar-v0.1): slots, specs, catalogs and the Portable Item Convention. No rendering."
 repository = "https://github.com/Pixygon/thread-engine"
-readme = "README.md"
 
 [dependencies]
 thread-id.workspace = true

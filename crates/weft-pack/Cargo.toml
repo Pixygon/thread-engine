@@ -11,6 +11,6 @@ name = "weftpack"
 path = "src/main.rs"
 
 [dependencies]
-weft = { package = "weft-lang", path = "../weft", version = "0.1.0" }
+weft = { package = "weft-lang", path = "../weft", version = "0.2.0" }
 serde_json.workspace = true
 reqwest = { workspace = true, features = ["blocking"] }

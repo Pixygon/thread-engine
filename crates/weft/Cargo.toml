@@ -8,7 +8,6 @@ authors.workspace = true
 description = "Weft — the Thread's native code format: content-addressed, verified, total program graphs that cannot diverge, allocate unboundedly, or lie about what they are."
 repository = "https://github.com/Pixygon/thread-engine"
 license.workspace = true
-readme = "README.md"
 
 [dependencies]
 serde = { workspace = true }
