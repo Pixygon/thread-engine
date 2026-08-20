@@ -1,6 +1,6 @@
 //! Presence relay client — the live transport for shared worlds.
 //!
-//! Speculative build against `docs/spec/presence-wire-v0.1.md`: connects to a
+//! Built against [presence-wire-v0.1](https://github.com/Pixygon/thread-spec/blob/main/specs/presence-wire-v0.1.md): connects to a
 //! WebSocket relay (`wss://<relay>/thread/:worldId`), sends the local player's
 //! pose, and forwards other travelers' poses into [`PresenceState`]. Runs its
 //! socket on a background thread and talks to the render loop over channels, so

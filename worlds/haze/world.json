@@ -140,8 +140,7 @@
         1,
         0.8
       ],
-      "codex": "mommas-eye",
-      "behavior": "codex-viewer"
+      "codex": "mommas-eye"
     },
     {
       "prefab": "60000002",
@@ -156,8 +155,7 @@
         1,
         0.8
       ],
-      "codex": "mimic-splinter",
-      "behavior": "codex-viewer"
+      "codex": "mimic-splinter"
     },
     {
       "prefab": "60000002",
@@ -172,8 +170,7 @@
         1,
         0.8
       ],
-      "codex": "sayonara-ribbon",
-      "behavior": "codex-viewer"
+      "codex": "sayonara-ribbon"
     },
     {
       "prefab": "60000002",
@@ -188,8 +185,7 @@
         1,
         0.8
       ],
-      "codex": "anima-mimic",
-      "behavior": "codex-viewer"
+      "codex": "anima-mimic"
     },
     {
       "prefab": "60000002",
@@ -204,8 +200,7 @@
         1,
         0.8
       ],
-      "codex": "anima-spellmaster",
-      "behavior": "codex-viewer"
+      "codex": "anima-spellmaster"
     },
     {
       "prefab": "60000003",
@@ -220,7 +215,6 @@
         2.4,
         0.2
       ],
-      "behavior": "open-link",
       "data": {
         "kind": "signboard",
         "url": "https://hazechat.no",
@@ -257,41 +251,16 @@
         3,
         0.2
       ],
-      "to": "thread://tastebud.pixygon.io/table#entry",
+      "to": "thread://tastarium.com/table#entry",
       "label": "The Table",
       "preview": "live"
     }
   ],
-  "behaviors": [
-    {
-      "id": "codex-viewer",
-      "wasm": "codex-viewer-wasm",
-      "on": [
-        "interact"
-      ]
-    },
-    {
-      "id": "open-link",
-      "wasm": "open-link-wasm",
-      "on": [
-        "interact"
-      ]
-    }
-  ],
-  "assets": [
-    {
-      "id": "codex-viewer-wasm",
-      "uri": "behaviors/codex-viewer.wasm",
-      "kind": "wasm"
-    },
-    {
-      "id": "open-link-wasm",
-      "uri": "behaviors/open-link.wasm",
-      "kind": "wasm"
-    }
-  ],
   "presence": {
-    "relay": null,
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io"
+    ],
     "max_occupants": 64,
     "voice": true
   }

@@ -1,6 +1,6 @@
 //! The traveler's Passport — one portable identity across the Thread.
 //!
-//! Implements the *browser* side of [passport-v0.1](../../../docs/spec/passport-v0.1.md):
+//! Implements the *browser* side of [passport-v0.1](https://github.com/Pixygon/thread-spec/blob/main/specs/passport-v0.1.md):
 //! hold the token for the traveler, read its claims, and fetch the descriptor
 //! (the portable "you": name, avatar, consent) fresh from the issuer. The token
 //! comes from `INFINITE_PASSPORT`; the descriptor URL is the token's `avatar`

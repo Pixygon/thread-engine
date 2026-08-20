@@ -7,7 +7,7 @@
 //! `handle(inbound) -> [outbound]` — so it's unit-testable with no network, exactly
 //! like `thread-relay`'s `Hub`.
 //!
-//! [presence-topology-v0.1]: ../../../docs/spec/presence-topology-v0.1.md
+//! [presence-topology-v0.1]: https://github.com/Pixygon/thread-spec/blob/main/specs/presence-topology-v0.1.md
 //!
 //! Wire contract (all messages JSON, tagged `"t"` lowercase — [`loom::mesh::Signal`]):
 //! - client → rv `announce{peer,world}`: join. The rendezvous **assigns** a

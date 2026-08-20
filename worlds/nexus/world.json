@@ -3,7 +3,7 @@
   "world": {
     "id": "nexus",
     "title": "The Nexus",
-    "description": "The front door of the Thread. A great hall where every Pixygon world opens off a ring of veils \u2014 step through one to walk a pearl, or read the canon on the pedestals at the centre.",
+    "description": "The front door of the Thread. A great hall where every Pixygon world opens off a ring of veils — step through one to walk a pearl, or read the canon on the pedestals at the centre.",
     "author": {
       "id": "did:pixygon:pixygon",
       "name": "Pixygon"
@@ -42,182 +42,1414 @@
       "position": [
         0,
         0,
-        12
+        15.84
       ],
-      "yaw": 3.14159
+      "yaw": 3.1415927
+    }
+  ],
+  "assets": [
+    {
+      "id": "model-0",
+      "uri": "https://pixygontech.b-cdn.net/thread/shared/column-classical-marble-6.50x0.55.glb",
+      "kind": "gltf"
+    },
+    {
+      "id": "model-1",
+      "uri": "https://pixygontech.b-cdn.net/thread/shared/arch-classical-marble-3.00x5.20x0.60.glb",
+      "kind": "gltf"
     }
   ],
   "prefabs": [
     {
-      "id": "60000001",
+      "id": "60930001",
       "mesh": {
-        "builtin": "plane"
+        "asset": null,
+        "builtin": "cylinder"
       },
       "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
         "base_color": [
-          0.12,
-          0.12,
-          0.16,
+          0.774,
+          0.75734997,
+          0.70847994,
           1
         ],
-        "roughness": 0.95
+        "metallic": 0,
+        "roughness": 0.9,
+        "emissive": 0,
+        "texture": {
+          "kind": "veins",
+          "scale": 3,
+          "octaves": 4,
+          "seed": 7,
+          "colors": [
+            [
+              0.82043993,
+              0.80279094,
+              0.7509887
+            ],
+            [
+              0.66564,
+              0.651321,
+              0.60929275
+            ],
+            [
+              0.75852,
+              0.742203,
+              0.69431037
+            ]
+          ],
+          "roughness": [
+            0.95,
+            0.8
+          ],
+          "metallic": [
+            0,
+            0
+          ],
+          "height": 0.1,
+          "ao": 0.15,
+          "size": 256,
+          "mix": 0,
+          "mask_scale": 4,
+          "mask_seed": 0,
+          "triplanar": 0.5
+        }
       }
     },
     {
-      "id": "60000002",
+      "id": "60930002",
       "mesh": {
+        "asset": "model-0",
+        "builtin": null
+      },
+      "material": null
+    },
+    {
+      "id": "60930003",
+      "mesh": {
+        "asset": "model-1",
+        "builtin": null
+      },
+      "material": null
+    },
+    {
+      "id": "60930004",
+      "mesh": {
+        "asset": null,
         "builtin": "cube"
       },
       "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
         "base_color": [
-          0.62,
-          0.51,
+          1,
           0.86,
+          0.6,
           1
         ],
-        "roughness": 0.5,
-        "metallic": 0.15
+        "metallic": 0,
+        "roughness": 1,
+        "emissive": 0.7
       }
     },
     {
-      "id": "60000003",
+      "id": "60930005",
       "mesh": {
-        "builtin": "quad"
+        "asset": null,
+        "builtin": "cylinder"
       },
       "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
         "base_color": [
-          0.372,
-          0.306,
-          0.516,
+          0.2,
+          0.19,
+          0.22,
           1
         ],
-        "roughness": 0.7
+        "metallic": 0.6,
+        "roughness": 0.5,
+        "emissive": 0
       }
     },
     {
-      "id": "60000004",
+      "id": "60930011",
       "mesh": {
         "builtin": "cylinder"
       },
       "material": {
         "base_color": [
-          0.62,
-          0.51,
-          0.86,
+          0.82,
+          0.8,
+          0.74,
           1
         ],
-        "roughness": 0.35,
-        "metallic": 0.3
+        "roughness": 0.65,
+        "metallic": 0
+      }
+    },
+    {
+      "id": "60930012",
+      "mesh": {
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color": [
+          0.93,
+          0.88,
+          0.66,
+          1
+        ],
+        "roughness": 0.4,
+        "emissive": 0.55
+      }
+    },
+    {
+      "id": "60930013",
+      "mesh": {
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color": [
+          0.36,
+          0.34,
+          0.3,
+          1
+        ],
+        "roughness": 0.8,
+        "metallic": 0.1
       }
     }
   ],
   "placements": [
     {
-      "prefab": "60000001",
-      "name": "floor",
+      "prefab": "60930001",
+      "name": "floor-0",
       "position": [
         0,
+        0.02,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        44,
+        0.12,
+        44
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-0",
+      "position": [
+        2.044364,
+        0,
+        -17.925085
+      ],
+      "rotation": [
+        0,
+        -0.05607,
+        0,
+        0.99842685
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-1",
+      "position": [
+        5.980043,
+        0,
+        -17.016302
+      ],
+      "rotation": [
+        0,
+        -0.16750489,
+        0,
+        0.98587126
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-2",
+      "position": [
+        9.593437,
+        0,
+        -15.252657
+      ],
+      "rotation": [
+        0,
+        -0.27683336,
+        0,
+        0.96091795
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-3",
+      "position": [
+        12.734111,
+        0,
+        -12.734111
+      ],
+      "rotation": [
+        0,
+        -0.38268346,
+        0,
+        0.9238795
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-4",
+      "position": [
+        15.252567,
+        0,
+        -9.593563
+      ],
+      "rotation": [
+        0,
+        -0.48371807,
+        0,
+        0.8752239
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-5",
+      "position": [
+        17.016266,
+        0,
+        -5.980187
+      ],
+      "rotation": [
+        0,
+        -0.57866985,
+        0,
+        0.8155619
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-6",
+      "position": [
+        17.925068,
+        0,
+        -2.044509
+      ],
+      "rotation": [
+        0,
+        -0.6663446,
+        0,
+        0.745644
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-7",
+      "position": [
+        17.925085,
+        0,
+        2.044364
+      ],
+      "rotation": [
+        0,
+        -0.7456419,
+        0,
+        0.6663469
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-8",
+      "position": [
+        17.016302,
+        0,
+        5.980025
+      ],
+      "rotation": [
+        0,
+        -0.8155601,
+        0,
+        0.5786724
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-9",
+      "position": [
+        15.252657,
+        0,
+        9.593437
+      ],
+      "rotation": [
+        0,
+        -0.8752224,
+        0,
+        0.4837208
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-10",
+      "position": [
+        12.734111,
+        0,
+        12.734093
+      ],
+      "rotation": [
+        0,
+        -0.9238795,
+        0,
+        0.38268343
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-11",
+      "position": [
+        9.593545,
+        0,
+        15.252567
+      ],
+      "rotation": [
+        0,
+        -0.96091706,
+        0,
+        0.2768364
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-12",
+      "position": [
+        5.980187,
+        0,
+        17.016249
+      ],
+      "rotation": [
+        0,
+        -0.9858707,
+        0,
+        0.167508
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-13",
+      "position": [
+        2.044509,
+        0,
+        17.925068
+      ],
+      "rotation": [
+        0,
+        -0.9984267,
+        0,
+        0.056073163
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-14",
+      "position": [
+        -2.044364,
+        0,
+        17.925085
+      ],
+      "rotation": [
+        0,
+        -0.99842685,
+        0,
+        -0.056069918
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-15",
+      "position": [
+        -5.980043,
+        0,
+        17.016302
+      ],
+      "rotation": [
+        0,
+        -0.98587126,
+        0,
+        -0.1675048
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-16",
+      "position": [
+        -9.593437,
+        0,
+        15.252657
+      ],
+      "rotation": [
+        0,
+        -0.96091795,
+        0,
+        -0.27683327
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-17",
+      "position": [
+        -12.734093,
+        0,
+        12.734129
+      ],
+      "rotation": [
+        0,
+        -0.92387956,
+        0,
+        -0.3826834
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-18",
+      "position": [
+        -15.252567,
+        0,
+        9.593563
+      ],
+      "rotation": [
+        0,
+        -0.8752238,
+        0,
+        -0.48371816
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-19",
+      "position": [
+        -17.016249,
+        0,
+        5.980205
+      ],
+      "rotation": [
+        0,
+        -0.8155619,
+        0,
+        -0.5786699
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-20",
+      "position": [
+        -17.925068,
+        0,
+        2.044527
+      ],
+      "rotation": [
+        0,
+        -0.7456441,
+        0,
+        -0.66634446
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-21",
+      "position": [
+        -17.925085,
+        0,
+        -2.044364
+      ],
+      "rotation": [
+        0,
+        -0.6663469,
+        0,
+        -0.7456419
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-22",
+      "position": [
+        -17.016302,
+        0,
+        -5.980043
+      ],
+      "rotation": [
+        0,
+        -0.5786724,
+        0,
+        -0.8155601
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-23",
+      "position": [
+        -15.252657,
+        0,
+        -9.593437
+      ],
+      "rotation": [
+        0,
+        -0.48372087,
+        0,
+        -0.8752223
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-24",
+      "position": [
+        -12.734129,
+        0,
+        -12.734093
+      ],
+      "rotation": [
+        0,
+        -0.3826835,
+        0,
+        -0.9238795
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-25",
+      "position": [
+        -9.593563,
+        0,
+        -15.252567
+      ],
+      "rotation": [
+        0,
+        -0.27683645,
+        0,
+        -0.96091706
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-26",
+      "position": [
+        -5.980187,
+        0,
+        -17.016266
+      ],
+      "rotation": [
+        0,
+        -0.16750808,
+        0,
+        -0.9858707
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930002",
+      "name": "column-27",
+      "position": [
+        -2.044527,
+        0,
+        -17.925068
+      ],
+      "rotation": [
+        0,
+        -0.05607324,
+        0,
+        -0.9984267
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930003",
+      "name": "threshold-28",
+      "position": [
+        0,
+        0,
+        -20.24
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930005",
+      "name": "lamp-post-0",
+      "position": [
+        8.541172,
+        1.2,
+        -8.541172
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        0.09,
+        2.4,
+        0.09
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930004",
+      "name": "lamp-0",
+      "position": [
+        8.541172,
+        2.4,
+        -8.541172
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "solid": false,
+      "light": {
+        "color": [
+          1,
+          0.78,
+          0.45
+        ],
+        "intensity": 1.1,
+        "range": 9
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930005",
+      "name": "lamp-post-1",
+      "position": [
+        8.541172,
+        1.2,
+        8.54116
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        0.09,
+        2.4,
+        0.09
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930004",
+      "name": "lamp-1",
+      "position": [
+        8.541172,
+        2.4,
+        8.54116
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "solid": false,
+      "light": {
+        "color": [
+          1,
+          0.78,
+          0.45
+        ],
+        "intensity": 1.1,
+        "range": 9
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930005",
+      "name": "lamp-post-2",
+      "position": [
+        -8.54116,
+        1.2,
+        8.541184
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        0.09,
+        2.4,
+        0.09
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930004",
+      "name": "lamp-2",
+      "position": [
+        -8.54116,
+        2.4,
+        8.541184
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "solid": false,
+      "light": {
+        "color": [
+          1,
+          0.78,
+          0.45
+        ],
+        "intensity": 1.1,
+        "range": 9
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930005",
+      "name": "lamp-post-3",
+      "position": [
+        -8.541184,
+        1.2,
+        -8.54116
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        0.09,
+        2.4,
+        0.09
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60930004",
+      "name": "lamp-3",
+      "position": [
+        -8.541184,
+        2.4,
+        -8.54116
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "solid": false,
+      "light": {
+        "color": [
+          1,
+          0.78,
+          0.45
+        ],
+        "intensity": 1.1,
+        "range": 9
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "name": "pedestal:the-thread",
+      "prefab": "60930011",
+      "position": [
+        2.9698,
+        0.63,
+        -2.9698
+      ],
+      "rotation": [
+        0,
+        -0.3827,
+        0,
+        0.9239
+      ],
+      "scale": [
+        0.9,
+        1.1,
+        0.9
+      ],
+      "codex": "the-thread",
+      "children": [
+        {
+          "name": "plaque:the-thread",
+          "prefab": "60930012",
+          "position": [
+            0,
+            0.56,
+            0
+          ],
+          "rotation": [
+            -0.3827,
+            0,
+            0,
+            0.9239
+          ],
+          "scale": [
+            0.7,
+            0.5,
+            1
+          ],
+          "codex": "the-thread"
+        }
+      ]
+    },
+    {
+      "name": "pedestal:world-manifest",
+      "prefab": "60930011",
+      "position": [
+        2.9698,
+        0.63,
+        2.9698
+      ],
+      "rotation": [
+        0,
+        -0.9239,
+        0,
+        0.3827
+      ],
+      "scale": [
+        0.9,
+        1.1,
+        0.9
+      ],
+      "codex": "world-manifest",
+      "children": [
+        {
+          "name": "plaque:world-manifest",
+          "prefab": "60930012",
+          "position": [
+            0,
+            0.56,
+            0
+          ],
+          "rotation": [
+            -0.3827,
+            0,
+            0,
+            0.9239
+          ],
+          "scale": [
+            0.7,
+            0.5,
+            1
+          ],
+          "codex": "world-manifest"
+        }
+      ]
+    },
+    {
+      "name": "pedestal:godshard",
+      "prefab": "60930011",
+      "position": [
+        -2.9698,
+        0.63,
+        2.9698
+      ],
+      "rotation": [
+        0,
+        -0.9239,
+        0,
+        -0.3827
+      ],
+      "scale": [
+        0.9,
+        1.1,
+        0.9
+      ],
+      "codex": "godshard",
+      "children": [
+        {
+          "name": "plaque:godshard",
+          "prefab": "60930012",
+          "position": [
+            0,
+            0.56,
+            0
+          ],
+          "rotation": [
+            -0.3827,
+            0,
+            0,
+            0.9239
+          ],
+          "scale": [
+            0.7,
+            0.5,
+            1
+          ],
+          "codex": "godshard"
+        }
+      ]
+    },
+    {
+      "name": "pedestal:invaders-sigil",
+      "prefab": "60930011",
+      "position": [
+        -2.9698,
+        0.63,
+        -2.9698
+      ],
+      "rotation": [
+        0,
+        -0.3827,
+        0,
+        -0.9239
+      ],
+      "scale": [
+        0.9,
+        1.1,
+        0.9
+      ],
+      "codex": "invaders-sigil",
+      "children": [
+        {
+          "name": "plaque:invaders-sigil",
+          "prefab": "60930012",
+          "position": [
+            0,
+            0.56,
+            0
+          ],
+          "rotation": [
+            -0.3827,
+            0,
+            0,
+            0.9239
+          ],
+          "scale": [
+            0.7,
+            0.5,
+            1
+          ],
+          "codex": "invaders-sigil"
+        }
+      ]
+    },
+    {
+      "name": "signboard",
+      "prefab": "60930012",
+      "position": [
+        0,
+        2.2,
+        12.5
+      ],
+      "rotation": [
+        0,
+        1,
         0,
         0
       ],
       "scale": [
-        30,
-        1,
-        30
+        4.4,
+        1.6,
+        1
+      ],
+      "codex": "the-thread"
+    },
+    {
+      "name": "signpost-l",
+      "prefab": "60930013",
+      "position": [
+        -1.8,
+        0.74,
+        12.5
+      ],
+      "scale": [
+        0.14,
+        1.32,
+        0.14
       ]
     },
     {
-      "prefab": "60000004",
-      "name": "pedestal:the-thread",
+      "name": "signpost-r",
+      "prefab": "60930013",
       "position": [
-        -4.5,
-        0.7,
-        -1.5
+        1.8,
+        0.74,
+        12.5
       ],
       "scale": [
-        0.8,
-        1.4,
-        0.8
-      ],
-      "codex": "the-thread",
-      "behavior": "codex-viewer"
-    },
-    {
-      "prefab": "60000004",
-      "name": "pedestal:world-manifest",
-      "position": [
-        -1.5,
-        0.7,
-        -3
-      ],
-      "scale": [
-        0.8,
-        1.4,
-        0.8
-      ],
-      "codex": "world-manifest",
-      "behavior": "codex-viewer"
-    },
-    {
-      "prefab": "60000004",
-      "name": "pedestal:godshard",
-      "position": [
-        1.5,
-        0.7,
-        -1.5
-      ],
-      "scale": [
-        0.8,
-        1.4,
-        0.8
-      ],
-      "codex": "godshard",
-      "behavior": "codex-viewer"
-    },
-    {
-      "prefab": "60000004",
-      "name": "pedestal:invaders-sigil",
-      "position": [
-        4.5,
-        0.7,
-        -3
-      ],
-      "scale": [
-        0.8,
-        1.4,
-        0.8
-      ],
-      "codex": "invaders-sigil",
-      "behavior": "codex-viewer"
-    },
-    {
-      "prefab": "60000003",
-      "name": "signboard",
-      "position": [
-        0,
-        1.4,
-        -9
-      ],
-      "scale": [
-        6,
-        2.4,
-        0.2
-      ],
-      "behavior": "open-link",
-      "data": {
-        "kind": "signboard",
-        "url": "https://pixygon.io",
-        "tagline": "Pixygon \u2014 we create and make dreams a reality."
-      }
+        0.14,
+        1.32,
+        0.14
+      ]
     }
   ],
   "portals": [
     {
       "id": "to-forge",
       "position": [
-        -10.86,
+        0,
         1.4,
-        -1.72
+        -19.8
       ],
       "scale": [
         2,
@@ -226,62 +1458,86 @@
       ],
       "to": "thread://pixiel.ai/forge#entry",
       "label": "The Forge",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
     },
     {
       "id": "to-ledger",
       "position": [
-        -8.9,
+        8.5909,
         1.4,
-        -6.47
+        -17.8392
       ],
       "scale": [
         2,
         3,
         0.2
       ],
-      "to": "thread://lonnlyst.pixygon.io/ledger#entry",
+      "to": "thread://lonnlyst.no/ledger#entry",
       "label": "The Ledger Hall",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.2225,
+        0,
+        0.9749
+      ]
     },
     {
       "id": "to-haze",
       "position": [
-        -4.99,
+        15.4803,
         1.4,
-        -9.8
+        -12.3451
       ],
       "scale": [
         2,
         3,
         0.2
       ],
-      "to": "thread://hazechat.pixygon.io/haze#entry",
+      "to": "thread://hazechat.com/haze#entry",
       "label": "The Haze",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.4339,
+        0,
+        0.901
+      ]
     },
     {
       "id": "to-table",
       "position": [
-        0,
+        19.3036,
         1.4,
-        -11
+        -4.4059
       ],
       "scale": [
         2,
         3,
         0.2
       ],
-      "to": "thread://tastebud.pixygon.io/table#entry",
+      "to": "thread://tastarium.com/table#entry",
       "label": "The Table",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.6235,
+        0,
+        0.7818
+      ]
     },
     {
       "id": "to-atlas",
       "position": [
-        4.99,
+        19.3036,
         1.4,
-        -9.8
+        4.4059
       ],
       "scale": [
         2,
@@ -289,15 +1545,21 @@
         0.2
       ],
       "to": "thread://kartograf.pixygon.io/atlas#entry",
-      "label": "The Cartographer\u2019s Hall",
-      "preview": "live"
+      "label": "The Cartographer’s Hall",
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.7818,
+        0,
+        0.6235
+      ]
     },
     {
       "id": "to-feed",
       "position": [
-        8.9,
+        15.4803,
         1.4,
-        -6.47
+        12.3451
       ],
       "scale": [
         2,
@@ -306,30 +1568,42 @@
       ],
       "to": "thread://corefeed.pixygon.io/feed#entry",
       "label": "The Feed",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.901,
+        0,
+        0.4339
+      ]
     },
     {
       "id": "to-menagerie",
       "position": [
-        10.86,
+        8.5909,
         1.4,
-        -1.72
+        17.8392
       ],
       "scale": [
         2,
         3,
         0.2
       ],
-      "to": "thread://animunda.pixygon.io/menagerie#entry",
+      "to": "thread://animunda.com/menagerie#entry",
       "label": "The Menagerie",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.9749,
+        0,
+        0.2225
+      ]
     },
     {
       "id": "to-archive",
       "position": [
-        -7,
+        0,
         1.4,
-        9
+        19.8
       ],
       "scale": [
         2,
@@ -338,14 +1612,20 @@
       ],
       "to": "thread://archive.pixygon.io/codex-archive#entry",
       "label": "The Archive",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        -1,
+        0,
+        0
+      ]
     },
     {
       "id": "to-grove",
       "position": [
-        0,
+        -8.5909,
         1.4,
-        9.2
+        17.8392
       ],
       "scale": [
         2,
@@ -354,14 +1634,20 @@
       ],
       "to": "thread://garden.pixygon.io/grove#entry",
       "label": "The Grove",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.9749,
+        0,
+        -0.2225
+      ]
     },
     {
       "id": "to-vault",
       "position": [
-        7,
+        -15.4803,
         1.4,
-        9
+        12.3451
       ],
       "scale": [
         2,
@@ -370,14 +1656,20 @@
       ],
       "to": "thread://vault.pixygon.io/vault#entry",
       "label": "The Vault",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.901,
+        0,
+        -0.4339
+      ]
     },
     {
       "id": "to-waystone",
       "position": [
-        -3.5,
+        -19.3036,
         1.4,
-        10
+        4.4059
       ],
       "scale": [
         2,
@@ -386,14 +1678,20 @@
       ],
       "to": "thread://waystone.pixygon.io#entry",
       "label": "The Waystone",
-      "preview": "live"
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.7818,
+        0,
+        -0.6235
+      ]
     },
     {
       "id": "to-commons",
       "position": [
-        3.5,
+        -19.3036,
         1.4,
-        10
+        -4.4059
       ],
       "scale": [
         2,
@@ -402,39 +1700,65 @@
       ],
       "to": "thread://commons.pixygon.io#entry",
       "label": "The Commons",
-      "preview": "live"
-    }
-  ],
-  "behaviors": [
-    {
-      "id": "codex-viewer",
-      "wasm": "codex-viewer-wasm",
-      "on": [
-        "interact"
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.6235,
+        0,
+        -0.7818
       ]
     },
     {
-      "id": "open-link",
-      "wasm": "open-link-wasm",
-      "on": [
-        "interact"
+      "id": "to-wiki",
+      "position": [
+        -15.4803,
+        1.4,
+        -12.3451
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io#entry",
+      "label": "The Encyclopedia Atrium",
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.4339,
+        0,
+        -0.901
+      ]
+    },
+    {
+      "id": "to-weft",
+      "position": [
+        -8.5909,
+        1.4,
+        -17.8392
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://weft.pixygon.io#entry",
+      "label": "The Weavery",
+      "preview": "live",
+      "rotation": [
+        0,
+        -0.2225,
+        0,
+        -0.9749
       ]
     }
   ],
-  "assets": [
-    {
-      "id": "codex-viewer-wasm",
-      "uri": "behaviors/codex-viewer.wasm",
-      "kind": "wasm"
-    },
-    {
-      "id": "open-link-wasm",
-      "uri": "behaviors/open-link.wasm",
-      "kind": "wasm"
-    }
-  ],
+  "styles": [],
   "presence": {
-    "relay": null,
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io"
+    ],
     "max_occupants": 64,
     "voice": true
   }

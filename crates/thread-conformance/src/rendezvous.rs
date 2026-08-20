@@ -1,6 +1,6 @@
 //! Rendezvous conformance — does a P2P rendezvous speak [presence-topology-v0.1] §3.2?
 //!
-//! [presence-topology-v0.1]: ../../../docs/spec/presence-topology-v0.1.md
+//! [presence-topology-v0.1]: https://github.com/Pixygon/thread-spec/blob/main/specs/presence-topology-v0.1.md
 //!
 //! Same shape as the relay checker: **pure validators** ([`check_welcome`],
 //! [`check_peers`]) pin the wire rules with no network, and [`probe`] is the thin

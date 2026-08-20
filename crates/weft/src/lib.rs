@@ -4,7 +4,7 @@
 //! effect-explicit term graph, identified by the hash of its canonical
 //! encoding. What crosses the wire is the same object that gets verified;
 //! execution backends (this crate's reference interpreter first) compile or
-//! interpret it locally. Spec: `docs/spec/weft-v0.1.md`.
+//! interpret it locally. Spec: [weft-v0.1](https://github.com/Pixygon/thread-spec/blob/main/specs/weft-v0.1.md).
 //!
 //! v0.1 scope — deliberately austere:
 //! - **First-order and non-recursive.** Definitions call other definitions by

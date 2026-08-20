@@ -203,6 +203,22 @@ struct Fetched {
     body: String,
 }
 
+/// Does this URL actually hand back a world?
+///
+/// `None` — nothing answered. `Some(false)` — something answered, but it was
+/// not a world. That second case is the one a status check misses: a single
+/// page app whose server rewrites every unknown path to `index.html` returns
+/// 200 for `/.well-known/thread/<name>/world.json` and serves HTML, so a veil
+/// pointing at it looks alive and opens onto nothing.
+async fn yields_a_world(url: &str) -> Option<bool> {
+    let resp = reqwest::get(url).await.ok()?;
+    if !resp.status().is_success() {
+        return None;
+    }
+    let body = resp.text().await.ok()?;
+    Some(infinite_manifest::WorldManifest::from_text(&body).is_ok())
+}
+
 /// C6: every portal `to` in the manifest resolves over `.well-known`
 /// (world.json, then the served-markup `world.thread` fallback). Local-only
 /// destinations (`thread://home`) are skipped — they are each traveler's own.
@@ -227,16 +243,20 @@ async fn probe_portal_destinations(manifest_body: &str) -> Clause {
         }
         total += 1;
         let url = infinite_manifest::well_known_url(&loc.host, &loc.path);
-        let ok = match reqwest::get(&url).await {
-            Ok(r) if r.status().is_success() => true,
-            _ => {
-                let alt = format!("{}world.thread", url.trim_end_matches("world.json"));
-                matches!(reqwest::get(&alt).await, Ok(r) if r.status().is_success())
-            }
-        };
+        let alt = format!("{}world.thread", url.trim_end_matches("world.json"));
+        let primary = yields_a_world(&url).await;
+        let ok = primary == Some(true) || yields_a_world(&alt).await == Some(true);
         if !ok {
             dead += 1;
-            notes.push(format!("dead veil: '{}' → {}", p.label, p.to));
+            // Distinguish the two failures, because they have different fixes:
+            // nothing there is a missing world; something there that isn't a
+            // world is almost always an SPA catch-all swallowing the path.
+            let why = if primary.is_some() {
+                "answers, but not with a world"
+            } else {
+                "no answer"
+            };
+            notes.push(format!("dead veil: '{}' → {} ({why})", p.label, p.to));
         }
     }
     notes.insert(

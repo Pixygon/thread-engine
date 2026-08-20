@@ -1,0 +1,119 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Once a day. The offline jobs would pass on a schedule too, but the point
+    # of the cron is `live` below: for most of August every broken deployment
+    # in this estate was found by a person happening to look at it.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { components: rustfmt, clippy }
+      - uses: Swatinem/rust-cache@v2
+      # Tests gate. Style does not, yet: this tree carries a pre-existing fmt
+      # and clippy backlog, and reformatting it wholesale would only widen the
+      # diff against the tree it was extracted from. Advisory is honest; a gate
+      # that is always red teaches everyone to ignore the whole run.
+      - run: cargo test --workspace
+      - run: cargo fmt --all -- --check
+        continue-on-error: true
+      - run: cargo clippy --all-targets
+        continue-on-error: true
+
+  # The corpus in worlds/ is what the tools are developed against. Checking it
+  # with the tools built from THIS commit is the only way the two stay honest.
+  corpus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release -p thread-conformance -p thread-cli
+      - name: Conformance over the corpus
+        run: ./target/release/thread-conformance worlds/
+      - name: Lint every world
+        run: |
+          fail=0
+          for w in worlds/*/world.json; do
+            echo "── $w"
+            ./target/release/thread lint "$w" || fail=1
+          done
+          exit $fail
+
+  # Rustdoc links that resolve in this checkout and nowhere else. This exact
+  # bug shipped to docs.rs in 0.2.0 — six crates pointed at `../../../docs/spec`,
+  # a path that only exists in a monorepo the reader does not have.
+  doclinks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No relative links out of the crate tree
+        run: |
+          if grep -rn -- '\.\./\.\./\.\.' crates/ --include=*.rs; then
+            echo
+            echo "A doc link escapes the crate tree. On docs.rs that resolves to nothing."
+            echo "Link to the published spec instead:"
+            echo "  https://github.com/Pixygon/thread-spec/blob/main/specs/<name>.md"
+            exit 1
+          fi
+          echo "ok — no doc link escapes the crate tree"
+
+  # What is ACTUALLY true on the internet right now, as opposed to what the
+  # repository believes. The host list deliberately is not kept here: it comes
+  # from the registry's own health sweep, so this job cannot go stale.
+  live:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release -p thread-conformance
+
+      - name: Estate health (registry vs what each host serves)
+        run: |
+          curl -fsS 'https://api.pixygon.io/v1/thread/health?fresh=1' -o health.json
+          python3 - <<'PY'
+          import json, sys
+          h = json.load(open('health.json'))
+          s = h['summary']
+          print(f"checked {h['checkedAt']}")
+          print(f"  worlds {s['worlds']}  serving {s['serving']}  stale {s['stale']}  not-serving {s['notServing']}")
+          print(f"  veils  {s['veils']}  dead {s['deadVeils']}")
+          for w in h['worlds']:
+              if w['state'] != 'ok':
+                  print(f"  ✗ {w['worldId']} {w['locator']} — {w['state']}: {w.get('detail','')}")
+          for v in h['deadVeils']:
+              print(f"  ✗ dead veil {v['to']} — {v.get('detail','')}")
+          sys.exit(0 if h['healthy'] else 1)
+          PY
+
+      # The fixtures define what the suite calls conformant, so a fixture that
+      # disagrees with the real world redefines the standard by accident.
+      - name: Corpus matches the registry
+        if: always()
+        run: ./scripts/sync-worlds.sh --check
+
+      - name: The front door, checked against the standard
+        if: always()
+        run: ./target/release/thread-conformance --live pixygon.io
+
+      - name: The presence relay
+        if: always()
+        run: ./target/release/thread-conformance --relay wss://relay.pixygon.io
+
+      - name: The rendezvous
+        if: always()
+        run: ./target/release/thread-conformance --rendezvous wss://rendezvous.pixygon.io

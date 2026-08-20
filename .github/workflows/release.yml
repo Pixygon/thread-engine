@@ -1,0 +1,151 @@
+name: release
+
+# Binaries for people who do not have Rust. Tag the repo (`v0.2.0`) and this
+# builds `thread` and `thread-conformance` for every platform we claim to
+# support, then attaches them to the GitHub Release.
+#
+# The two tools version independently, so each archive is named with the
+# version cargo reports for THAT crate — never with the tag. A tag that
+# disagrees with a crate is then visible in the filename instead of silently
+# mislabelling the bytes.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,  target: x86_64-unknown-linux-gnu }
+          - { os: ubuntu-latest,  target: x86_64-unknown-linux-musl }
+          - { os: ubuntu-latest,  target: aarch64-unknown-linux-gnu }
+          - { os: macos-latest,   target: aarch64-apple-darwin }
+          - { os: macos-13,       target: x86_64-apple-darwin }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cross-compilation linkers
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools gcc-aarch64-linux-gnu
+          mkdir -p .cargo
+          cat >> .cargo/config.toml <<'EOF'
+          [target.aarch64-unknown-linux-gnu]
+          linker = "aarch64-linux-gnu-gcc"
+          EOF
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --locked --target ${{ matrix.target }} -p thread-cli -p thread-conformance
+
+      # Package each tool separately, stamped with its own crate version.
+      - name: Package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          out="target/${{ matrix.target }}/release"
+          ext=""
+          [[ "${{ matrix.target }}" == *windows* ]] && ext=".exe"
+
+          version_of() {
+            cargo metadata --no-deps --format-version 1 \
+              | python3 -c "import json,sys;print(next(p['version'] for p in json.load(sys.stdin)['packages'] if p['name']=='$1'))"
+          }
+
+          package() {   # package <crate> <binary>
+            local v; v="$(version_of "$1")"
+            local name="$2-v$v-${{ matrix.target }}"
+            mkdir -p "pkg/$name"
+            cp "$out/$2$ext" "pkg/$name/"
+            cp README.md "pkg/$name/" 2>/dev/null || true
+            if [[ "$ext" == ".exe" ]]; then
+              (cd pkg && 7z a -tzip "../dist/$name.zip" "$name" >/dev/null)
+            else
+              tar -czf "dist/$name.tar.gz" -C pkg "$name"
+            fi
+            echo "packaged $name (crate $1 $v)"
+          }
+
+          package thread-cli thread
+          package thread-conformance thread-conformance
+
+      - name: Checksums
+        shell: bash
+        run: |
+          cd dist
+          for f in *; do
+            if command -v sha256sum >/dev/null; then sha256sum "$f" > "$f.sha256"
+            else shasum -a 256 "$f" > "$f.sha256"; fi
+          done
+          ls -la
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.target }}
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: staged, merge-multiple: true }
+
+      - name: Release notes
+        shell: bash
+        run: |
+          {
+            echo "Binaries for the Thread toolkit. No Rust required — download,"
+            echo "unpack, put it on your PATH."
+            echo
+            echo '| tool | what it does | version in this release |'
+            echo '| --- | --- | --- |'
+            for f in staged/thread-v*-x86_64-unknown-linux-gnu.tar.gz; do
+              v="${f#staged/thread-v}"; v="${v%%-x86_64*}"
+              echo "| \`thread\` | author, validate, lint and serve worlds | $v |"
+            done
+            for f in staged/thread-conformance-v*-x86_64-unknown-linux-gnu.tar.gz; do
+              v="${f#staged/thread-conformance-v}"; v="${v%%-x86_64*}"
+              echo "| \`thread-conformance\` | check a world, host, relay or rendezvous against the standard | $v |"
+            done
+            echo
+            echo "The two tools version independently; the filename carries the"
+            echo "real version of each. Every archive has a matching \`.sha256\`."
+            echo
+            echo "Quick install (Linux/macOS):"
+            echo '```sh'
+            echo "curl -fsSL https://raw.githubusercontent.com/Pixygon/thread-engine/main/install.sh | sh"
+            echo '```'
+            echo
+            echo "Or with Rust: \`cargo install thread-cli thread-conformance\`."
+            echo
+            echo "The standard itself lives at <https://github.com/Pixygon/thread-spec>."
+          } > NOTES.md
+          cat NOTES.md
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: staged/*
+          body_path: NOTES.md
+          fail_on_unmatched_files: true

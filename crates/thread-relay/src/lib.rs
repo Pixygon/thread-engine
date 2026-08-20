@@ -7,7 +7,7 @@
 //! be certified against the very same wire checker (`thread_conformance::relay`)
 //! that any browser author would run.
 //!
-//! [presence-wire-v0.1]: ../../../docs/spec/presence-wire-v0.1.md
+//! [presence-wire-v0.1]: https://github.com/Pixygon/thread-spec/blob/main/specs/presence-wire-v0.1.md
 //!
 //! Decentralization by design: this is a *reference* relay anyone can `cargo run`
 //! (or `docker run`) on a cheap host. A world names its own relay(s) in its

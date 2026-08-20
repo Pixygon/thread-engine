@@ -140,8 +140,7 @@
         1,
         0.8
       ],
-      "codex": "everknight-cinder",
-      "behavior": "codex-viewer"
+      "codex": "everknight-cinder"
     },
     {
       "prefab": "60000002",
@@ -156,8 +155,7 @@
         1,
         0.8
       ],
-      "codex": "everknight-clod",
-      "behavior": "codex-viewer"
+      "codex": "everknight-clod"
     },
     {
       "prefab": "60000002",
@@ -172,8 +170,7 @@
         1,
         0.8
       ],
-      "codex": "everknight-tear",
-      "behavior": "codex-viewer"
+      "codex": "everknight-tear"
     },
     {
       "prefab": "60000002",
@@ -188,8 +185,7 @@
         1,
         0.8
       ],
-      "codex": "tarnished-cog",
-      "behavior": "codex-viewer"
+      "codex": "tarnished-cog"
     },
     {
       "prefab": "60000002",
@@ -204,8 +200,7 @@
         1,
         0.8
       ],
-      "codex": "toaster-carapace",
-      "behavior": "codex-viewer"
+      "codex": "toaster-carapace"
     },
     {
       "prefab": "60000003",
@@ -220,7 +215,6 @@
         2.4,
         0.2
       ],
-      "behavior": "open-link",
       "data": {
         "kind": "signboard",
         "url": "https://pixiel.ai",
@@ -257,41 +251,16 @@
         3,
         0.2
       ],
-      "to": "thread://lonnlyst.pixygon.io/ledger#entry",
+      "to": "thread://lonnlyst.no/ledger#entry",
       "label": "The Ledger Hall",
       "preview": "live"
     }
   ],
-  "behaviors": [
-    {
-      "id": "codex-viewer",
-      "wasm": "codex-viewer-wasm",
-      "on": [
-        "interact"
-      ]
-    },
-    {
-      "id": "open-link",
-      "wasm": "open-link-wasm",
-      "on": [
-        "interact"
-      ]
-    }
-  ],
-  "assets": [
-    {
-      "id": "codex-viewer-wasm",
-      "uri": "behaviors/codex-viewer.wasm",
-      "kind": "wasm"
-    },
-    {
-      "id": "open-link-wasm",
-      "uri": "behaviors/open-link.wasm",
-      "kind": "wasm"
-    }
-  ],
   "presence": {
-    "relay": null,
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io"
+    ],
     "max_occupants": 64,
     "voice": true
   }

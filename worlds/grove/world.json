@@ -3,7 +3,7 @@
   "world": {
     "id": "grove",
     "title": "The Grove",
-    "description": "A quiet grove off the Thread where the living things of the universe gather. Pedestals bear the anima \u2014 inspect one to learn its nature, or step through a veil to the Vault or back to the Nexus.",
+    "description": "A quiet grove off the Thread where the living things of the universe gather. Pedestals bear the anima — inspect one to learn its nature, or step through a veil to the Vault or back to the Nexus.",
     "author": {
       "id": "did:pixygon:pixygon",
       "name": "Pixygon"
@@ -128,7 +128,7 @@
       "prefab": "60000002",
       "name": "pedestal:anima-roggo",
       "position": [
-        -2.0,
+        -2,
         0.5,
         -3
       ],
@@ -160,7 +160,7 @@
       "prefab": "60000002",
       "name": "pedestal:anima-mimic",
       "position": [
-        3.0,
+        3,
         0.5,
         -3
       ],
@@ -205,7 +205,7 @@
       "data": {
         "kind": "signboard",
         "url": "https://animunda.pixygon.io",
-        "tagline": "Animunda \u2014 the living menagerie of the universe."
+        "tagline": "Animunda — the living menagerie of the universe."
       }
     }
   ],
@@ -240,22 +240,6 @@
       ],
       "to": "thread://vault.pixygon.io/vault#entry",
       "label": "The Vault",
-      "preview": "live"
-    },
-    {
-      "id": "to-meadow",
-      "position": [
-        -5,
-        1.4,
-        5
-      ],
-      "scale": [
-        2,
-        3,
-        0.2
-      ],
-      "to": "thread://meadow#entry",
-      "label": "The Meadow",
       "preview": "live"
     }
   ],

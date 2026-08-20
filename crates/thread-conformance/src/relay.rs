@@ -1,6 +1,6 @@
 //! Relay conformance — does a presence relay speak [presence-wire-v0.1]?
 //!
-//! [presence-wire-v0.1]: ../../../docs/spec/presence-wire-v0.1.md
+//! [presence-wire-v0.1]: https://github.com/Pixygon/thread-spec/blob/main/specs/presence-wire-v0.1.md
 //!
 //! The substance is the **pure validators** — [`check_welcome`] and [`check_pose`]
 //! turn a wire message into conformance clauses with no network, so the spec's

@@ -1,2 +1,6 @@
 /target
 **/*.rs.bk
+
+# Asset cache written beside a world when the tools fetch absolute asset URIs.
+# Content-hash names, referenced by nothing in the manifest — not corpus data.
+worlds/*/[0-9a-f][0-9a-f]*.glb

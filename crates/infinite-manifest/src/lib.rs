@@ -17,7 +17,9 @@
 //! - **Time is an axis.** A world declares a `year`; the same place is
 //!   addressable across time.
 //!
-//! See `docs/spec/world-manifest-v0.1.md` for the normative specification.
+//! See [world-manifest-v0.1](https://github.com/Pixygon/thread-spec/blob/main/specs/world-manifest-v0.1.md) for the normative
+//! specification — that document is the standard, and this crate is one
+//! implementation of it.
 
 pub mod arch;
 pub mod lint;
