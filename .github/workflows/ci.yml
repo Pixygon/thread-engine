@@ -95,8 +95,10 @@ jobs:
           for w in h['worlds']:
               if w['state'] != 'ok':
                   print(f"  ✗ {w['worldId']} {w['locator']} — {w['state']}: {w.get('detail','')}")
-          for v in h['deadVeils']:
-              print(f"  ✗ dead veil {v['to']} — {v.get('detail','')}")
+          # Dead veils are reported, never fatal: a door to an unwritten world
+          # is a backlog item, and gating on it would leave this red forever.
+          for host, n in sorted(s.get('deadVeilsByHost', {}).items(), key=lambda kv: -kv[1]):
+              print(f"  · {n} dead veil(s) point into {host}")
           sys.exit(0 if h['healthy'] else 1)
           PY
 
