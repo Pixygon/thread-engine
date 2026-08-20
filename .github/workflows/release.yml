@@ -50,11 +50,15 @@ jobs:
         if: matrix.cross
         run: cargo install cross --locked
 
+      # Two steps rather than one with a shell conditional: `run:` defaults to
+      # pwsh on Windows, where a bash `[ … ]` test is a syntax error.
       - name: Build
-        run: |
-          tool=cargo
-          [ "${{ matrix.cross }}" = "true" ] && tool=cross
-          $tool build --release --locked --target ${{ matrix.target }} -p thread-cli -p thread-conformance
+        if: ${{ !matrix.cross }}
+        run: cargo build --release --locked --target ${{ matrix.target }} -p thread-cli -p thread-conformance
+
+      - name: Build (cross)
+        if: ${{ matrix.cross }}
+        run: cross build --release --locked --target ${{ matrix.target }} -p thread-cli -p thread-conformance
 
       # Package each tool separately, stamped with its own crate version.
       - name: Package

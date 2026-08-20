@@ -28,7 +28,12 @@ gltf = "1.4"
 image = "0.25"
 infinite-avatar = { package = "thread-avatar", path = "crates/infinite-avatar", version = "0.2.0" }
 infinite-manifest = { package = "thread-manifest", path = "crates/infinite-manifest", version = "0.2.0" }
-reqwest = { version = "0.12", features = ["json", "rustls-tls", "multipart", "blocking"] }
+# `default-features = false` is load-bearing: reqwest's default `default-tls`
+# is native-tls, so adding `rustls-tls` alongside it stacked a second TLS
+# implementation and dragged in openssl-sys, which then failed every
+# cross-compiled build looking for an OpenSSL install for the target. `charset`
+# and `http2` are defaults we do want, so they are named explicitly.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "multipart", "blocking", "charset", "http2"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
