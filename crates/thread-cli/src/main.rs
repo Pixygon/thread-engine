@@ -1240,7 +1240,7 @@ fn template_world(id: &str, title: &str) -> String {
     {{ "id": "codex-viewer-wasm", "uri": "behaviors/codex-viewer.wasm", "kind": "wasm" }},
     {{ "id": "open-link-wasm", "uri": "behaviors/open-link.wasm", "kind": "wasm" }}
   ],
-  "presence": {{ "relay": null, "max_occupants": 32, "voice": true }}
+  "presence": {{ "mode": "solo", "max_occupants": 32, "voice": true }}
 }}
 "##
     )
