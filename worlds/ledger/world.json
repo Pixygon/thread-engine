@@ -1,0 +1,281 @@
+{
+  "thread": "thread/0.1",
+  "world": {
+    "id": "ledger",
+    "title": "The Ledger Hall",
+    "description": "Lønnlyst’s counting-house — ledgers of hours and wages, tallied under a cold clear light.",
+    "author": {
+      "id": "did:pixygon:pixygon",
+      "name": "Pixygon"
+    },
+    "codex": [
+      "tarnished-cog",
+      "godshard",
+      "alchemists-residue",
+      "gravewax"
+    ],
+    "license": "CC-BY-4.0"
+  },
+  "environment": {
+    "year": 0,
+    "sky": {
+      "zenith": [
+        0.05,
+        0.09,
+        0.08
+      ],
+      "horizon": [
+        0.16999999999999998,
+        0.19,
+        0.22000000000000003
+      ],
+      "sun_dir": [
+        0.3,
+        0.7,
+        0.2
+      ]
+    }
+  },
+  "spawns": [
+    {
+      "name": "entry",
+      "position": [
+        0,
+        0,
+        8
+      ],
+      "yaw": 3.14159
+    }
+  ],
+  "prefabs": [
+    {
+      "id": "60000001",
+      "mesh": {
+        "builtin": "plane"
+      },
+      "material": {
+        "base_color": [
+          0.12,
+          0.12,
+          0.16,
+          1
+        ],
+        "roughness": 0.95
+      }
+    },
+    {
+      "id": "60000002",
+      "mesh": {
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color": [
+          0.35,
+          0.72,
+          0.55,
+          1
+        ],
+        "roughness": 0.5,
+        "metallic": 0.15
+      }
+    },
+    {
+      "id": "60000003",
+      "mesh": {
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color": [
+          0.21,
+          0.432,
+          0.33,
+          1
+        ],
+        "roughness": 0.7
+      }
+    },
+    {
+      "id": "60000004",
+      "mesh": {
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color": [
+          0.35,
+          0.72,
+          0.55,
+          1
+        ],
+        "roughness": 0.35,
+        "metallic": 0.3
+      }
+    }
+  ],
+  "placements": [
+    {
+      "prefab": "60000001",
+      "name": "floor",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        30,
+        1,
+        30
+      ]
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:tarnished-cog",
+      "position": [
+        -4.5,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "tarnished-cog",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:godshard",
+      "position": [
+        -1.5,
+        0.5,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "godshard",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:alchemists-residue",
+      "position": [
+        1.5,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "alchemists-residue",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:gravewax",
+      "position": [
+        4.5,
+        0.5,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "gravewax",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000003",
+      "name": "signboard",
+      "position": [
+        0,
+        1.4,
+        -7
+      ],
+      "scale": [
+        6,
+        2.4,
+        0.2
+      ],
+      "behavior": "open-link",
+      "data": {
+        "kind": "signboard",
+        "url": "https://lonnlyst.no",
+        "tagline": "Lønnlyst — hours into wages, honestly."
+      }
+    }
+  ],
+  "portals": [
+    {
+      "id": "to-nexus",
+      "position": [
+        -10,
+        1.4,
+        0
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://pixygon.io#entry",
+      "label": "The Nexus",
+      "preview": "live"
+    },
+    {
+      "id": "to-haze",
+      "position": [
+        10,
+        1.4,
+        0
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://hazechat.pixygon.io/haze#entry",
+      "label": "The Haze",
+      "preview": "live"
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "codex-viewer",
+      "wasm": "codex-viewer-wasm",
+      "on": [
+        "interact"
+      ]
+    },
+    {
+      "id": "open-link",
+      "wasm": "open-link-wasm",
+      "on": [
+        "interact"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "codex-viewer-wasm",
+      "uri": "behaviors/codex-viewer.wasm",
+      "kind": "wasm"
+    },
+    {
+      "id": "open-link-wasm",
+      "uri": "behaviors/open-link.wasm",
+      "kind": "wasm"
+    }
+  ],
+  "presence": {
+    "relay": null,
+    "max_occupants": 64,
+    "voice": true
+  }
+}

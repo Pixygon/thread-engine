@@ -1,0 +1,23 @@
+[package]
+name = "thread-conformance"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "The Thread conformance suite — a runnable, browser-independent check that a corpus of worlds honours the spec (validity, links, reachability)."
+
+[[bin]]
+name = "thread-conformance"
+path = "src/main.rs"
+
+[lib]
+name = "thread_conformance"
+path = "src/lib.rs"
+
+[dependencies]
+infinite-manifest.workspace = true
+reqwest.workspace = true
+tokio.workspace = true
+serde_json.workspace = true
+tokio-tungstenite = { workspace = true, features = ["connect", "rustls-tls-webpki-roots"] }
+futures-util = "0.3"

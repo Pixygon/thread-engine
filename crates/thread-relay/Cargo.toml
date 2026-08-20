@@ -1,0 +1,27 @@
+[package]
+name = "thread-relay"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "A self-hostable reference presence relay for the Thread — anyone can run one (presence-wire-v0.1)."
+
+[[bin]]
+name = "thread-relay"
+path = "src/main.rs"
+
+[lib]
+name = "thread_relay"
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { workspace = true }
+tokio-tungstenite = { workspace = true }
+futures-util = "0.3"
+serde_json.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+# The relay certifies itself against the same wire checker anyone else would use.
+thread-conformance = { path = "../thread-conformance" }

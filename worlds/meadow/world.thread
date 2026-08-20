@@ -1,0 +1,52 @@
+<!-- The Meadow — a world written in Thread markup. This file IS the world:
+     browsers compile it on arrival, exactly as they'd read a world.json.
+     View source in the browser (V) to see this text. -->
+<world id="meadow" title="The Meadow"
+       description="A sunlit clearing authored in Thread markup — the whole place is one readable file."
+       sky="day" rules="gathering">
+  <spawn at="0 0 10" yaw="180"/>
+
+  <!-- ground -->
+  <plane class="grass" at="0 0 0" scale="30 1 30"/>
+
+  <!-- a grove of harvestable trees: chop one down for wood -->
+  <tree class="harvestable" at="-6 0.5 -4">
+    <canopy at="0 1.1 0"/>
+  </tree>
+  <tree class="harvestable" at="5 0.5 -7" rot="0 40 0">
+    <canopy at="0 1.1 0"/>
+  </tree>
+  <tree class="harvestable" at="8 0.5 2" rot="0 130 0">
+    <canopy at="0 1.1 0"/>
+  </tree>
+
+  <!-- a stone ring around the glowing waystone -->
+  <cube class="stone" at="3 0.4 -1" rot="0 20 0" scale="0.8 0.8 0.8"/>
+  <cube class="stone" at="-3 0.4 -2" rot="0 65 0" scale="0.9 0.7 0.9"/>
+  <cube class="stone" at="1 0.35 -5" rot="0 110 0" scale="0.7 0.7 0.7"/>
+  <cylinder id="waystone" at="0 1 -2" scale="0.5 2 0.5" codex="the-thread"
+             weft="waystone.weft.json"/>
+
+  <!-- a signboard into the old web -->
+  <quad id="sign" at="-4 1.5 4" rot="0 140 0" scale="3 1.5 0.1"
+        url="https://pixygon.io" data-tagline="The factory behind the Thread."/>
+
+  <portal to="thread://pixygon.io#entry" at="0 1.2 -12" scale="2 3 0.2" label="The Nexus"/>
+  <portal to="thread://wiki.pixygon.io/wiki/napoleon" at="-9 1.2 -8" rot="0 40 0" scale="2 3 0.2" label="The Athenaeum — Napoleon"/>
+</world>
+<style>
+  .grass { color: 0.30 0.52 0.26; roughness: 0.95 }
+  tree   { mesh: "cylinder"; color: 0.40 0.28 0.15 }
+  canopy { mesh: "sphere"; color: 0.25 0.50 0.20; roughness: 0.9 }
+  .stone { color: 0.55 0.55 0.58; roughness: 0.85 }
+  #waystone { color: 0.55 0.80 1.00; emissive: 0.9 }
+  #sign  { color: 0.90 0.87 0.78; roughness: 0.6 }
+
+  .harvestable {
+    interaction: "Chop";
+    interaction-hits: 3;
+    interaction-gives: 20100001 3;
+    interaction-message: "The tree creaks and falls. You gather the wood.";
+    interaction-despawns: true;
+  }
+</style>

@@ -1,0 +1,9428 @@
+{
+  "thread": "thread/0.1",
+  "world": {
+    "id": "wiki-solar-system",
+    "title": "Solar System",
+    "description": "Planetary system consisting of the Sun and objects orbiting it",
+    "author": null,
+    "codex": [],
+    "license": "Text/media: Wikipedia contributors, CC BY-SA"
+  },
+  "environment": {
+    "year": null,
+    "sky": {
+      "zenith": [
+        0.32,
+        0.4,
+        0.62
+      ],
+      "horizon": [
+        0.94,
+        0.8,
+        0.6
+      ],
+      "sun_dir": [
+        0.35,
+        0.45,
+        0.55
+      ]
+    },
+    "bounds": null,
+    "rules": {
+      "survival": false,
+      "gathering": false,
+      "combat": false
+    }
+  },
+  "spawns": [
+    {
+      "name": "entry",
+      "position": [
+        0.0,
+        0.0,
+        10.0
+      ],
+      "yaw": 3.1415927
+    }
+  ],
+  "assets": [
+    {
+      "id": "img-0",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Solar_System_True_Color_EN.png/1280px-Solar_System_True_Color_EN.png",
+      "kind": "texture"
+    },
+    {
+      "id": "docent",
+      "uri": "docent.weft.json",
+      "kind": "weft"
+    },
+    {
+      "id": "img-1",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Solar_System_True_Color_EN.png/500px-Solar_System_True_Color_EN.png",
+      "kind": "texture"
+    },
+    {
+      "id": "img-2",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Soot-line1.jpg/500px-Soot-line1.jpg",
+      "kind": "texture"
+    },
+    {
+      "id": "img-3",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Plane_of_Ecliptic.jpg/500px-Plane_of_Ecliptic.jpg",
+      "kind": "texture"
+    },
+    {
+      "id": "img-4",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Solar_system_orrery_inner_planets.gif/500px-Solar_system_orrery_inner_planets.gif",
+      "kind": "texture"
+    },
+    {
+      "id": "img-5",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Solar_system_orrery_outer_planets.gif/500px-Solar_system_orrery_outer_planets.gif",
+      "kind": "texture"
+    },
+    {
+      "id": "img-6",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Orbital_distances_in_the_solar_system_linear_scale.png/500px-Orbital_distances_in_the_solar_system_linear_scale.png",
+      "kind": "texture"
+    },
+    {
+      "id": "img-7",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Kuiper_belt_plot_objects_of_outer_solar_system.png/330px-Kuiper_belt_plot_objects_of_outer_solar_system.png",
+      "kind": "texture"
+    },
+    {
+      "id": "img-8",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Kuiper_belt_plot_objects_of_outer_solar_system.png/330px-Kuiper_belt_plot_objects_of_outer_solar_system.png",
+      "kind": "texture"
+    },
+    {
+      "id": "img-9",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/The_Mysterious_Case_of_the_Disappearing_Dust.jpg/330px-The_Mysterious_Case_of_the_Disappearing_Dust.jpg",
+      "kind": "texture"
+    },
+    {
+      "id": "img-10",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Eris_and_dysnomia2.jpg/330px-Eris_and_dysnomia2.jpg",
+      "kind": "texture"
+    },
+    {
+      "id": "img-11",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Percival_Lowell_observing_Venus_from_the_Lowell_Observatory_in_1914.jpg/330px-Percival_Lowell_observing_Venus_from_the_Lowell_Observatory_in_1914.jpg",
+      "kind": "texture"
+    },
+    {
+      "id": "img-12",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Lhborbits.png/330px-Lhborbits.png",
+      "kind": "texture"
+    },
+    {
+      "id": "img-13",
+      "uri": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/PIA17046_-_Voyager_1_Goes_Interstellar.jpg/330px-PIA17046_-_Voyager_1_Goes_Interstellar.jpg",
+      "kind": "texture"
+    }
+  ],
+  "prefabs": [
+    {
+      "id": "60920001",
+      "mesh": {
+        "asset": null,
+        "builtin": "plane"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.2,
+          0.2,
+          0.23,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.95,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920002",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.52,
+          0.48,
+          0.42,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.85,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920003",
+      "mesh": {
+        "asset": null,
+        "builtin": "plane"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.57199997,
+          0.528,
+          0.44099995,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.85,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920004",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.2,
+          0.19,
+          0.18,
+          1.0
+        ],
+        "metallic": 0.1,
+        "roughness": 0.8,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920005",
+      "mesh": {
+        "asset": null,
+        "builtin": "sphere"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          0.85,
+          0.55,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.4,
+        "emissive": 0.8
+      }
+    },
+    {
+      "id": "60920006",
+      "mesh": {
+        "asset": null,
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.62,
+          0.58,
+          0.52,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.85,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920007",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.744,
+          0.696,
+          0.624,
+          1.0
+        ],
+        "metallic": 0.05,
+        "roughness": 0.55,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920008",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.85,
+          0.68,
+          0.28,
+          1.0
+        ],
+        "metallic": 0.8,
+        "roughness": 0.35,
+        "emissive": 0.15
+      }
+    },
+    {
+      "id": "60920009",
+      "mesh": {
+        "asset": null,
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.49600002,
+          0.464,
+          0.41599998,
+          1.0
+        ],
+        "metallic": 0.1,
+        "roughness": 0.6,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920010",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.52,
+          0.48,
+          0.42,
+          1.0
+        ],
+        "metallic": 0.15,
+        "roughness": 0.6,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920011",
+      "mesh": {
+        "asset": null,
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.85,
+          0.68,
+          0.28,
+          1.0
+        ],
+        "metallic": 0.8,
+        "roughness": 0.35,
+        "emissive": 0.1
+      }
+    },
+    {
+      "id": "60920012",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-0",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920013",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.9,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920014",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.2,
+          0.18,
+          0.16,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.8,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920015",
+      "mesh": {
+        "asset": null,
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.5,
+          0.42,
+          0.3,
+          1.0
+        ],
+        "metallic": 0.2,
+        "roughness": 0.6,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920016",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.2,
+          0.25,
+          0.35,
+          1.0
+        ],
+        "metallic": 0.1,
+        "roughness": 0.6,
+        "emissive": 0.25
+      }
+    },
+    {
+      "id": "60920017",
+      "mesh": {
+        "asset": null,
+        "builtin": "plane"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.52,
+          0.48,
+          0.42,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.9,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920018",
+      "mesh": {
+        "asset": null,
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.16,
+          0.12,
+          0.09,
+          1.0
+        ],
+        "metallic": 0.2,
+        "roughness": 0.6,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920019",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-1",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920020",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-2",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920021",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-3",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920022",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-4",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920023",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-5",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920024",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-6",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920025",
+      "mesh": {
+        "asset": null,
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.14,
+          0.12,
+          0.1,
+          1.0
+        ],
+        "metallic": 0.1,
+        "roughness": 0.7,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60920026",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-7",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920027",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-8",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920028",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-9",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920029",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-10",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920030",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-11",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920031",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-12",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    },
+    {
+      "id": "60920032",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color_texture": "img-13",
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.6
+      }
+    }
+  ],
+  "placements": [
+    {
+      "prefab": "60920001",
+      "name": "grounds",
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        110.0,
+        1.0,
+        110.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920002",
+      "name": "rotunda floor",
+      "position": [
+        0.0,
+        0.02,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        32.0,
+        0.06,
+        32.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920003",
+      "name": "walkway",
+      "position": [
+        0.0,
+        0.03,
+        24.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.6,
+        1.0,
+        16.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        2.4,
+        1.1,
+        21.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        2.4,
+        2.35,
+        21.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -2.4,
+        1.1,
+        21.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -2.4,
+        2.35,
+        21.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        2.0884192,
+        1.9,
+        -15.863118
+      ],
+      "rotation": [
+        0.0,
+        -0.06540313,
+        0.0,
+        0.99785894
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        2.0884192,
+        3.9,
+        -15.863118
+      ],
+      "rotation": [
+        0.0,
+        -0.06540313,
+        0.0,
+        0.99785894
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        6.1229353,
+        1.9,
+        -14.782072
+      ],
+      "rotation": [
+        0.0,
+        -0.19509032,
+        0.0,
+        0.98078525
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        6.1229353,
+        3.9,
+        -14.782072
+      ],
+      "rotation": [
+        0.0,
+        -0.19509032,
+        0.0,
+        0.98078525
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        9.740183,
+        1.9,
+        -12.693653
+      ],
+      "rotation": [
+        0.0,
+        -0.32143947,
+        0.0,
+        0.9469301
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        9.740183,
+        3.9,
+        -12.693653
+      ],
+      "rotation": [
+        0.0,
+        -0.32143947,
+        0.0,
+        0.9469301
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        14.782073,
+        1.9,
+        6.1229343
+      ],
+      "rotation": [
+        0.0,
+        -0.8314696,
+        0.0,
+        0.55557024
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        14.782073,
+        3.9,
+        6.1229343
+      ],
+      "rotation": [
+        0.0,
+        -0.8314696,
+        0.0,
+        0.55557024
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        6.122936,
+        1.9,
+        14.782072
+      ],
+      "rotation": [
+        0.0,
+        -0.98078525,
+        0.0,
+        0.19509035
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        6.122936,
+        3.9,
+        14.782072
+      ],
+      "rotation": [
+        0.0,
+        -0.98078525,
+        0.0,
+        0.19509035
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        -6.122935,
+        1.9,
+        14.782072
+      ],
+      "rotation": [
+        0.0,
+        -0.98078525,
+        0.0,
+        -0.19509032
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        -6.122935,
+        3.9,
+        14.782072
+      ],
+      "rotation": [
+        0.0,
+        -0.98078525,
+        0.0,
+        -0.19509032
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        -14.782072,
+        1.9,
+        6.122937
+      ],
+      "rotation": [
+        0.0,
+        -0.83146966,
+        0.0,
+        -0.5555702
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        -14.782072,
+        3.9,
+        6.122937
+      ],
+      "rotation": [
+        0.0,
+        -0.83146966,
+        0.0,
+        -0.5555702
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        -9.740182,
+        1.9,
+        -12.693654
+      ],
+      "rotation": [
+        0.0,
+        -0.32143945,
+        0.0,
+        -0.94693017
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        -9.740182,
+        3.9,
+        -12.693654
+      ],
+      "rotation": [
+        0.0,
+        -0.32143945,
+        0.0,
+        -0.94693017
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        -6.122935,
+        1.9,
+        -14.782073
+      ],
+      "rotation": [
+        0.0,
+        -0.19509031,
+        0.0,
+        -0.9807853
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        -6.122935,
+        3.9,
+        -14.782073
+      ],
+      "rotation": [
+        0.0,
+        -0.19509031,
+        0.0,
+        -0.9807853
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wall",
+      "position": [
+        -2.0884197,
+        1.9,
+        -15.863118
+      ],
+      "rotation": [
+        0.0,
+        -0.06540315,
+        0.0,
+        -0.99785894
+      ],
+      "scale": [
+        4.376838,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "coping",
+      "position": [
+        -2.0884197,
+        3.9,
+        -15.863118
+      ],
+      "rotation": [
+        0.0,
+        -0.06540315,
+        0.0,
+        -0.99785894
+      ],
+      "scale": [
+        4.4768386,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        0.0,
+        2.6,
+        -16.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        0.0,
+        5.25,
+        -16.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        4.1411047,
+        2.6,
+        -15.454813
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        4.1411047,
+        5.25,
+        -15.454813
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        8.0,
+        2.6,
+        -13.856406
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        8.0,
+        5.25,
+        -13.856406
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        11.313708,
+        2.6,
+        -11.313708
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        11.313708,
+        5.25,
+        -11.313708
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        13.856407,
+        2.6,
+        -7.9999995
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        13.856407,
+        5.25,
+        -7.9999995
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        15.454813,
+        2.6,
+        -4.141105
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        15.454813,
+        5.25,
+        -4.141105
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        16.0,
+        2.6,
+        6.993822e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        16.0,
+        5.25,
+        6.993822e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        15.454813,
+        2.6,
+        4.1411047
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        15.454813,
+        5.25,
+        4.1411047
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        13.856406,
+        2.6,
+        8.000001
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        13.856406,
+        5.25,
+        8.000001
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        11.313708,
+        2.6,
+        11.313708
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        11.313708,
+        5.25,
+        11.313708
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        8.000001,
+        2.6,
+        13.856406
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        8.000001,
+        5.25,
+        13.856406
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        4.141106,
+        2.6,
+        15.454813
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        4.141106,
+        5.25,
+        15.454813
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -0.0000013987644,
+        2.6,
+        16.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -0.0000013987644,
+        5.25,
+        16.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -4.141105,
+        2.6,
+        15.454813
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -4.141105,
+        5.25,
+        15.454813
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -7.9999995,
+        2.6,
+        13.856406
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -7.9999995,
+        5.25,
+        13.856406
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -11.313707,
+        2.6,
+        11.313709
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -11.313707,
+        5.25,
+        11.313709
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -13.856407,
+        2.6,
+        7.9999986
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -13.856407,
+        5.25,
+        7.9999986
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -15.454814,
+        2.6,
+        4.1411037
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -15.454814,
+        5.25,
+        4.1411037
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -16.0,
+        2.6,
+        -1.9079809e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -16.0,
+        5.25,
+        -1.9079809e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -15.454813,
+        2.6,
+        -4.141104
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -15.454813,
+        5.25,
+        -4.141104
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -13.856407,
+        2.6,
+        -7.9999986
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -13.856407,
+        5.25,
+        -7.9999986
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -11.31371,
+        2.6,
+        -11.313706
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -11.31371,
+        5.25,
+        -11.313706
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -8.000003,
+        2.6,
+        -13.856405
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -8.000003,
+        5.25,
+        -13.856405
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "column",
+      "position": [
+        -4.1411085,
+        2.6,
+        -15.454812
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "capital",
+      "position": [
+        -4.1411085,
+        5.25,
+        -15.454812
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920010",
+      "name": "pedestal",
+      "position": [
+        0.0,
+        0.3,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.2,
+        0.6,
+        3.2
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "light": {
+        "color": [
+          1.0,
+          0.95,
+          0.85
+        ],
+        "intensity": 1.4,
+        "range": 16.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920011",
+      "name": "gilded frame",
+      "position": [
+        0.0,
+        4.4,
+        -15.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        4.8,
+        6.2,
+        0.18
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920012",
+      "name": "Solar System — the image",
+      "position": [
+        0.0,
+        4.4,
+        -14.85
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        4.4,
+        5.8,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": {
+        "label": "Behold",
+        "hits": 1,
+        "effects": [
+          {
+            "message": "Solar System"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        0.0,
+        0.9,
+        -14.9
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.8,
+        1.05,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Solar System\nPlanetary system consisting of the Sun and objects orbiting it",
+        "size": 0.16,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -8.2,
+        1.9,
+        -5.0
+      ],
+      "rotation": [
+        0.0,
+        0.32556817,
+        0.0,
+        0.94551855
+      ],
+      "scale": [
+        3.8,
+        2.9,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "The Solar System is the gravitationally bound system of the Sun and the masses that orbit it, most prominently its eight planets, of which Earth is one. The Solar System is an isolated single-star planetary system within the Milky Way Galaxy. The system formed about 4.6 billion years ago when a dense region of a molecular cloud collapsed, creating the Sun and a protoplanetary disc from which the orbiting bodies assembled.",
+        "size": 0.055,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920014",
+      "name": "board post",
+      "position": [
+        -9.4,
+        0.25,
+        -5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.09,
+        0.5,
+        0.09
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920014",
+      "name": "board post",
+      "position": [
+        -7.0,
+        0.25,
+        -5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.09,
+        0.5,
+        0.09
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920015",
+      "name": "the docent's desk",
+      "position": [
+        -6.5,
+        0.55,
+        7.5
+      ],
+      "rotation": [
+        0.0,
+        0.25881904,
+        0.0,
+        0.9659258
+      ],
+      "scale": [
+        1.2,
+        1.1,
+        0.7
+      ],
+      "codex": null,
+      "behavior": "docent",
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "visitors",
+      "position": [
+        -6.5,
+        2.0,
+        7.5
+      ],
+      "rotation": [
+        0.0,
+        0.25881904,
+        0.0,
+        0.9659258
+      ],
+      "scale": [
+        1.3,
+        0.9,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Visitors this session\n—",
+        "size": 0.14,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920016",
+      "name": "Solar System — the flat page",
+      "position": [
+        6.5,
+        1.5,
+        7.5
+      ],
+      "rotation": [
+        0.0,
+        -0.25881904,
+        0.0,
+        0.9659258
+      ],
+      "scale": [
+        2.4,
+        1.5,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": {
+        "kind": "signboard",
+        "url": "https://en.wikipedia.org/wiki/Solar_System"
+      },
+      "children": []
+    },
+    {
+      "prefab": "60920017",
+      "name": "wing: Definition",
+      "position": [
+        -20.478802,
+        0.025,
+        -14.339411
+      ],
+      "rotation": [
+        0.0,
+        0.95371693,
+        0.0,
+        0.30070582
+      ],
+      "scale": [
+        18.0,
+        1.0,
+        6.8
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        -22.428963,
+        1.9,
+        -11.554294
+      ],
+      "rotation": [
+        0.0,
+        0.95371693,
+        0.0,
+        0.30070582
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        -18.52864,
+        1.9,
+        -17.124527
+      ],
+      "rotation": [
+        0.0,
+        0.95371693,
+        0.0,
+        0.30070582
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920011",
+      "name": "lintel",
+      "position": [
+        -13.352178,
+        3.4,
+        -9.349296
+      ],
+      "rotation": [
+        0.0,
+        0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        7.0,
+        0.28,
+        0.35
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -13.352178,
+        3.95,
+        -9.349296
+      ],
+      "rotation": [
+        0.0,
+        0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        3.6,
+        0.64,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Definition",
+        "size": 0.42,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -18.099684,
+        1.95,
+        -8.950171
+      ],
+      "rotation": [
+        0.0,
+        0.95371693,
+        0.0,
+        0.30070582
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "The Solar System includes the Sun and all objects that are bound to it by gravity and orbit it. The International Astronomical Union describes the Solar System as all objects that are bound by the gravity of the Sun, the Sun itself, its eight planets, and the other celestial bodies which orbit it. NASA describes the solar system as including the Sun and its planetary system. Capitalization of the name varies. When not used as a proper noun and written without capitalization, \"solar system\" may refer to either the Solar System itself or any planetary system reminiscent of the Solar System.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Capitalization",
+            "to": "thread://wiki.pixygon.io/wiki/capitalization"
+          },
+          {
+            "text": "International Astronomical Union",
+            "to": "thread://wiki.pixygon.io/wiki/international-astronomical-union"
+          },
+          {
+            "text": "NASA",
+            "to": "thread://wiki.pixygon.io/wiki/nasa"
+          },
+          {
+            "text": "Planetary system",
+            "to": "thread://wiki.pixygon.io/wiki/planetary-system"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -18.729393,
+        1.95,
+        -16.837824
+      ],
+      "rotation": [
+        0.0,
+        0.30070588,
+        0.0,
+        -0.95371693
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "The International Astronomical Union, the authoritative body regarding astronomical nomenclature, specifies capitalizing the names of all individual astronomical objects but uses mixed \"Solar System\" and \"solar system\" structures in their naming guidelines document.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Astronomical nomenclature",
+            "to": "thread://wiki.pixygon.io/wiki/astronomical-nomenclature"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing end wall",
+      "position": [
+        -28.015001,
+        1.9,
+        -19.616316
+      ],
+      "rotation": [
+        0.0,
+        0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        7.2,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920018",
+      "name": "frame",
+      "position": [
+        -27.728296,
+        2.0,
+        -19.415562
+      ],
+      "rotation": [
+        0.0,
+        0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        2.8,
+        2.2,
+        0.12
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920019",
+      "name": "Solar System True Color EN",
+      "position": [
+        -27.654573,
+        2.0,
+        -19.36394
+      ],
+      "rotation": [
+        0.0,
+        0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        2.6,
+        2.0,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": {
+        "label": "Study",
+        "hits": 1,
+        "effects": [
+          {
+            "message": "Solar System True Color EN"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -16.236034,
+        1.1,
+        -8.194581
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -16.236034,
+        2.35,
+        -8.194581
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -24.721567,
+        1.1,
+        -20.484241
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -24.721567,
+        2.35,
+        -20.484241
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920017",
+      "name": "wing: Formation and evolution",
+      "position": [
+        20.478802,
+        0.025,
+        -14.339411
+      ],
+      "rotation": [
+        0.0,
+        0.3007058,
+        0.0,
+        0.95371693
+      ],
+      "scale": [
+        18.0,
+        1.0,
+        6.8
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        18.52864,
+        1.9,
+        -17.124527
+      ],
+      "rotation": [
+        0.0,
+        0.3007058,
+        0.0,
+        0.95371693
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        22.428963,
+        1.9,
+        -11.554294
+      ],
+      "rotation": [
+        0.0,
+        0.3007058,
+        0.0,
+        0.95371693
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920011",
+      "name": "lintel",
+      "position": [
+        13.352178,
+        3.4,
+        -9.349296
+      ],
+      "rotation": [
+        0.0,
+        -0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        7.0,
+        0.28,
+        0.35
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        13.352178,
+        3.95,
+        -9.349296
+      ],
+      "rotation": [
+        0.0,
+        -0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        3.6,
+        0.64,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Formation and evolution",
+        "size": 0.42,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        14.600867,
+        1.95,
+        -13.947
+      ],
+      "rotation": [
+        0.0,
+        0.3007058,
+        0.0,
+        0.95371693
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Past The Solar System formed at least 4.568 billion years ago from the gravitational collapse of a region within a large molecular cloud. This initial cloud was likely several light-years across and probably birthed several stars. As is typical of molecular clouds, this one consisted mostly of hydrogen, with some helium, and small amounts of heavier elements fused by previous generations of stars. As the pre-solar nebula collapsed, conservation of angular momentum caused it to rotate faster. The center, where most of the mass collected, became increasingly hotter than the surroundings.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Conservation of angular momentum",
+            "to": "thread://wiki.pixygon.io/wiki/conservation-of-angular-momentum"
+          },
+          {
+            "text": "Helium",
+            "to": "thread://wiki.pixygon.io/wiki/helium"
+          },
+          {
+            "text": "Hydrogen",
+            "to": "thread://wiki.pixygon.io/wiki/hydrogen"
+          },
+          {
+            "text": "Molecular cloud",
+            "to": "thread://wiki.pixygon.io/wiki/molecular-cloud"
+          },
+          {
+            "text": "Formation and evolution of the Solar System",
+            "to": "thread://wiki.pixygon.io/wiki/formation-and-evolution-of-the-solar-system"
+          },
+          {
+            "text": "Chaotic system",
+            "to": "thread://wiki.pixygon.io/wiki/chaotic-system"
+          },
+          {
+            "text": "Gerald Jay Sussman",
+            "to": "thread://wiki.pixygon.io/wiki/gerald-jay-sussman"
+          },
+          {
+            "text": "Gravity assist",
+            "to": "thread://wiki.pixygon.io/wiki/gravity-assist"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        22.22821,
+        1.95,
+        -11.840997
+      ],
+      "rotation": [
+        0.0,
+        0.95371693,
+        0.0,
+        -0.3007058
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "As the contracting nebula spun faster, it began to flatten into a protoplanetary disc with a diameter of roughly 200 AU and a hot, dense protostar at the center. The planets formed by accretion from this disc, in which dust and gas gravitationally attracted each other, coalescing to form ever larger bodies. Hundreds of protoplanets may have existed in the early Solar System, but they either merged or were destroyed or ejected, leaving the planets, dwarf planets, and leftover minor bodies.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Protoplanetary disc",
+            "to": "thread://wiki.pixygon.io/wiki/protoplanetary-disc"
+          },
+          {
+            "text": "Protostar",
+            "to": "thread://wiki.pixygon.io/wiki/protostar"
+          },
+          {
+            "text": "Accretion (astrophysics)",
+            "to": "thread://wiki.pixygon.io/wiki/accretion-astrophysics"
+          },
+          {
+            "text": "Contemporary Physics",
+            "to": "thread://wiki.pixygon.io/wiki/contemporary-physics"
+          },
+          {
+            "text": "Grand tack hypothesis",
+            "to": "thread://wiki.pixygon.io/wiki/grand-tack-hypothesis"
+          },
+          {
+            "text": "Harold F. Levison",
+            "to": "thread://wiki.pixygon.io/wiki/harold-f-levison"
+          },
+          {
+            "text": "Interstellar medium",
+            "to": "thread://wiki.pixygon.io/wiki/interstellar-medium"
+          },
+          {
+            "text": "Late Heavy Bombardment",
+            "to": "thread://wiki.pixygon.io/wiki/late-heavy-bombardment"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        22.857918,
+        1.95,
+        -19.72865
+      ],
+      "rotation": [
+        0.0,
+        0.3007058,
+        0.0,
+        0.95371693
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "In the inner Solar System, heat from the accretion process exceeded the boiling point of hydrocarbon molecules for the first million years, leading to low carbon content for the inner planets. The boundary for this process has been dubbed the soot line. As the Solar System disk cooled, this line moved inward and now lies within Earth's orbit around the Sun. Material other than metals and silicates, due to their higher boiling points, could not persist in solid form. Here planets formed that are mainly rocky, which are Mercury, Venus, Earth, and Mars.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Astrophysical Journal Supplement",
+            "to": "thread://wiki.pixygon.io/wiki/astrophysical-journal-supplement"
+          },
+          {
+            "text": "Douglas Gough",
+            "to": "thread://wiki.pixygon.io/wiki/douglas-gough"
+          },
+          {
+            "text": "Gravitationally bound",
+            "to": "thread://wiki.pixygon.io/wiki/gravitationally-bound"
+          },
+          {
+            "text": "Heliosphere",
+            "to": "thread://wiki.pixygon.io/wiki/heliosphere"
+          },
+          {
+            "text": "Jack Wisdom",
+            "to": "thread://wiki.pixygon.io/wiki/jack-wisdom"
+          },
+          {
+            "text": "Main sequence",
+            "to": "thread://wiki.pixygon.io/wiki/main-sequence"
+          },
+          {
+            "text": "Monthly Notices of the Royal Astronomical Society",
+            "to": "thread://wiki.pixygon.io/wiki/monthly-notices-of-the-royal-astronomical-society"
+          },
+          {
+            "text": "Nuclear reaction rate",
+            "to": "thread://wiki.pixygon.io/wiki/nuclear-reaction-rate"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing end wall",
+      "position": [
+        28.015001,
+        1.9,
+        -19.616316
+      ],
+      "rotation": [
+        0.0,
+        -0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        7.2,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920018",
+      "name": "frame",
+      "position": [
+        27.728296,
+        2.0,
+        -19.415562
+      ],
+      "rotation": [
+        0.0,
+        -0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        2.8,
+        2.2,
+        0.12
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920020",
+      "name": "Soot-line1",
+      "position": [
+        27.654573,
+        2.0,
+        -19.36394
+      ],
+      "rotation": [
+        0.0,
+        -0.4617486,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        2.6,
+        2.0,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": {
+        "label": "Study",
+        "hits": 1,
+        "effects": [
+          {
+            "message": "Soot-line1"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        13.253438,
+        1.1,
+        -12.454171
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        13.253438,
+        2.35,
+        -12.454171
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        27.704165,
+        1.1,
+        -16.224651
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        27.704165,
+        2.35,
+        -16.224651
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920017",
+      "name": "wing: General characteristics",
+      "position": [
+        -24.904867,
+        0.025,
+        2.1788943
+      ],
+      "rotation": [
+        0.0,
+        0.99904823,
+        0.0,
+        -0.043619424
+      ],
+      "scale": [
+        18.0,
+        1.0,
+        6.8
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        -24.608538,
+        1.9,
+        5.565956
+      ],
+      "rotation": [
+        0.0,
+        0.99904823,
+        0.0,
+        -0.043619424
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        -25.201197,
+        1.9,
+        -1.2081678
+      ],
+      "rotation": [
+        0.0,
+        0.99904823,
+        0.0,
+        -0.043619424
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920011",
+      "name": "lintel",
+      "position": [
+        -16.237972,
+        3.4,
+        1.4206389
+      ],
+      "rotation": [
+        0.0,
+        0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        7.0,
+        0.28,
+        0.35
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -16.237972,
+        3.95,
+        1.4206389
+      ],
+      "rotation": [
+        0.0,
+        0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        3.6,
+        0.64,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "General characteristics",
+        "size": 0.42,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -19.618221,
+        1.95,
+        4.778023
+      ],
+      "rotation": [
+        0.0,
+        0.99904823,
+        0.0,
+        -0.043619424
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Astronomers sometimes divide the Solar System structure into separate regions. The inner Solar System includes Mercury, Venus, Earth, Mars, and the bodies in the asteroid belt. The outer Solar System includes Jupiter, Saturn, Uranus, Neptune, and the bodies in the Kuiper belt. Since the discovery of the Kuiper belt, the outermost parts of the Solar System are considered a distinct region consisting of the objects beyond Neptune. Composition The principal component of the Solar System is the Sun, a G-type main-sequence star that contains 99.86% of the system's known mass and dominates it gravitationally.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Asteroid",
+            "to": "thread://wiki.pixygon.io/wiki/asteroid"
+          },
+          {
+            "text": "Asteroid belt",
+            "to": "thread://wiki.pixygon.io/wiki/asteroid-belt"
+          },
+          {
+            "text": "G-type main-sequence star",
+            "to": "thread://wiki.pixygon.io/wiki/g-type-main-sequence-star"
+          },
+          {
+            "text": "Inner Solar System",
+            "to": "thread://wiki.pixygon.io/wiki/inner-solar-system"
+          },
+          {
+            "text": "Kuiper belt",
+            "to": "thread://wiki.pixygon.io/wiki/kuiper-belt"
+          },
+          {
+            "text": "Mars",
+            "to": "thread://wiki.pixygon.io/wiki/mars"
+          },
+          {
+            "text": "Outer Solar System",
+            "to": "thread://wiki.pixygon.io/wiki/outer-solar-system"
+          },
+          {
+            "text": "Saturn",
+            "to": "thread://wiki.pixygon.io/wiki/saturn"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -25.170692,
+        1.95,
+        -0.85949945
+      ],
+      "rotation": [
+        0.0,
+        -0.043619465,
+        0.0,
+        -0.99904823
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "The Sun's four largest orbiting bodies, the giant planets, account for 99% of the remaining mass, with Jupiter and Saturn together comprising more than 90%. The remaining objects of the Solar System (including the four terrestrial planets, the dwarf planets, moons, asteroids, and comets) together comprise less than 0.002% of the Solar System's total mass. The Sun is composed of roughly 98% hydrogen and helium, as are Jupiter and Saturn.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Moon",
+            "to": "thread://wiki.pixygon.io/wiki/moon"
+          },
+          {
+            "text": "List of interstellar and circumstellar molecules",
+            "to": "thread://wiki.pixygon.io/wiki/list-of-interstellar-and-circumstellar-molecules"
+          },
+          {
+            "text": "Advances in Space Research",
+            "to": "thread://wiki.pixygon.io/wiki/advances-in-space-research"
+          },
+          {
+            "text": "Aphelion",
+            "to": "thread://wiki.pixygon.io/wiki/aphelion"
+          },
+          {
+            "text": "Chad Trujillo",
+            "to": "thread://wiki.pixygon.io/wiki/chad-trujillo"
+          },
+          {
+            "text": "Cosmic ray",
+            "to": "thread://wiki.pixygon.io/wiki/cosmic-ray"
+          },
+          {
+            "text": "Earth's diameter",
+            "to": "thread://wiki.pixygon.io/wiki/earth-s-diameter"
+          },
+          {
+            "text": "Ellipse",
+            "to": "thread://wiki.pixygon.io/wiki/ellipse"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -29.659863,
+        1.95,
+        5.656553
+      ],
+      "rotation": [
+        0.0,
+        0.99904823,
+        0.0,
+        -0.043619424
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "A composition gradient exists in the Solar System, created by heat and light pressure from the early Sun; those objects closer to the Sun, which are more affected by heat and light pressure, are composed of elements with high melting points. Objects farther from the Sun are composed largely of materials with lower melting points. The boundary in the Solar System beyond which those volatile substances could coalesce is known as the frost line, and it lies at roughly five times the Earth's distance from the Sun.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Light pressure",
+            "to": "thread://wiki.pixygon.io/wiki/light-pressure"
+          },
+          {
+            "text": "Planetary habitability in the Solar System",
+            "to": "thread://wiki.pixygon.io/wiki/planetary-habitability-in-the-solar-system"
+          },
+          {
+            "text": "Alessandro Morbidelli (astronomer)",
+            "to": "thread://wiki.pixygon.io/wiki/alessandro-morbidelli-astronomer"
+          },
+          {
+            "text": "Astronomy & Geophysics",
+            "to": "thread://wiki.pixygon.io/wiki/astronomy-geophysics"
+          },
+          {
+            "text": "Circumstellar habitable zone",
+            "to": "thread://wiki.pixygon.io/wiki/circumstellar-habitable-zone"
+          },
+          {
+            "text": "David L. Goodstein",
+            "to": "thread://wiki.pixygon.io/wiki/david-l-goodstein"
+          },
+          {
+            "text": "Earthshine",
+            "to": "thread://wiki.pixygon.io/wiki/earthshine"
+          },
+          {
+            "text": "F-type main-sequence star",
+            "to": "thread://wiki.pixygon.io/wiki/f-type-main-sequence-star"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing end wall",
+      "position": [
+        -34.06986,
+        1.9,
+        2.9807272
+      ],
+      "rotation": [
+        0.0,
+        0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        7.2,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920018",
+      "name": "frame",
+      "position": [
+        -33.72119,
+        2.0,
+        2.9502225
+      ],
+      "rotation": [
+        0.0,
+        0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        2.8,
+        2.2,
+        0.12
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920021",
+      "name": "Plane of Ecliptic",
+      "position": [
+        -33.631535,
+        2.0,
+        2.9423785
+      ],
+      "rotation": [
+        0.0,
+        0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        2.6,
+        2.0,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": {
+        "label": "Study",
+        "hits": 1,
+        "effects": [
+          {
+            "message": "Plane of Ecliptic"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -17.7049,
+        1.1,
+        4.15891
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -17.7049,
+        2.35,
+        4.15891
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -32.104836,
+        1.1,
+        0.19887829
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -32.104836,
+        2.35,
+        0.19887829
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920017",
+      "name": "wing: Sun",
+      "position": [
+        24.904867,
+        0.025,
+        2.1788943
+      ],
+      "rotation": [
+        0.0,
+        -0.043619387,
+        0.0,
+        0.99904823
+      ],
+      "scale": [
+        18.0,
+        1.0,
+        6.8
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        25.201197,
+        1.9,
+        -1.2081678
+      ],
+      "rotation": [
+        0.0,
+        -0.043619387,
+        0.0,
+        0.99904823
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        24.608538,
+        1.9,
+        5.565956
+      ],
+      "rotation": [
+        0.0,
+        -0.043619387,
+        0.0,
+        0.99904823
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920011",
+      "name": "lintel",
+      "position": [
+        16.237972,
+        3.4,
+        1.4206389
+      ],
+      "rotation": [
+        0.0,
+        -0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        7.0,
+        0.28,
+        0.35
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        16.237972,
+        3.95,
+        1.4206389
+      ],
+      "rotation": [
+        0.0,
+        -0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        3.6,
+        0.64,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Sun",
+        "size": 0.42,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        20.149872,
+        1.95,
+        -1.2987647
+      ],
+      "rotation": [
+        0.0,
+        -0.043619387,
+        0.0,
+        0.99904823
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "The Sun is the Solar System's star and by far its most massive component. Its large mass (332,900 Earth masses), which comprises 99.86% of all the mass in the Solar System, produces temperatures and densities in its core high enough to sustain nuclear fusion of hydrogen into helium. This releases an enormous amount of energy, mostly radiated into space as electromagnetic radiation peaking in visible light. Because the Sun fuses hydrogen at its core, it is a main-sequence star. More specifically, it is a G2-type main-sequence star, where the type designation refers to its effective temperature.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Sun",
+            "to": "thread://wiki.pixygon.io/wiki/sun"
+          },
+          {
+            "text": "Earth mass",
+            "to": "thread://wiki.pixygon.io/wiki/earth-mass"
+          },
+          {
+            "text": "Effective temperature",
+            "to": "thread://wiki.pixygon.io/wiki/effective-temperature"
+          },
+          {
+            "text": "Electromagnetic radiation",
+            "to": "thread://wiki.pixygon.io/wiki/electromagnetic-radiation"
+          },
+          {
+            "text": "Energy",
+            "to": "thread://wiki.pixygon.io/wiki/energy"
+          },
+          {
+            "text": "Visible light",
+            "to": "thread://wiki.pixygon.io/wiki/visible-light"
+          },
+          {
+            "text": "Andrew Fraknoi",
+            "to": "thread://wiki.pixygon.io/wiki/andrew-fraknoi"
+          },
+          {
+            "text": "Coronal mass ejection",
+            "to": "thread://wiki.pixygon.io/wiki/coronal-mass-ejection"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        24.639042,
+        1.95,
+        5.217288
+      ],
+      "rotation": [
+        0.0,
+        0.99904823,
+        0.0,
+        0.043619454
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Hotter main-sequence stars are more luminous but shorter lived. The Sun's temperature is intermediate between that of the hottest stars and that of the coolest stars. Stars brighter and hotter than the Sun are rare, whereas substantially dimmer and cooler stars, known as red dwarfs, make up about 75% of the fusor stars in the Milky Way. The Sun is a population I star, having formed in the galaxy's spiral arms. It has a higher abundance of elements heavier than hydrogen and helium (\"metals\" in astronomical parlance) than the older population II stars in the galactic bulge and halo.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Galactic bulge",
+            "to": "thread://wiki.pixygon.io/wiki/galactic-bulge"
+          },
+          {
+            "text": "Milky Way",
+            "to": "thread://wiki.pixygon.io/wiki/milky-way"
+          },
+          {
+            "text": "Population I star",
+            "to": "thread://wiki.pixygon.io/wiki/population-i-star"
+          },
+          {
+            "text": "Red dwarf",
+            "to": "thread://wiki.pixygon.io/wiki/red-dwarf"
+          },
+          {
+            "text": "Spiral arm",
+            "to": "thread://wiki.pixygon.io/wiki/spiral-arm"
+          },
+          {
+            "text": "Astronomical filter",
+            "to": "thread://wiki.pixygon.io/wiki/astronomical-filter"
+          },
+          {
+            "text": "Earth's magnetic field",
+            "to": "thread://wiki.pixygon.io/wiki/earth-s-magnetic-field"
+          },
+          {
+            "text": "Galactic halo",
+            "to": "thread://wiki.pixygon.io/wiki/galactic-halo"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        30.191513,
+        1.95,
+        -0.42023468
+      ],
+      "rotation": [
+        0.0,
+        -0.043619387,
+        0.0,
+        0.99904823
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Elements heavier than hydrogen and helium were formed in the cores of ancient and exploding stars, so the first generation of stars had to die before the universe could be enriched with these atoms. The oldest stars contain few metals, whereas stars born later have more. This higher metallicity is thought to have been crucial to the Sun's development of a planetary system because the planets formed from the accretion of \"metals\". The region of space dominated by the Solar magnetosphere is the heliosphere, which spans much of the Solar System.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Heliosphere",
+            "to": "thread://wiki.pixygon.io/wiki/heliosphere"
+          },
+          {
+            "text": "Magnetosphere",
+            "to": "thread://wiki.pixygon.io/wiki/magnetosphere"
+          },
+          {
+            "text": "Metallicity",
+            "to": "thread://wiki.pixygon.io/wiki/metallicity"
+          },
+          {
+            "text": "Planetary system",
+            "to": "thread://wiki.pixygon.io/wiki/planetary-system"
+          },
+          {
+            "text": "Universe",
+            "to": "thread://wiki.pixygon.io/wiki/universe"
+          },
+          {
+            "text": "Aurora (astronomy)",
+            "to": "thread://wiki.pixygon.io/wiki/aurora-astronomy"
+          },
+          {
+            "text": "Fusor (astronomy)",
+            "to": "thread://wiki.pixygon.io/wiki/fusor-astronomy"
+          },
+          {
+            "text": "Geomagnetic storm",
+            "to": "thread://wiki.pixygon.io/wiki/geomagnetic-storm"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing end wall",
+      "position": [
+        34.06986,
+        1.9,
+        2.9807272
+      ],
+      "rotation": [
+        0.0,
+        -0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        7.2,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920018",
+      "name": "frame",
+      "position": [
+        33.72119,
+        2.0,
+        2.9502225
+      ],
+      "rotation": [
+        0.0,
+        -0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        2.8,
+        2.2,
+        0.12
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920022",
+      "name": "Solar system orrery inner planets.gif",
+      "position": [
+        33.631535,
+        2.0,
+        2.9423785
+      ],
+      "rotation": [
+        0.0,
+        -0.7372773,
+        0.0,
+        0.6755902
+      ],
+      "scale": [
+        2.6,
+        2.0,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": {
+        "label": "Study",
+        "hits": 1,
+        "effects": [
+          {
+            "message": "Solar system orrery inner planets.gif"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        18.15811,
+        1.1,
+        -1.0213025
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        18.15811,
+        2.35,
+        -1.0213025
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        31.651627,
+        1.1,
+        5.379091
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        31.651627,
+        2.35,
+        5.379091
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920017",
+      "name": "wing: Inner Solar System",
+      "position": [
+        -17.67767,
+        0.025,
+        17.67767
+      ],
+      "rotation": [
+        0.0,
+        0.92387956,
+        0.0,
+        -0.3826834
+      ],
+      "scale": [
+        18.0,
+        1.0,
+        6.8
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        -15.273506,
+        1.9,
+        20.081833
+      ],
+      "rotation": [
+        0.0,
+        0.92387956,
+        0.0,
+        -0.3826834
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        -20.081833,
+        1.9,
+        15.273506
+      ],
+      "rotation": [
+        0.0,
+        0.92387956,
+        0.0,
+        -0.3826834
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920011",
+      "name": "lintel",
+      "position": [
+        -11.52584,
+        3.4,
+        11.52584
+      ],
+      "rotation": [
+        0.0,
+        0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        7.0,
+        0.28,
+        0.35
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -11.52584,
+        3.95,
+        11.52584
+      ],
+      "rotation": [
+        0.0,
+        0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        3.6,
+        0.64,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Inner Solar System",
+        "size": 0.42,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -11.957175,
+        1.95,
+        16.270527
+      ],
+      "rotation": [
+        0.0,
+        0.92387956,
+        0.0,
+        -0.3826834
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "The inner Solar System is the region comprising the terrestrial planets and the asteroids. Composed mainly of silicates and metals, the objects of the inner Solar System are relatively close to the Sun; the radius of this entire region is less than the distance between the orbits of Jupiter and Saturn. This region is within the frost line, which is a little less than 5 AU from the Sun. Inner planets The four terrestrial or inner planets have dense, rocky compositions, few or no moons, and no ring systems.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Asteroid",
+            "to": "thread://wiki.pixygon.io/wiki/asteroid"
+          },
+          {
+            "text": "Terrestrial planet",
+            "to": "thread://wiki.pixygon.io/wiki/terrestrial-planet"
+          },
+          {
+            "text": "Moon",
+            "to": "thread://wiki.pixygon.io/wiki/moon"
+          },
+          {
+            "text": "Silicate",
+            "to": "thread://wiki.pixygon.io/wiki/silicate"
+          },
+          {
+            "text": "Silicates",
+            "to": "thread://wiki.pixygon.io/wiki/silicates"
+          },
+          {
+            "text": "Asteroid belt",
+            "to": "thread://wiki.pixygon.io/wiki/asteroid-belt"
+          },
+          {
+            "text": "4 Vesta",
+            "to": "thread://wiki.pixygon.io/wiki/4-vesta"
+          },
+          {
+            "text": "Asteroid group",
+            "to": "thread://wiki.pixygon.io/wiki/asteroid-group"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -19.834345,
+        1.95,
+        15.520994
+      ],
+      "rotation": [
+        0.0,
+        -0.38268343,
+        0.0,
+        -0.9238795
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "They are composed largely of refractory minerals such as silicates—which form their crusts and mantles—and metals such as iron and nickel which form their cores. Three of the four inner planets (Venus, Earth, and Mars) have atmospheres substantial enough to generate weather; all have impact craters and tectonic surface features, such as rift valleys and volcanoes. Mercury (0.31–0.59 AU from the Sun) is the smallest planet in the Solar System. Its surface is grayish, with an expansive rupes (cliff) system generated from thrust faults and bright ray systems formed by impact event remnants.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Atmosphere",
+            "to": "thread://wiki.pixygon.io/wiki/atmosphere"
+          },
+          {
+            "text": "Earth",
+            "to": "thread://wiki.pixygon.io/wiki/earth"
+          },
+          {
+            "text": "Impact crater",
+            "to": "thread://wiki.pixygon.io/wiki/impact-crater"
+          },
+          {
+            "text": "Mars",
+            "to": "thread://wiki.pixygon.io/wiki/mars"
+          },
+          {
+            "text": "Mineral",
+            "to": "thread://wiki.pixygon.io/wiki/mineral"
+          },
+          {
+            "text": "Ray system",
+            "to": "thread://wiki.pixygon.io/wiki/ray-system"
+          },
+          {
+            "text": "Rift valley",
+            "to": "thread://wiki.pixygon.io/wiki/rift-valley"
+          },
+          {
+            "text": "Rupes",
+            "to": "thread://wiki.pixygon.io/wiki/rupes"
+          },
+          {
+            "text": "Thrust fault",
+            "to": "thread://wiki.pixygon.io/wiki/thrust-fault"
+          },
+          {
+            "text": "Venus",
+            "to": "thread://wiki.pixygon.io/wiki/venus"
+          },
+          {
+            "text": "Weather",
+            "to": "thread://wiki.pixygon.io/wiki/weather"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        -19.084812,
+        1.95,
+        23.398163
+      ],
+      "rotation": [
+        0.0,
+        0.92387956,
+        0.0,
+        -0.3826834
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "The surface has widely varying temperature, with the equatorial regions ranging from −170 °C (−270 °F) at night to 420 °C (790 °F) during sunlight. In the past, Mercury was volcanically active, producing smooth basaltic plains similar to the Moon. It is likely that Mercury has a silicate crust and a large iron core. Mercury has a very tenuous atmosphere, consisting of solar-wind particles and ejected atoms. Mercury has no natural satellites. Venus (0.72–0.73 AU) has a reflective, whitish atmosphere that is mainly composed of carbon dioxide. At the surface, the atmospheric pressure is ninety times as dense as on Earth's sea level.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Basalt",
+            "to": "thread://wiki.pixygon.io/wiki/basalt"
+          },
+          {
+            "text": "Carbon",
+            "to": "thread://wiki.pixygon.io/wiki/carbon"
+          },
+          {
+            "text": "Carbon dioxide",
+            "to": "thread://wiki.pixygon.io/wiki/carbon-dioxide"
+          },
+          {
+            "text": "Equator",
+            "to": "thread://wiki.pixygon.io/wiki/equator"
+          },
+          {
+            "text": "Natural satellite",
+            "to": "thread://wiki.pixygon.io/wiki/natural-satellite"
+          },
+          {
+            "text": "2 Pallas",
+            "to": "thread://wiki.pixygon.io/wiki/2-pallas"
+          },
+          {
+            "text": "Asteroid family",
+            "to": "thread://wiki.pixygon.io/wiki/asteroid-family"
+          },
+          {
+            "text": "BBC Online",
+            "to": "thread://wiki.pixygon.io/wiki/bbc-online"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing end wall",
+      "position": [
+        -24.183052,
+        1.9,
+        24.183052
+      ],
+      "rotation": [
+        0.0,
+        0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        7.2,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920018",
+      "name": "frame",
+      "position": [
+        -23.935562,
+        2.0,
+        23.935562
+      ],
+      "rotation": [
+        0.0,
+        0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        2.8,
+        2.2,
+        0.12
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920023",
+      "name": "Solar system orrery outer planets.gif",
+      "position": [
+        -23.871923,
+        2.0,
+        23.871923
+      ],
+      "rotation": [
+        0.0,
+        0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        2.6,
+        2.0,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": {
+        "label": "Study",
+        "hits": 1,
+        "effects": [
+          {
+            "message": "Solar system orrery outer planets.gif"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -10.889444,
+        1.1,
+        14.566399
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -10.889444,
+        2.35,
+        14.566399
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -24.465895,
+        1.1,
+        20.788939
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -24.465895,
+        2.35,
+        20.788939
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920017",
+      "name": "wing: Outer Solar System",
+      "position": [
+        17.67767,
+        0.025,
+        17.67767
+      ],
+      "rotation": [
+        0.0,
+        -0.38268346,
+        0.0,
+        0.9238795
+      ],
+      "scale": [
+        18.0,
+        1.0,
+        6.8
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        20.081833,
+        1.9,
+        15.273506
+      ],
+      "rotation": [
+        0.0,
+        -0.38268346,
+        0.0,
+        0.9238795
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing wall",
+      "position": [
+        15.273506,
+        1.9,
+        20.081833
+      ],
+      "rotation": [
+        0.0,
+        -0.38268346,
+        0.0,
+        0.9238795
+      ],
+      "scale": [
+        18.0,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920011",
+      "name": "lintel",
+      "position": [
+        11.52584,
+        3.4,
+        11.52584
+      ],
+      "rotation": [
+        0.0,
+        -0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        7.0,
+        0.28,
+        0.35
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        11.52584,
+        3.95,
+        11.52584
+      ],
+      "rotation": [
+        0.0,
+        -0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        3.6,
+        0.64,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Outer Solar System",
+        "size": 0.42,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        16.270527,
+        1.95,
+        11.957175
+      ],
+      "rotation": [
+        0.0,
+        -0.38268346,
+        0.0,
+        0.9238795
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "The outer region of the Solar System is home to the giant planets and their large moons. The centaurs and many short-period comets orbit in this region. Due to their greater distance from the Sun, the solid objects in the outer Solar System contain a higher proportion of volatiles such as water, ammonia, and methane, than planets of the inner Solar System because their lower temperatures allow these compounds to remain solid, without significant sublimation. Outer planets The four outer planets, called giant planets or Jovian planets, collectively make up 99% of the mass orbiting the Sun.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Giant planet",
+            "to": "thread://wiki.pixygon.io/wiki/giant-planet"
+          },
+          {
+            "text": "Short-period comet",
+            "to": "thread://wiki.pixygon.io/wiki/short-period-comet"
+          },
+          {
+            "text": "Centaur (small Solar System body)",
+            "to": "thread://wiki.pixygon.io/wiki/centaur-small-solar-system-body"
+          },
+          {
+            "text": "Adrastea (moon)",
+            "to": "thread://wiki.pixygon.io/wiki/adrastea-moon"
+          },
+          {
+            "text": "Atmospheric circulation",
+            "to": "thread://wiki.pixygon.io/wiki/atmospheric-circulation"
+          },
+          {
+            "text": "Callisto (moon)",
+            "to": "thread://wiki.pixygon.io/wiki/callisto-moon"
+          },
+          {
+            "text": "Centaur (minor planet)",
+            "to": "thread://wiki.pixygon.io/wiki/centaur-minor-planet"
+          },
+          {
+            "text": "Cyan",
+            "to": "thread://wiki.pixygon.io/wiki/cyan"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        15.520994,
+        1.95,
+        19.834345
+      ],
+      "rotation": [
+        0.0,
+        0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "All four giant planets have multiple moons and a ring system, although only Saturn's rings are easily observed from Earth. Jupiter and Saturn are composed mainly of gases with extremely low melting points, such as hydrogen, helium, and neon, hence their designation as gas giants.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Gas giant",
+            "to": "thread://wiki.pixygon.io/wiki/gas-giant"
+          },
+          {
+            "text": "Jupiter",
+            "to": "thread://wiki.pixygon.io/wiki/jupiter"
+          },
+          {
+            "text": "Neon",
+            "to": "thread://wiki.pixygon.io/wiki/neon"
+          },
+          {
+            "text": "Saturn",
+            "to": "thread://wiki.pixygon.io/wiki/saturn"
+          },
+          {
+            "text": "10199 Chariklo",
+            "to": "thread://wiki.pixygon.io/wiki/10199-chariklo"
+          },
+          {
+            "text": "Amalthea (moon)",
+            "to": "thread://wiki.pixygon.io/wiki/amalthea-moon"
+          },
+          {
+            "text": "Aurora",
+            "to": "thread://wiki.pixygon.io/wiki/aurora"
+          },
+          {
+            "text": "Calypso (moon)",
+            "to": "thread://wiki.pixygon.io/wiki/calypso-moon"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920013",
+      "name": "plaque",
+      "position": [
+        23.398163,
+        1.95,
+        19.084812
+      ],
+      "rotation": [
+        0.0,
+        -0.38268346,
+        0.0,
+        0.9238795
+      ],
+      "scale": [
+        3.4,
+        2.6,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "Uranus and Neptune are ice giants, meaning they are largely composed of 'ice' in the astronomical sense (chemical compounds with melting points of up to a few hundred kelvins such as water, methane, ammonia, hydrogen sulfide, and carbon dioxide.) Icy substances comprise the majority of the satellites of the giant planets and small objects that lie beyond Neptune's orbit. Jupiter (4.95–5.46 AU) is the biggest and most massive planet in the Solar System.",
+        "size": 0.06,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ],
+        "links": [
+          {
+            "text": "Carbon dioxide",
+            "to": "thread://wiki.pixygon.io/wiki/carbon-dioxide"
+          },
+          {
+            "text": "Hydrogen sulfide",
+            "to": "thread://wiki.pixygon.io/wiki/hydrogen-sulfide"
+          },
+          {
+            "text": "Ice giants",
+            "to": "thread://wiki.pixygon.io/wiki/ice-giants"
+          },
+          {
+            "text": "Kelvin",
+            "to": "thread://wiki.pixygon.io/wiki/kelvin"
+          },
+          {
+            "text": "Neptune",
+            "to": "thread://wiki.pixygon.io/wiki/neptune"
+          },
+          {
+            "text": "Uranus",
+            "to": "thread://wiki.pixygon.io/wiki/uranus"
+          },
+          {
+            "text": "2060 Chiron",
+            "to": "thread://wiki.pixygon.io/wiki/2060-chiron"
+          },
+          {
+            "text": "Ariel (moon)",
+            "to": "thread://wiki.pixygon.io/wiki/ariel-moon"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "wing end wall",
+      "position": [
+        24.183052,
+        1.9,
+        24.183052
+      ],
+      "rotation": [
+        0.0,
+        -0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        7.2,
+        3.8,
+        0.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920018",
+      "name": "frame",
+      "position": [
+        23.935562,
+        2.0,
+        23.935562
+      ],
+      "rotation": [
+        0.0,
+        -0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        2.8,
+        2.2,
+        0.12
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920024",
+      "name": "Orbital distances in the solar system linear scale",
+      "position": [
+        23.871923,
+        2.0,
+        23.871923
+      ],
+      "rotation": [
+        0.0,
+        -0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        2.6,
+        2.0,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": {
+        "label": "Study",
+        "hits": 1,
+        "effects": [
+          {
+            "message": "Orbital distances in the solar system linear scale"
+          }
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        14.566399,
+        1.1,
+        10.889444
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        14.566399,
+        2.35,
+        10.889444
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        20.788939,
+        1.1,
+        24.465895
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        20.788939,
+        2.35,
+        24.465895
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        2.7469316,
+        1.9,
+        -41.910076
+      ],
+      "rotation": [
+        0.0,
+        -0.032719083,
+        0.0,
+        0.9994646
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        2.7469316,
+        3.9,
+        -41.910076
+      ],
+      "rotation": [
+        0.0,
+        -0.032719083,
+        0.0,
+        0.9994646
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        13.500458,
+        1.9,
+        -39.771065
+      ],
+      "rotation": [
+        0.0,
+        -0.16289547,
+        0.0,
+        0.9866433
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        13.500458,
+        3.9,
+        -39.771065
+      ],
+      "rotation": [
+        0.0,
+        -0.16289547,
+        0.0,
+        0.9866433
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        18.576126,
+        1.9,
+        -37.668655
+      ],
+      "rotation": [
+        0.0,
+        -0.22707626,
+        0.0,
+        0.97387695
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        18.576126,
+        3.9,
+        -37.668655
+      ],
+      "rotation": [
+        0.0,
+        -0.22707626,
+        0.0,
+        0.97387695
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        31.577272,
+        1.9,
+        -27.692524
+      ],
+      "rotation": [
+        0.0,
+        -0.41270703,
+        0.0,
+        0.9108638
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        31.577272,
+        3.9,
+        -27.692524
+      ],
+      "rotation": [
+        0.0,
+        -0.41270703,
+        0.0,
+        0.9108638
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        34.921722,
+        1.9,
+        -23.33395
+      ],
+      "rotation": [
+        0.0,
+        -0.4713967,
+        0.0,
+        0.8819213
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        34.921722,
+        3.9,
+        -23.33395
+      ],
+      "rotation": [
+        0.0,
+        -0.4713967,
+        0.0,
+        0.8819213
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        39.771065,
+        1.9,
+        -13.500458
+      ],
+      "rotation": [
+        0.0,
+        -0.5824777,
+        0.0,
+        0.81284666
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        39.771065,
+        3.9,
+        -13.500458
+      ],
+      "rotation": [
+        0.0,
+        -0.5824777,
+        0.0,
+        0.81284666
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        41.19298,
+        1.9,
+        -8.193795
+      ],
+      "rotation": [
+        0.0,
+        -0.6343933,
+        0.0,
+        0.7730105
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        41.19298,
+        3.9,
+        -8.193795
+      ],
+      "rotation": [
+        0.0,
+        -0.6343933,
+        0.0,
+        0.7730105
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        41.910076,
+        1.9,
+        2.746933
+      ],
+      "rotation": [
+        0.0,
+        -0.72986406,
+        0.0,
+        0.6835923
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        41.910076,
+        3.9,
+        2.746933
+      ],
+      "rotation": [
+        0.0,
+        -0.72986406,
+        0.0,
+        0.6835923
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        41.19298,
+        1.9,
+        8.193793
+      ],
+      "rotation": [
+        0.0,
+        -0.77301043,
+        0.0,
+        0.6343933
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        41.19298,
+        3.9,
+        8.193793
+      ],
+      "rotation": [
+        0.0,
+        -0.77301043,
+        0.0,
+        0.6343933
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        34.921726,
+        1.9,
+        23.333948
+      ],
+      "rotation": [
+        0.0,
+        -0.88192123,
+        0.0,
+        0.47139677
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        34.921726,
+        3.9,
+        23.333948
+      ],
+      "rotation": [
+        0.0,
+        -0.88192123,
+        0.0,
+        0.47139677
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        31.577274,
+        1.9,
+        27.692522
+      ],
+      "rotation": [
+        0.0,
+        -0.9108638,
+        0.0,
+        0.41270706
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        31.577274,
+        3.9,
+        27.692522
+      ],
+      "rotation": [
+        0.0,
+        -0.9108638,
+        0.0,
+        0.41270706
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        27.69253,
+        1.9,
+        31.577267
+      ],
+      "rotation": [
+        0.0,
+        -0.93590593,
+        0.0,
+        0.3522501
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        27.69253,
+        3.9,
+        31.577267
+      ],
+      "rotation": [
+        0.0,
+        -0.93590593,
+        0.0,
+        0.3522501
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        23.333948,
+        1.9,
+        34.921726
+      ],
+      "rotation": [
+        0.0,
+        -0.95694035,
+        0.0,
+        0.29028463
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        23.333948,
+        3.9,
+        34.921726
+      ],
+      "rotation": [
+        0.0,
+        -0.95694035,
+        0.0,
+        0.29028463
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        18.576122,
+        1.9,
+        37.668655
+      ],
+      "rotation": [
+        0.0,
+        -0.973877,
+        0.0,
+        0.22707623
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        18.576122,
+        3.9,
+        37.668655
+      ],
+      "rotation": [
+        0.0,
+        -0.973877,
+        0.0,
+        0.22707623
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        13.500457,
+        1.9,
+        39.77107
+      ],
+      "rotation": [
+        0.0,
+        -0.9866433,
+        0.0,
+        0.16289546
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        13.500457,
+        3.9,
+        39.77107
+      ],
+      "rotation": [
+        0.0,
+        -0.9866433,
+        0.0,
+        0.16289546
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        8.193793,
+        1.9,
+        41.19298
+      ],
+      "rotation": [
+        0.0,
+        -0.9951847,
+        0.0,
+        0.098017134
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        8.193793,
+        3.9,
+        41.19298
+      ],
+      "rotation": [
+        0.0,
+        -0.9951847,
+        0.0,
+        0.098017134
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -8.19379,
+        1.9,
+        41.19298
+      ],
+      "rotation": [
+        0.0,
+        -0.9951847,
+        0.0,
+        -0.098017104
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -8.19379,
+        3.9,
+        41.19298
+      ],
+      "rotation": [
+        0.0,
+        -0.9951847,
+        0.0,
+        -0.098017104
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -13.500454,
+        1.9,
+        39.77107
+      ],
+      "rotation": [
+        0.0,
+        -0.9866433,
+        0.0,
+        -0.16289543
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -13.500454,
+        3.9,
+        39.77107
+      ],
+      "rotation": [
+        0.0,
+        -0.9866433,
+        0.0,
+        -0.16289543
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -18.57612,
+        1.9,
+        37.66866
+      ],
+      "rotation": [
+        0.0,
+        -0.973877,
+        0.0,
+        -0.2270762
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -18.57612,
+        3.9,
+        37.66866
+      ],
+      "rotation": [
+        0.0,
+        -0.973877,
+        0.0,
+        -0.2270762
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -23.333952,
+        1.9,
+        34.921722
+      ],
+      "rotation": [
+        0.0,
+        -0.9569403,
+        0.0,
+        -0.29028472
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -23.333952,
+        3.9,
+        34.921722
+      ],
+      "rotation": [
+        0.0,
+        -0.9569403,
+        0.0,
+        -0.29028472
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -27.692526,
+        1.9,
+        31.57727
+      ],
+      "rotation": [
+        0.0,
+        -0.93590593,
+        0.0,
+        -0.35225007
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -27.692526,
+        3.9,
+        31.57727
+      ],
+      "rotation": [
+        0.0,
+        -0.93590593,
+        0.0,
+        -0.35225007
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -31.577272,
+        1.9,
+        27.692524
+      ],
+      "rotation": [
+        0.0,
+        -0.9108638,
+        0.0,
+        -0.41270706
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -31.577272,
+        3.9,
+        27.692524
+      ],
+      "rotation": [
+        0.0,
+        -0.9108638,
+        0.0,
+        -0.41270706
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -34.92172,
+        1.9,
+        23.333958
+      ],
+      "rotation": [
+        0.0,
+        -0.8819213,
+        0.0,
+        -0.47139663
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -34.92172,
+        3.9,
+        23.333958
+      ],
+      "rotation": [
+        0.0,
+        -0.8819213,
+        0.0,
+        -0.47139663
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -41.19298,
+        1.9,
+        8.193796
+      ],
+      "rotation": [
+        0.0,
+        -0.7730105,
+        0.0,
+        -0.6343933
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -41.19298,
+        3.9,
+        8.193796
+      ],
+      "rotation": [
+        0.0,
+        -0.7730105,
+        0.0,
+        -0.6343933
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -41.910076,
+        1.9,
+        2.7469254
+      ],
+      "rotation": [
+        0.0,
+        -0.729864,
+        0.0,
+        -0.6835924
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -41.910076,
+        3.9,
+        2.7469254
+      ],
+      "rotation": [
+        0.0,
+        -0.729864,
+        0.0,
+        -0.6835924
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -41.19298,
+        1.9,
+        -8.193797
+      ],
+      "rotation": [
+        0.0,
+        -0.6343933,
+        0.0,
+        -0.7730105
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -41.19298,
+        3.9,
+        -8.193797
+      ],
+      "rotation": [
+        0.0,
+        -0.6343933,
+        0.0,
+        -0.7730105
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -39.77107,
+        1.9,
+        -13.50045
+      ],
+      "rotation": [
+        0.0,
+        -0.58247775,
+        0.0,
+        -0.81284666
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -39.77107,
+        3.9,
+        -13.50045
+      ],
+      "rotation": [
+        0.0,
+        -0.58247775,
+        0.0,
+        -0.81284666
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -34.921726,
+        1.9,
+        -23.333942
+      ],
+      "rotation": [
+        0.0,
+        -0.47139683,
+        0.0,
+        -0.88192123
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -34.921726,
+        3.9,
+        -23.333942
+      ],
+      "rotation": [
+        0.0,
+        -0.47139683,
+        0.0,
+        -0.88192123
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -31.577272,
+        1.9,
+        -27.692524
+      ],
+      "rotation": [
+        0.0,
+        -0.41270703,
+        0.0,
+        -0.9108638
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -31.577272,
+        3.9,
+        -27.692524
+      ],
+      "rotation": [
+        0.0,
+        -0.41270703,
+        0.0,
+        -0.9108638
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -18.576118,
+        1.9,
+        -37.66866
+      ],
+      "rotation": [
+        0.0,
+        -0.22707619,
+        0.0,
+        -0.973877
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -18.576118,
+        3.9,
+        -37.66866
+      ],
+      "rotation": [
+        0.0,
+        -0.22707619,
+        0.0,
+        -0.973877
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -13.500462,
+        1.9,
+        -39.771065
+      ],
+      "rotation": [
+        0.0,
+        -0.16289553,
+        0.0,
+        -0.9866433
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -13.500462,
+        3.9,
+        -39.771065
+      ],
+      "rotation": [
+        0.0,
+        -0.16289553,
+        0.0,
+        -0.9866433
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920006",
+      "name": "outer wall",
+      "position": [
+        -2.7469385,
+        1.9,
+        -41.910076
+      ],
+      "rotation": [
+        0.0,
+        -0.03271917,
+        0.0,
+        -0.9994646
+      ],
+      "scale": [
+        5.693863,
+        3.8,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920009",
+      "name": "outer coping",
+      "position": [
+        -2.7469385,
+        3.9,
+        -41.910076
+      ],
+      "rotation": [
+        0.0,
+        -0.03271917,
+        0.0,
+        -0.9994646
+      ],
+      "scale": [
+        5.7938633,
+        0.18,
+        0.62
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        0.0,
+        2.6,
+        -42.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        0.0,
+        5.25,
+        -42.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        21.0,
+        2.6,
+        -36.373066
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        21.0,
+        5.25,
+        -36.373066
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        36.37307,
+        2.6,
+        -20.999998
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        36.37307,
+        5.25,
+        -20.999998
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        42.0,
+        2.6,
+        0.0000018358783
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        42.0,
+        5.25,
+        0.0000018358783
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        36.373066,
+        2.6,
+        21.000002
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        36.373066,
+        5.25,
+        21.000002
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        21.000002,
+        2.6,
+        36.373066
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        21.000002,
+        5.25,
+        36.373066
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        -0.0000036717565,
+        2.6,
+        42.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        -0.0000036717565,
+        5.25,
+        42.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        -20.999998,
+        2.6,
+        36.373066
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        -20.999998,
+        5.25,
+        36.373066
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        -36.37307,
+        2.6,
+        20.999996
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        -36.37307,
+        5.25,
+        20.999996
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        -42.0,
+        2.6,
+        -5.00845e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        -42.0,
+        5.25,
+        -5.00845e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        -36.37307,
+        2.6,
+        -20.999996
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        -36.37307,
+        5.25,
+        -20.999996
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920007",
+      "name": "outer column",
+      "position": [
+        -21.000008,
+        2.6,
+        -36.373062
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.2,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920008",
+      "name": "outer capital",
+      "position": [
+        -21.000008,
+        5.25,
+        -36.373062
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920025",
+      "name": "sign backing",
+      "position": [
+        -38.710552,
+        3.95,
+        16.034433
+      ],
+      "rotation": [
+        0.0,
+        -0.8314696,
+        0.0,
+        0.55557024
+      ],
+      "scale": [
+        1.7,
+        1.4,
+        0.14
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920026",
+      "name": "Kuiper belt — the door's sign",
+      "position": [
+        -38.618164,
+        3.95,
+        15.996165
+      ],
+      "rotation": [
+        0.0,
+        -0.8314696,
+        0.0,
+        0.55557024
+      ],
+      "scale": [
+        1.5,
+        1.2,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -36.95518,
+        1.1,
+        15.307336
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -36.95518,
+        2.35,
+        15.307336
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920025",
+      "name": "sign backing",
+      "position": [
+        -41.860123,
+        3.95,
+        -1.8276551
+      ],
+      "rotation": [
+        0.0,
+        -0.69151306,
+        0.0,
+        0.722364
+      ],
+      "scale": [
+        1.7,
+        1.4,
+        0.14
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920027",
+      "name": "Centaur (small Solar System body) — the door's sign",
+      "position": [
+        -41.760216,
+        3.95,
+        -1.8232932
+      ],
+      "rotation": [
+        0.0,
+        -0.69151306,
+        0.0,
+        0.722364
+      ],
+      "scale": [
+        1.5,
+        1.2,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920025",
+      "name": "sign backing",
+      "position": [
+        -37.165756,
+        3.95,
+        -19.347265
+      ],
+      "rotation": [
+        0.0,
+        -0.51877326,
+        0.0,
+        0.85491186
+      ],
+      "scale": [
+        1.7,
+        1.4,
+        0.14
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920028",
+      "name": "Formation and evolution of the Solar System — the door's sign",
+      "position": [
+        -37.077053,
+        3.95,
+        -19.30109
+      ],
+      "rotation": [
+        0.0,
+        -0.51877326,
+        0.0,
+        0.85491186
+      ],
+      "scale": [
+        1.5,
+        1.2,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -35.48043,
+        1.1,
+        -18.469944
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -35.48043,
+        2.35,
+        -18.469944
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920025",
+      "name": "sign backing",
+      "position": [
+        -9.06882,
+        3.95,
+        -40.906803
+      ],
+      "rotation": [
+        0.0,
+        -0.10886688,
+        0.0,
+        0.99405634
+      ],
+      "scale": [
+        1.7,
+        1.4,
+        0.14
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920029",
+      "name": "Scattered disc — the door's sign",
+      "position": [
+        -9.047175,
+        3.95,
+        -40.809174
+      ],
+      "rotation": [
+        0.0,
+        -0.10886688,
+        0.0,
+        0.99405634
+      ],
+      "scale": [
+        1.5,
+        1.2,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        -8.657585,
+        1.1,
+        -39.05184
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        -8.657585,
+        2.35,
+        -39.05184
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920025",
+      "name": "sign backing",
+      "position": [
+        9.06882,
+        3.95,
+        -40.906803
+      ],
+      "rotation": [
+        0.0,
+        0.10886688,
+        0.0,
+        0.99405634
+      ],
+      "scale": [
+        1.7,
+        1.4,
+        0.14
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920030",
+      "name": "Planets beyond Neptune — the door's sign",
+      "position": [
+        9.047175,
+        3.95,
+        -40.809174
+      ],
+      "rotation": [
+        0.0,
+        0.10886688,
+        0.0,
+        0.99405634
+      ],
+      "scale": [
+        1.5,
+        1.2,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920025",
+      "name": "sign backing",
+      "position": [
+        25.507103,
+        3.95,
+        -33.241505
+      ],
+      "rotation": [
+        0.0,
+        0.32143947,
+        0.0,
+        0.9469301
+      ],
+      "scale": [
+        1.7,
+        1.4,
+        0.14
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920031",
+      "name": "Nice model — the door's sign",
+      "position": [
+        25.446228,
+        3.95,
+        -33.162167
+      ],
+      "rotation": [
+        0.0,
+        0.32143947,
+        0.0,
+        0.9469301
+      ],
+      "scale": [
+        1.5,
+        1.2,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        24.350456,
+        1.1,
+        -31.734133
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        24.350456,
+        2.35,
+        -31.734133
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920025",
+      "name": "sign backing",
+      "position": [
+        37.165756,
+        3.95,
+        -19.347265
+      ],
+      "rotation": [
+        0.0,
+        0.51877326,
+        0.0,
+        0.85491186
+      ],
+      "scale": [
+        1.7,
+        1.4,
+        0.14
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920032",
+      "name": "Oort cloud — the door's sign",
+      "position": [
+        37.077053,
+        3.95,
+        -19.30109
+      ],
+      "rotation": [
+        0.0,
+        0.51877326,
+        0.0,
+        0.85491186
+      ],
+      "scale": [
+        1.5,
+        1.2,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920004",
+      "name": "lamp",
+      "position": [
+        39.96193,
+        1.1,
+        -1.7447782
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.08,
+        2.2,
+        0.08
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60920005",
+      "name": "lamp light",
+      "position": [
+        39.96193,
+        2.35,
+        -1.7447782
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "animate": {
+        "kind": "bob",
+        "speed": 0.7,
+        "amp": 0.05
+      },
+      "light": {
+        "color": [
+          1.0,
+          0.85,
+          0.55
+        ],
+        "intensity": 1.7,
+        "range": 13.0
+      },
+      "data": null,
+      "children": []
+    }
+  ],
+  "portals": [
+    {
+      "id": "to-kuiper-belt",
+      "position": [
+        -38.80294,
+        1.4,
+        16.072702
+      ],
+      "rotation": [
+        0.0,
+        -0.8314696,
+        0.0,
+        0.55557024
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/kuiper-belt",
+      "label": "Kuiper belt",
+      "preview": "static"
+    },
+    {
+      "id": "to-centaur-small-solar-system-body",
+      "position": [
+        -41.960026,
+        1.4,
+        -1.8320171
+      ],
+      "rotation": [
+        0.0,
+        -0.69151306,
+        0.0,
+        0.722364
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/centaur-small-solar-system-body",
+      "label": "Centaur (small Solar System body)",
+      "preview": "static"
+    },
+    {
+      "id": "to-formation-and-evolution-of-the-solar-system",
+      "position": [
+        -37.254456,
+        1.4,
+        -19.39344
+      ],
+      "rotation": [
+        0.0,
+        -0.51877326,
+        0.0,
+        0.85491186
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/formation-and-evolution-of-the-solar-system",
+      "label": "Formation and evolution of the Solar System",
+      "preview": "static"
+    },
+    {
+      "id": "to-list-of-hypothetical-solar-system-objects",
+      "position": [
+        -25.56798,
+        1.4,
+        -33.32084
+      ],
+      "rotation": [
+        0.0,
+        -0.32143947,
+        0.0,
+        0.9469301
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/list-of-hypothetical-solar-system-objects",
+      "label": "List of hypothetical Solar System objects",
+      "preview": "static"
+    },
+    {
+      "id": "to-scattered-disc",
+      "position": [
+        -9.090464,
+        1.4,
+        -41.004433
+      ],
+      "rotation": [
+        0.0,
+        -0.10886688,
+        0.0,
+        0.99405634
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/scattered-disc",
+      "label": "Scattered disc",
+      "preview": "static"
+    },
+    {
+      "id": "to-planets-beyond-neptune",
+      "position": [
+        9.090464,
+        1.4,
+        -41.004433
+      ],
+      "rotation": [
+        0.0,
+        0.10886688,
+        0.0,
+        0.99405634
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/planets-beyond-neptune",
+      "label": "Planets beyond Neptune",
+      "preview": "static"
+    },
+    {
+      "id": "to-nice-model",
+      "position": [
+        25.56798,
+        1.4,
+        -33.32084
+      ],
+      "rotation": [
+        0.0,
+        0.32143947,
+        0.0,
+        0.9469301
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/nice-model",
+      "label": "Nice model",
+      "preview": "static"
+    },
+    {
+      "id": "to-oort-cloud",
+      "position": [
+        37.254456,
+        1.4,
+        -19.39344
+      ],
+      "rotation": [
+        0.0,
+        0.51877326,
+        0.0,
+        0.85491186
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/oort-cloud",
+      "label": "Oort cloud",
+      "preview": "static"
+    },
+    {
+      "id": "to-five-planet-nice-model",
+      "position": [
+        41.960026,
+        1.4,
+        -1.8320171
+      ],
+      "rotation": [
+        0.0,
+        0.69151306,
+        0.0,
+        0.722364
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/five-planet-nice-model",
+      "label": "Five-planet Nice model",
+      "preview": "static"
+    },
+    {
+      "id": "to-jumping-jupiter-scenario",
+      "position": [
+        38.80294,
+        1.4,
+        16.072702
+      ],
+      "rotation": [
+        0.0,
+        0.8314696,
+        0.0,
+        0.55557024
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io/wiki/jumping-jupiter-scenario",
+      "label": "Jumping-Jupiter scenario",
+      "preview": "static"
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "docent",
+      "weft": "docent",
+      "on": [
+        "interact"
+      ]
+    }
+  ],
+  "styles": [],
+  "presence": null
+}

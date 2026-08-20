@@ -1,0 +1,108 @@
+{
+  "defs": {
+    "weft:fe0411b5bea9ec3450de3af04e6dd77801f6c3cd15278155558c61d261d4abbd": {
+      "params": [
+        {
+          "Record": {
+            "touches": "Int"
+          }
+        },
+        {
+          "Record": {}
+        }
+      ],
+      "ret": {
+        "Record": {
+          "actions": {
+            "List": "Action"
+          },
+          "state": {
+            "Record": {
+              "touches": "Int"
+            }
+          }
+        }
+      },
+      "effects": [
+        "notify"
+      ],
+      "body": {
+        "Let": [
+          {
+            "Prim": [
+              "add",
+              [
+                {
+                  "Get": [
+                    {
+                      "Var": 1
+                    },
+                    "touches"
+                  ]
+                },
+                {
+                  "Int": 1
+                }
+              ]
+            ]
+          },
+          {
+            "Rec": {
+              "actions": {
+                "ListNew": [
+                  {
+                    "Effect": [
+                      "notify",
+                      {
+                        "text": {
+                          "Prim": [
+                            "concat",
+                            [
+                              {
+                                "Prim": [
+                                  "concat",
+                                  [
+                                    {
+                                      "Text": "The waystone hums — "
+                                    },
+                                    {
+                                      "Prim": [
+                                        "to_text",
+                                        [
+                                          {
+                                            "Var": 0
+                                          }
+                                        ]
+                                      ]
+                                    }
+                                  ]
+                                ]
+                              },
+                              {
+                                "Text": " travelers have touched it."
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "state": {
+                "Rec": {
+                  "touches": {
+                    "Var": 0
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "pre": null,
+      "post": null
+    }
+  },
+  "entry": "weft:fe0411b5bea9ec3450de3af04e6dd77801f6c3cd15278155558c61d261d4abbd"
+}

@@ -1,0 +1,441 @@
+{
+  "thread": "thread/0.1",
+  "world": {
+    "id": "nexus",
+    "title": "The Nexus",
+    "description": "The front door of the Thread. A great hall where every Pixygon world opens off a ring of veils \u2014 step through one to walk a pearl, or read the canon on the pedestals at the centre.",
+    "author": {
+      "id": "did:pixygon:pixygon",
+      "name": "Pixygon"
+    },
+    "codex": [
+      "the-thread",
+      "world-manifest",
+      "godshard",
+      "invaders-sigil"
+    ],
+    "license": "CC-BY-4.0"
+  },
+  "environment": {
+    "year": 0,
+    "sky": {
+      "zenith": [
+        0.04,
+        0.05,
+        0.11
+      ],
+      "horizon": [
+        0.16,
+        0.15000000000000002,
+        0.25
+      ],
+      "sun_dir": [
+        0.3,
+        0.7,
+        0.2
+      ]
+    }
+  },
+  "spawns": [
+    {
+      "name": "entry",
+      "position": [
+        0,
+        0,
+        12
+      ],
+      "yaw": 3.14159
+    }
+  ],
+  "prefabs": [
+    {
+      "id": "60000001",
+      "mesh": {
+        "builtin": "plane"
+      },
+      "material": {
+        "base_color": [
+          0.12,
+          0.12,
+          0.16,
+          1
+        ],
+        "roughness": 0.95
+      }
+    },
+    {
+      "id": "60000002",
+      "mesh": {
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color": [
+          0.62,
+          0.51,
+          0.86,
+          1
+        ],
+        "roughness": 0.5,
+        "metallic": 0.15
+      }
+    },
+    {
+      "id": "60000003",
+      "mesh": {
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color": [
+          0.372,
+          0.306,
+          0.516,
+          1
+        ],
+        "roughness": 0.7
+      }
+    },
+    {
+      "id": "60000004",
+      "mesh": {
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color": [
+          0.62,
+          0.51,
+          0.86,
+          1
+        ],
+        "roughness": 0.35,
+        "metallic": 0.3
+      }
+    }
+  ],
+  "placements": [
+    {
+      "prefab": "60000001",
+      "name": "floor",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        30,
+        1,
+        30
+      ]
+    },
+    {
+      "prefab": "60000004",
+      "name": "pedestal:the-thread",
+      "position": [
+        -4.5,
+        0.7,
+        -1.5
+      ],
+      "scale": [
+        0.8,
+        1.4,
+        0.8
+      ],
+      "codex": "the-thread",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000004",
+      "name": "pedestal:world-manifest",
+      "position": [
+        -1.5,
+        0.7,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1.4,
+        0.8
+      ],
+      "codex": "world-manifest",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000004",
+      "name": "pedestal:godshard",
+      "position": [
+        1.5,
+        0.7,
+        -1.5
+      ],
+      "scale": [
+        0.8,
+        1.4,
+        0.8
+      ],
+      "codex": "godshard",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000004",
+      "name": "pedestal:invaders-sigil",
+      "position": [
+        4.5,
+        0.7,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1.4,
+        0.8
+      ],
+      "codex": "invaders-sigil",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000003",
+      "name": "signboard",
+      "position": [
+        0,
+        1.4,
+        -9
+      ],
+      "scale": [
+        6,
+        2.4,
+        0.2
+      ],
+      "behavior": "open-link",
+      "data": {
+        "kind": "signboard",
+        "url": "https://pixygon.io",
+        "tagline": "Pixygon \u2014 we create and make dreams a reality."
+      }
+    }
+  ],
+  "portals": [
+    {
+      "id": "to-forge",
+      "position": [
+        -10.86,
+        1.4,
+        -1.72
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://pixiel.ai/forge#entry",
+      "label": "The Forge",
+      "preview": "live"
+    },
+    {
+      "id": "to-ledger",
+      "position": [
+        -8.9,
+        1.4,
+        -6.47
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://lonnlyst.pixygon.io/ledger#entry",
+      "label": "The Ledger Hall",
+      "preview": "live"
+    },
+    {
+      "id": "to-haze",
+      "position": [
+        -4.99,
+        1.4,
+        -9.8
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://hazechat.pixygon.io/haze#entry",
+      "label": "The Haze",
+      "preview": "live"
+    },
+    {
+      "id": "to-table",
+      "position": [
+        0,
+        1.4,
+        -11
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://tastebud.pixygon.io/table#entry",
+      "label": "The Table",
+      "preview": "live"
+    },
+    {
+      "id": "to-atlas",
+      "position": [
+        4.99,
+        1.4,
+        -9.8
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://kartograf.pixygon.io/atlas#entry",
+      "label": "The Cartographer\u2019s Hall",
+      "preview": "live"
+    },
+    {
+      "id": "to-feed",
+      "position": [
+        8.9,
+        1.4,
+        -6.47
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://corefeed.pixygon.io/feed#entry",
+      "label": "The Feed",
+      "preview": "live"
+    },
+    {
+      "id": "to-menagerie",
+      "position": [
+        10.86,
+        1.4,
+        -1.72
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://animunda.pixygon.io/menagerie#entry",
+      "label": "The Menagerie",
+      "preview": "live"
+    },
+    {
+      "id": "to-archive",
+      "position": [
+        -7,
+        1.4,
+        9
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://archive.pixygon.io/codex-archive#entry",
+      "label": "The Archive",
+      "preview": "live"
+    },
+    {
+      "id": "to-grove",
+      "position": [
+        0,
+        1.4,
+        9.2
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://garden.pixygon.io/grove#entry",
+      "label": "The Grove",
+      "preview": "live"
+    },
+    {
+      "id": "to-vault",
+      "position": [
+        7,
+        1.4,
+        9
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://vault.pixygon.io/vault#entry",
+      "label": "The Vault",
+      "preview": "live"
+    },
+    {
+      "id": "to-waystone",
+      "position": [
+        -3.5,
+        1.4,
+        10
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://waystone.pixygon.io#entry",
+      "label": "The Waystone",
+      "preview": "live"
+    },
+    {
+      "id": "to-commons",
+      "position": [
+        3.5,
+        1.4,
+        10
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://commons.pixygon.io#entry",
+      "label": "The Commons",
+      "preview": "live"
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "codex-viewer",
+      "wasm": "codex-viewer-wasm",
+      "on": [
+        "interact"
+      ]
+    },
+    {
+      "id": "open-link",
+      "wasm": "open-link-wasm",
+      "on": [
+        "interact"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "codex-viewer-wasm",
+      "uri": "behaviors/codex-viewer.wasm",
+      "kind": "wasm"
+    },
+    {
+      "id": "open-link-wasm",
+      "uri": "behaviors/open-link.wasm",
+      "kind": "wasm"
+    }
+  ],
+  "presence": {
+    "relay": null,
+    "max_occupants": 64,
+    "voice": true
+  }
+}

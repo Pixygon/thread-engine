@@ -1,0 +1,295 @@
+{
+  "thread": "thread/0.1",
+  "world": {
+    "id": "grove",
+    "title": "The Grove",
+    "description": "A quiet grove off the Thread where the living things of the universe gather. Pedestals bear the anima \u2014 inspect one to learn its nature, or step through a veil to the Vault or back to the Nexus.",
+    "author": {
+      "id": "did:pixygon:pixygon",
+      "name": "Pixygon"
+    },
+    "codex": [
+      "anima-spellmaster",
+      "quaking-gel"
+    ],
+    "license": "CC-BY-4.0"
+  },
+  "environment": {
+    "year": 0,
+    "sky": {
+      "zenith": [
+        0.04,
+        0.1,
+        0.07
+      ],
+      "horizon": [
+        0.16,
+        0.24,
+        0.18
+      ],
+      "sun_dir": [
+        0.3,
+        0.7,
+        0.2
+      ]
+    }
+  },
+  "spawns": [
+    {
+      "name": "entry",
+      "position": [
+        0,
+        0,
+        8
+      ],
+      "yaw": 3.14159
+    }
+  ],
+  "prefabs": [
+    {
+      "id": "60000001",
+      "mesh": {
+        "builtin": "plane"
+      },
+      "material": {
+        "base_color": [
+          0.1,
+          0.14,
+          0.1,
+          1
+        ],
+        "roughness": 0.95
+      }
+    },
+    {
+      "id": "60000002",
+      "mesh": {
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color": [
+          0.35,
+          0.55,
+          0.36,
+          1
+        ],
+        "roughness": 0.6,
+        "metallic": 0.05
+      }
+    },
+    {
+      "id": "60000003",
+      "mesh": {
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color": [
+          0.2,
+          0.35,
+          0.24,
+          1
+        ],
+        "roughness": 0.8
+      }
+    }
+  ],
+  "placements": [
+    {
+      "prefab": "60000001",
+      "name": "floor",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        24,
+        1,
+        24
+      ]
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:anima-carrotto",
+      "position": [
+        -4.5,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "anima-carrotto",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:anima-roggo",
+      "position": [
+        -2.0,
+        0.5,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "anima-roggo",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:quaking-gel",
+      "position": [
+        0.5,
+        0.5,
+        -3.5
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "quaking-gel",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:anima-mimic",
+      "position": [
+        3.0,
+        0.5,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "anima-mimic",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:anima-spellmaster",
+      "position": [
+        4.5,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "anima-spellmaster",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000003",
+      "name": "signboard",
+      "position": [
+        0,
+        1.4,
+        -7
+      ],
+      "scale": [
+        6,
+        2.4,
+        0.2
+      ],
+      "behavior": "open-link",
+      "data": {
+        "kind": "signboard",
+        "url": "https://animunda.pixygon.io",
+        "tagline": "Animunda \u2014 the living menagerie of the universe."
+      }
+    }
+  ],
+  "portals": [
+    {
+      "id": "to-nexus",
+      "position": [
+        -9,
+        1.4,
+        0
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://pixygon.io#entry",
+      "label": "The Nexus",
+      "preview": "live"
+    },
+    {
+      "id": "to-vault",
+      "position": [
+        9,
+        1.4,
+        0
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://vault.pixygon.io/vault#entry",
+      "label": "The Vault",
+      "preview": "live"
+    },
+    {
+      "id": "to-meadow",
+      "position": [
+        -5,
+        1.4,
+        5
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://meadow#entry",
+      "label": "The Meadow",
+      "preview": "live"
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "codex-viewer",
+      "wasm": "codex-viewer-wasm",
+      "on": [
+        "interact"
+      ]
+    },
+    {
+      "id": "open-link",
+      "wasm": "open-link-wasm",
+      "on": [
+        "interact"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "codex-viewer-wasm",
+      "uri": "behaviors/codex-viewer.wasm",
+      "kind": "wasm"
+    },
+    {
+      "id": "open-link-wasm",
+      "uri": "behaviors/open-link.wasm",
+      "kind": "wasm"
+    }
+  ],
+  "presence": {
+    "relay": null,
+    "max_occupants": 64,
+    "voice": true
+  }
+}

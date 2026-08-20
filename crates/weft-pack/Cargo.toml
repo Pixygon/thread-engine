@@ -1,0 +1,16 @@
+[package]
+name = "weft-pack"
+version = "0.1.0"
+edition = "2021"
+description = "weftpack — the package tool for Weft: verify, inspect, link, and fetch content-addressed packages (spec: docs/spec/weft-pack-v0.1.md)"
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "weftpack"
+path = "src/main.rs"
+
+[dependencies]
+weft = { package = "weft-lang", path = "../weft", version = "0.1.0" }
+serde_json.workspace = true
+reqwest = { workspace = true, features = ["blocking"] }

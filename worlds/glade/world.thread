@@ -1,0 +1,60 @@
+<!-- The Glade — the modeling-vocabulary demo world. Everything here uses the
+     agent authoring kit: <model>/<use> composites, <ring>/<row> repeaters,
+     <lamp>, the look cascade, and lights. `thread lint` passes clean; this is
+     the world the authoring guide walks through. -->
+<world id="glade" title="The Glade"
+       description="A quiet clearing that demonstrates the Thread's modeling vocabulary — composite models, rings, rows, and lamplight."
+       sky="dusk" presence="none">
+
+  <spawn at="0 0 10" yaw="180"/>
+
+  <plane id="ground" at="0 0 0" scale="44 1 44" color="0.16 0.20 0.14" roughness="0.95"/>
+
+  <!-- A tree, defined once: trunk, two canopy tiers. -->
+  <model name="tree">
+    <cylinder at="0 1.4 0" scale="0.5 2.8 0.5" color="0.30 0.22 0.14" roughness="0.9"/>
+    <sphere at="0 3.2 0" scale="3.2 2.2 3.2" color="0.16 0.34 0.16" roughness="1"/>
+    <sphere at="0 4.4 0" scale="2.0 1.5 2.0" color="0.20 0.42 0.18" roughness="1"/>
+  </model>
+
+  <!-- A standing stone, defined once. -->
+  <model name="stone">
+    <cube at="0 0.6 0" scale="0.9 1.2 0.7" color="0.38 0.40 0.42" roughness="0.95"/>
+    <cube at="0 1.35 0" scale="0.6 0.35 0.5" color="0.44 0.46 0.48" roughness="0.9"/>
+  </model>
+
+  <!-- The clearing: a dais, stones around it, lamps at the quarters. -->
+  <cylinder id="dais" at="0 0.06 0" scale="7 0.12 7" color="0.32 0.28 0.24" roughness="0.85" solid="false"/>
+
+  <ring n="7" r="9" start="10">
+    <use model="stone" at="0 0 0"/>
+  </ring>
+
+  <ring n="4" r="6.4" start="45" face="none">
+    <lamp at="0 0 0" h="2.4" color="1 0.8 0.5"/>
+  </ring>
+
+  <!-- The treeline: two arcs of trees, varied by scale. -->
+  <ring n="5" r="17" start="20" face="none">
+    <use model="tree" at="0 0 0"/>
+  </ring>
+  <ring n="4" r="19" start="65" face="none">
+    <use model="tree" at="0 0 0" scale="1.3"/>
+  </ring>
+
+  <!-- A fence row flanking the path in from the spawn. -->
+  <row n="4" from="-2.2 0 9.5" to="-2.2 0 4.5">
+    <cylinder at="0 0.5 0" scale="0.14 1 0.14" color="0.28 0.24 0.18" roughness="0.9"/>
+  </row>
+  <row n="4" from="2.2 0 9.5" to="2.2 0 4.5">
+    <cylinder at="0 0.5 0" scale="0.14 1 0.14" color="0.28 0.24 0.18" roughness="0.9"/>
+  </row>
+
+  <!-- The way out. -->
+  <portal id="to-nexus" at="0 1.4 -13" to="thread://pixygon.io#entry" label="The Nexus"/>
+
+  <!-- What this place is, in its own words — with a link you can walk. -->
+  <quad id="plaque" at="3.4 1.5 6.5" yaw="205" scale="2.2 1.6 1"
+        text-size="0.062" text="THE GLADE\n\nThis clearing was written in\nThread markup: the trees and\nstones are models stamped by\nrings, the lamps one tag each.\n\nStep through the far veil to\n[[thread://pixygon.io#entry|the Nexus]]."
+        solid="false"/>
+</world>

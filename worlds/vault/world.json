@@ -1,0 +1,43 @@
+{
+  "thread": "thread/0.1",
+  "world": {
+    "id": "vault",
+    "title": "The Vault",
+    "description": "A deep hall of relics — the artifacts and residues the universe has left behind. Inspect a pedestal to read a relic's lore, or take a veil to the Grove or back to the Nexus.",
+    "author": { "id": "did:pixygon:pixygon", "name": "Pixygon" },
+    "codex": ["godshard", "invaders-sigil"],
+    "license": "CC-BY-4.0"
+  },
+  "environment": {
+    "year": 0,
+    "sky": { "zenith": [0.06, 0.05, 0.10], "horizon": [0.18, 0.15, 0.22], "sun_dir": [0.3, 0.7, 0.2] }
+  },
+  "spawns": [{ "name": "entry", "position": [0, 0, 8], "yaw": 3.14159 }],
+  "prefabs": [
+    { "id": "60000001", "mesh": { "builtin": "plane" }, "material": { "base_color": [0.11, 0.10, 0.14, 1], "roughness": 0.9 } },
+    { "id": "60000002", "mesh": { "builtin": "cube" }, "material": { "base_color": [0.72, 0.62, 0.42, 1], "roughness": 0.35, "metallic": 0.5 } },
+    { "id": "60000003", "mesh": { "builtin": "quad" }, "material": { "base_color": [0.30, 0.26, 0.34, 1], "roughness": 0.8 } }
+  ],
+  "placements": [
+    { "prefab": "60000001", "name": "floor", "position": [0, 0, 0], "scale": [24, 1, 24] },
+    { "prefab": "60000002", "name": "pedestal:godshard", "position": [-4.5, 0.5, -1], "scale": [0.8, 1, 0.8], "codex": "godshard", "behavior": "codex-viewer" },
+    { "prefab": "60000002", "name": "pedestal:invaders-sigil", "position": [-2.0, 0.5, -3], "scale": [0.8, 1, 0.8], "codex": "invaders-sigil", "behavior": "codex-viewer" },
+    { "prefab": "60000002", "name": "pedestal:tarnished-cog", "position": [0.5, 0.5, -3.5], "scale": [0.8, 1, 0.8], "codex": "tarnished-cog", "behavior": "codex-viewer" },
+    { "prefab": "60000002", "name": "pedestal:sayonara-ribbon", "position": [3.0, 0.5, -3], "scale": [0.8, 1, 0.8], "codex": "sayonara-ribbon", "behavior": "codex-viewer" },
+    { "prefab": "60000002", "name": "pedestal:gravewax", "position": [4.5, 0.5, -1], "scale": [0.8, 1, 0.8], "codex": "gravewax", "behavior": "codex-viewer" },
+    { "prefab": "60000003", "name": "signboard", "position": [0, 1.4, -7], "scale": [6, 2.4, 0.2], "behavior": "open-link", "data": { "kind": "signboard", "url": "https://pixygon.io", "tagline": "Relics of the Pixygon universe — read them on the Codex." } }
+  ],
+  "portals": [
+    { "id": "to-nexus", "position": [-9, 1.4, 0], "scale": [2, 3, 0.2], "to": "thread://pixygon.io#entry", "label": "The Nexus", "preview": "live" },
+    { "id": "to-grove", "position": [9, 1.4, 0], "scale": [2, 3, 0.2], "to": "thread://garden.pixygon.io/grove#entry", "label": "The Grove", "preview": "live" }
+  ],
+  "behaviors": [
+    { "id": "codex-viewer", "wasm": "codex-viewer-wasm", "on": ["interact"] },
+    { "id": "open-link", "wasm": "open-link-wasm", "on": ["interact"] }
+  ],
+  "assets": [
+    { "id": "codex-viewer-wasm", "uri": "behaviors/codex-viewer.wasm", "kind": "wasm" },
+    { "id": "open-link-wasm", "uri": "behaviors/open-link.wasm", "kind": "wasm" }
+  ],
+  "presence": { "relay": null, "max_occupants": 64, "voice": true }
+}

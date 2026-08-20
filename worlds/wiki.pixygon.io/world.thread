@@ -1,0 +1,53 @@
+<!-- The Atrium of the Encyclopedia — the front hall of thread://wiki.pixygon.io.
+     Every veil leads to an article hall; every article hall is woven on
+     approach. Authored in Thread markup with the structure vocabulary
+     (<room>, light=) — the served source IS this file. -->
+<world id="wiki-atrium" title="The Encyclopedia Atrium"
+       description="Walk the sum of human knowledge. Ten doors to start; every article beyond them is a hall of its own."
+       sky="dusk">
+  <spawn at="0 0 22" yaw="180"/>
+
+  <room at="0 0 0" r="15" h="4" columns="20" gates="180">
+    <!-- The heart: a slowly turning beacon over the welcome pedestal. -->
+    <cylinder id="pedestal" at="0 0.4 0" scale="2.6 0.8 2.6" class="stone"/>
+    <sphere id="beacon" at="0 3.4 0" scale="0.8 0.8 0.8" class="beacon"
+            light="0.55 0.75 1 2.2 18"/>
+    <quad id="welcome" at="0 1.7 -2.6" scale="4.6 2.2 1"
+          text="THE ENCYCLOPEDIA\nEvery article is a place. Step through any door and the hall will be woven for you as you arrive.\nSpeak — travelers reading the same article stand beside you."/>
+    <!-- The living clock: a ticking Weft module rewrites this plaque four
+         beats to the second — the world behaves, it doesn't just wait. -->
+    <quad id="clock" at="0 1.5 2.7" rot="0 180 0" scale="3.2 1.0 1"
+          text="The Atrium has been alive for — seconds."
+          weft-use="weft-clock.weftpack.json#clock" weft-on="tick"/>
+
+    <!-- Lamps ring the hall and actually light it. -->
+    <sphere at="10 2.4 -10" scale="0.25 0.25 0.25" class="lamp" light="1 0.85 0.55 1.8 14"/>
+    <sphere at="-10 2.4 -10" scale="0.25 0.25 0.25" class="lamp" light="1 0.85 0.55 1.8 14"/>
+    <sphere at="10 2.4 10" scale="0.25 0.25 0.25" class="lamp" light="1 0.85 0.55 1.8 14"/>
+    <sphere at="-10 2.4 10" scale="0.25 0.25 0.25" class="lamp" light="1 0.85 0.55 1.8 14"/>
+
+    <!-- Ten doors to begin with — history, music, science, places. -->
+    <portal to="thread://wiki.pixygon.io/wiki/napoleon"           at="-4.6 1.4 -12.6" rot="0 20 0"  scale="2 2.8 0.2" label="Napoleon"/>
+    <portal to="thread://wiki.pixygon.io/wiki/marie-antoinette"   at="-8.6 1.4 -10.2" rot="0 40 0"  scale="2 2.8 0.2" label="Marie Antoinette"/>
+    <portal to="thread://wiki.pixygon.io/wiki/albert-einstein"    at="-11.4 1.4 -6.6" rot="0 60 0"  scale="2 2.8 0.2" label="Albert Einstein"/>
+    <portal to="thread://wiki.pixygon.io/wiki/ancient-rome"       at="-12.8 1.4 -2.4" rot="0 80 0"  scale="2 2.8 0.2" label="Ancient Rome"/>
+    <portal to="thread://wiki.pixygon.io/wiki/earth"              at="-12.8 1.4 2.4"  rot="0 100 0" scale="2 2.8 0.2" label="Earth"/>
+    <portal to="thread://wiki.pixygon.io/wiki/josh-homme"         at="4.6 1.4 -12.6"  rot="0 -20 0" scale="2 2.8 0.2" label="Josh Homme"/>
+    <portal to="thread://wiki.pixygon.io/wiki/songs-for-the-deaf" at="8.6 1.4 -10.2"  rot="0 -40 0" scale="2 2.8 0.2" label="Songs for the Deaf"/>
+    <portal to="thread://wiki.pixygon.io/wiki/the-beatles"        at="11.4 1.4 -6.6"  rot="0 -60 0" scale="2 2.8 0.2" label="The Beatles"/>
+    <portal to="thread://wiki.pixygon.io/wiki/norway"             at="12.8 1.4 -2.4"  rot="0 -80 0" scale="2 2.8 0.2" label="Norway"/>
+    <portal to="thread://wiki.pixygon.io/wiki/solar-system"       at="12.8 1.4 2.4"   rot="0 -100 0" scale="2 2.8 0.2" label="Solar System"/>
+  </room>
+
+  <!-- The approach: a lit walkway to the gate. -->
+  <plane at="0 0.01 22" scale="4 1 16" class="walk"/>
+  <sphere at="2.6 2.4 19" scale="0.25 0.25 0.25" class="lamp" light="1 0.85 0.55 1.8 14"/>
+  <sphere at="-2.6 2.4 19" scale="0.25 0.25 0.25" class="lamp" light="1 0.85 0.55 1.8 14"/>
+</world>
+<style>
+  room  { color: 0.58 0.55 0.5; floor-color: 0.42 0.4 0.37; accent-color: 0.85 0.68 0.28 }
+  .stone  { color: 0.5 0.48 0.44; roughness: 0.7 }
+  .beacon { color: 0.55 0.75 1; emissive: 0.8 }
+  .lamp   { color: 1 0.88 0.6; emissive: 0.8 }
+  .walk   { color: 0.5 0.47 0.42 }
+</style>

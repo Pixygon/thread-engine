@@ -1,0 +1,19 @@
+[package]
+# Published to crates.io as `thread-structured-id` (the bare `thread-id` name is a
+# long-established unrelated crate). The workspace still refers to it as `thread-id`
+# via a `package =` alias, so no in-repo `use thread_id::…` changes.
+name = "thread-structured-id"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "The StructuredId scheme (CCSSNNNN) for the Thread — a compact string-or-number id for World Manifest prefabs and entities."
+repository = "https://github.com/Pixygon/Infinite"
+keywords = ["thread", "identifier", "serde"]
+categories = ["data-structures", "encoding"]
+
+[dependencies]
+serde = { workspace = true }
+
+[dev-dependencies]
+serde_json.workspace = true

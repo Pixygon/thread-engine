@@ -1,0 +1,1898 @@
+{
+  "thread": "thread/0.1",
+  "world": {
+    "id": "weavery",
+    "title": "The Weavery",
+    "description": "The package directory of Weft — verified, content-addressed libraries for the Thread. Every pedestal is one fetch away.",
+    "author": null,
+    "codex": [],
+    "license": null
+  },
+  "environment": {
+    "year": null,
+    "sky": {
+      "zenith": [
+        0.02,
+        0.03,
+        0.08
+      ],
+      "horizon": [
+        0.07,
+        0.09,
+        0.16
+      ],
+      "sun_dir": [
+        0.4,
+        0.2,
+        0.5
+      ]
+    },
+    "bounds": null,
+    "rules": {
+      "survival": false,
+      "gathering": false,
+      "combat": false
+    }
+  },
+  "spawns": [
+    {
+      "name": "entry",
+      "position": [
+        0.0,
+        0.0,
+        16.0
+      ],
+      "yaw": 3.1415927
+    }
+  ],
+  "assets": [],
+  "prefabs": [
+    {
+      "id": "60910001",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.14,
+          0.13,
+          0.19,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.9,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60910002",
+      "mesh": {
+        "asset": null,
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.2,
+          0.19,
+          0.26,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.85,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60910003",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.23,
+          0.21849999,
+          0.299,
+          1.0
+        ],
+        "metallic": 0.05,
+        "roughness": 0.55,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60910004",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.6,
+          0.45,
+          0.85,
+          1.0
+        ],
+        "metallic": 0.8,
+        "roughness": 0.35,
+        "emissive": 0.1
+      }
+    },
+    {
+      "id": "60910005",
+      "mesh": {
+        "asset": null,
+        "builtin": "sphere"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.85,
+          0.7,
+          1.0,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.8
+      }
+    },
+    {
+      "id": "60910006",
+      "mesh": {
+        "asset": null,
+        "builtin": "quad"
+      },
+      "material": null
+    },
+    {
+      "id": "60910007",
+      "mesh": {
+        "asset": null,
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          0.3,
+          0.28,
+          0.38,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 0.6,
+        "emissive": 0.0
+      }
+    },
+    {
+      "id": "60910008",
+      "mesh": {
+        "asset": null,
+        "builtin": "sphere"
+      },
+      "material": {
+        "base_color_texture": null,
+        "orm_texture": null,
+        "normal_texture": null,
+        "base_color": [
+          1.0,
+          0.85,
+          0.6,
+          1.0
+        ],
+        "metallic": 0.0,
+        "roughness": 1.0,
+        "emissive": 0.8
+      }
+    }
+  ],
+  "placements": [
+    {
+      "prefab": "60910001",
+      "name": "room floor",
+      "type": "room-floor",
+      "position": [
+        0.0,
+        0.03,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        24.0,
+        0.06,
+        24.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        2.341084,
+        2.0,
+        -11.769423
+      ],
+      "rotation": [
+        0.0,
+        -0.09801714,
+        0.0,
+        0.9951847
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        0.0,
+        2.7,
+        -12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        0.0,
+        5.4900002,
+        -12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        6.666843,
+        2.0,
+        -9.977635
+      ],
+      "rotation": [
+        0.0,
+        -0.2902847,
+        0.0,
+        0.95694035
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        4.592201,
+        2.7,
+        -11.086554
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        4.592201,
+        5.4900002,
+        -11.086554
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        9.977635,
+        2.0,
+        -6.666843
+      ],
+      "rotation": [
+        0.0,
+        -0.4713967,
+        0.0,
+        0.8819213
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        8.485281,
+        2.7,
+        -8.485281
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        8.485281,
+        5.4900002,
+        -8.485281
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        11.769423,
+        2.0,
+        -2.3410842
+      ],
+      "rotation": [
+        0.0,
+        -0.6343933,
+        0.0,
+        0.7730105
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        11.086554,
+        2.7,
+        -4.592201
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        11.086554,
+        5.4900002,
+        -4.592201
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        11.769423,
+        2.0,
+        2.341084
+      ],
+      "rotation": [
+        0.0,
+        -0.77301043,
+        0.0,
+        0.6343933
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        12.0,
+        2.7,
+        5.2453663e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        12.0,
+        5.4900002,
+        5.2453663e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        9.977636,
+        2.0,
+        6.6668425
+      ],
+      "rotation": [
+        0.0,
+        -0.88192123,
+        0.0,
+        0.47139677
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        11.086554,
+        2.7,
+        4.592202
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        11.086554,
+        5.4900002,
+        4.592202
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        6.6668425,
+        2.0,
+        9.977636
+      ],
+      "rotation": [
+        0.0,
+        -0.95694035,
+        0.0,
+        0.29028463
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        8.485281,
+        2.7,
+        8.485281
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        8.485281,
+        5.4900002,
+        8.485281
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        4.5921993,
+        2.7,
+        11.0865555
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        4.5921993,
+        5.4900002,
+        11.0865555
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        -0.0000010490733,
+        2.7,
+        12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        -0.0000010490733,
+        5.4900002,
+        12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        -6.6668434,
+        2.0,
+        9.977634
+      ],
+      "rotation": [
+        0.0,
+        -0.9569403,
+        0.0,
+        -0.29028472
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        -4.592201,
+        2.7,
+        11.086554
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        -4.592201,
+        5.4900002,
+        11.086554
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        -9.977633,
+        2.0,
+        6.6668453
+      ],
+      "rotation": [
+        0.0,
+        -0.8819213,
+        0.0,
+        -0.47139663
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        -8.485283,
+        2.7,
+        8.48528
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        -8.485283,
+        5.4900002,
+        8.48528
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        -11.769423,
+        2.0,
+        2.3410845
+      ],
+      "rotation": [
+        0.0,
+        -0.7730105,
+        0.0,
+        -0.6343933
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        -11.086556,
+        2.7,
+        4.5921974
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        -11.086556,
+        5.4900002,
+        4.5921974
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        -11.769423,
+        2.0,
+        -2.341085
+      ],
+      "rotation": [
+        0.0,
+        -0.6343933,
+        0.0,
+        -0.7730105
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        -12.0,
+        2.7,
+        -1.4309856e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        -12.0,
+        5.4900002,
+        -1.4309856e-7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        -9.977636,
+        2.0,
+        -6.6668406
+      ],
+      "rotation": [
+        0.0,
+        -0.47139683,
+        0.0,
+        -0.88192123
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        -11.086554,
+        2.7,
+        -4.592203
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        -11.086554,
+        5.4900002,
+        -4.592203
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        -6.6668434,
+        2.0,
+        -9.977635
+      ],
+      "rotation": [
+        0.0,
+        -0.29028472,
+        0.0,
+        -0.95694035
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        -8.485278,
+        2.7,
+        -8.485284
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        -8.485278,
+        5.4900002,
+        -8.485284
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910002",
+      "name": "wall",
+      "type": "room-wall",
+      "position": [
+        -2.3410828,
+        2.0,
+        -11.7694235
+      ],
+      "rotation": [
+        0.0,
+        -0.0980171,
+        0.0,
+        -0.9951847
+      ],
+      "scale": [
+        4.882168,
+        4.0,
+        0.45
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910003",
+      "name": "column",
+      "type": "room-column",
+      "position": [
+        -4.592201,
+        2.7,
+        -11.086555
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.5,
+        5.4,
+        0.5
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910004",
+      "name": "capital",
+      "type": "room-capital",
+      "position": [
+        -4.592201,
+        5.4900002,
+        -11.086555
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.18,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910005",
+      "name": "loom-light",
+      "type": "sphere",
+      "class": [
+        "beacon"
+      ],
+      "position": [
+        0.0,
+        3.6,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.7,
+        0.7,
+        0.7
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "light": {
+        "color": [
+          0.85,
+          0.7,
+          1.0
+        ],
+        "intensity": 2.4,
+        "range": 16.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910006",
+      "name": "welcome",
+      "type": "quad",
+      "position": [
+        0.0,
+        1.8,
+        -3.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        5.2,
+        2.4,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "THE WEAVERY\nPackages for a language where packages cannot lie.\nEvery definition is named by its hash: nothing here can be changed under you, nothing conflicts, and your own verifier decides what to trust.\nfetch → verify → link → weave.",
+        "size": 0.09,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910007",
+      "name": "",
+      "type": "cylinder",
+      "class": [
+        "stone"
+      ],
+      "position": [
+        -7.0,
+        0.5,
+        -3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.4,
+        1.0,
+        1.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910006",
+      "name": "",
+      "type": "quad",
+      "position": [
+        -7.0,
+        2.1,
+        -3.0
+      ],
+      "rotation": [
+        0.0,
+        0.3007058,
+        0.0,
+        0.95371693
+      ],
+      "scale": [
+        3.0,
+        1.9,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "weft-form\nThe shape of things: lerp, ring, grid.\nThe seed of the Thread's three.js.\n\nweftpack fetch https://wpm.pixygon.io/packages/weft-form.weftpack.json",
+        "size": 0.09,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910007",
+      "name": "",
+      "type": "cylinder",
+      "class": [
+        "stone"
+      ],
+      "position": [
+        0.0,
+        0.5,
+        -7.6
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.4,
+        1.0,
+        1.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910006",
+      "name": "",
+      "type": "quad",
+      "position": [
+        0.0,
+        2.1,
+        -7.6
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        1.9,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "weft-motion\nThe shape of time: ease-in/out, smoothstep, osc, pingpong.\nCurves that make conjured things feel alive.\n\nweftpack fetch https://wpm.pixygon.io/packages/weft-motion.weftpack.json",
+        "size": 0.09,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910007",
+      "name": "",
+      "type": "cylinder",
+      "class": [
+        "stone"
+      ],
+      "position": [
+        7.0,
+        0.5,
+        -3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.4,
+        1.0,
+        1.4
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910006",
+      "name": "",
+      "type": "quad",
+      "position": [
+        7.0,
+        2.1,
+        -3.0
+      ],
+      "rotation": [
+        0.0,
+        -0.3007058,
+        0.0,
+        0.95371693
+      ],
+      "scale": [
+        3.0,
+        1.9,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "weft-clock\nA living behavior, published: the Atrium's heartbeat, built on weft-form's ring.\nBind it with one attribute:\nweft-use='weft-clock.weftpack.json#clock'",
+        "size": 0.09,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910006",
+      "name": "",
+      "type": "quad",
+      "position": [
+        -5.5,
+        1.8,
+        5.5
+      ],
+      "rotation": [
+        0.0,
+        0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        4.2,
+        2.3,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "PUBLISH A PACKAGE\n1. Build defs with the weft crate; Package::build names your exports.\n2. weftpack publish my-lib.weftpack.json — wpm verifies before it stores.\n3. Or serve the file anywhere yourself: a CDN, a repo, .well-known/weft/.\nThe registry is a shelf, never an authority.\nRegistry: wpm.pixygon.io · Spec: docs/spec/weft-pack-v0.1.md",
+        "size": 0.09,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910006",
+      "name": "",
+      "type": "quad",
+      "position": [
+        5.5,
+        1.8,
+        5.5
+      ],
+      "rotation": [
+        0.0,
+        -0.9238795,
+        0.0,
+        0.38268343
+      ],
+      "scale": [
+        4.2,
+        2.3,
+        1.0
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "text": {
+        "content": "CONSUME A PACKAGE\nIn markup: weft-use='URL#export' on any object.\nIn Rust: weft::pack::link — a set union of hashes.\nOn the CLI: weftpack fetch / show / link.\nLinking has no versions and no conflicts: the same bytes are the same hash, forever.",
+        "size": 0.09,
+        "color": [
+          0.13,
+          0.11,
+          0.1
+        ],
+        "background": [
+          0.93,
+          0.89,
+          0.8
+        ]
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910008",
+      "name": "",
+      "type": "sphere",
+      "class": [
+        "lamp"
+      ],
+      "position": [
+        9.0,
+        2.4,
+        3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "light": {
+        "color": [
+          1.0,
+          0.8,
+          0.5
+        ],
+        "intensity": 1.6,
+        "range": 12.0
+      },
+      "data": null,
+      "children": []
+    },
+    {
+      "prefab": "60910008",
+      "name": "",
+      "type": "sphere",
+      "class": [
+        "lamp"
+      ],
+      "position": [
+        -9.0,
+        2.4,
+        3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "codex": null,
+      "behavior": null,
+      "interaction": null,
+      "light": {
+        "color": [
+          1.0,
+          0.8,
+          0.5
+        ],
+        "intensity": 1.6,
+        "range": 12.0
+      },
+      "data": null,
+      "children": []
+    }
+  ],
+  "portals": [
+    {
+      "id": "portal",
+      "position": [
+        0.0,
+        1.4,
+        10.6
+      ],
+      "rotation": [
+        0.0,
+        1.0,
+        0.0,
+        -4.371139e-8
+      ],
+      "scale": [
+        2.0,
+        2.8,
+        0.2
+      ],
+      "to": "thread://wiki.pixygon.io",
+      "label": "The Encyclopedia Atrium",
+      "preview": "static"
+    }
+  ],
+  "behaviors": [],
+  "styles": [],
+  "presence": null
+}

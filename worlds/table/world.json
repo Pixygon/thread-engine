@@ -1,0 +1,298 @@
+{
+  "thread": "thread/0.1",
+  "world": {
+    "id": "table",
+    "title": "The Table",
+    "description": "Tastebud’s long table — recipes laid out plate by plate, the kitchen of the ecosystem.",
+    "author": {
+      "id": "did:pixygon:pixygon",
+      "name": "Pixygon"
+    },
+    "codex": [
+      "anima-carrotto",
+      "quaking-gel",
+      "gravewax",
+      "alchemists-residue",
+      "anima-roggo"
+    ],
+    "license": "CC-BY-4.0"
+  },
+  "environment": {
+    "year": 0,
+    "sky": {
+      "zenith": [
+        0.1,
+        0.08,
+        0.05
+      ],
+      "horizon": [
+        0.22,
+        0.18,
+        0.19
+      ],
+      "sun_dir": [
+        0.3,
+        0.7,
+        0.2
+      ]
+    }
+  },
+  "spawns": [
+    {
+      "name": "entry",
+      "position": [
+        0,
+        0,
+        8
+      ],
+      "yaw": 3.14159
+    }
+  ],
+  "prefabs": [
+    {
+      "id": "60000001",
+      "mesh": {
+        "builtin": "plane"
+      },
+      "material": {
+        "base_color": [
+          0.12,
+          0.12,
+          0.16,
+          1
+        ],
+        "roughness": 0.95
+      }
+    },
+    {
+      "id": "60000002",
+      "mesh": {
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color": [
+          0.9,
+          0.68,
+          0.3,
+          1
+        ],
+        "roughness": 0.5,
+        "metallic": 0.15
+      }
+    },
+    {
+      "id": "60000003",
+      "mesh": {
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color": [
+          0.54,
+          0.40800000000000003,
+          0.18,
+          1
+        ],
+        "roughness": 0.7
+      }
+    },
+    {
+      "id": "60000004",
+      "mesh": {
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color": [
+          0.9,
+          0.68,
+          0.3,
+          1
+        ],
+        "roughness": 0.35,
+        "metallic": 0.3
+      }
+    }
+  ],
+  "placements": [
+    {
+      "prefab": "60000001",
+      "name": "floor",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        30,
+        1,
+        30
+      ]
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:anima-carrotto",
+      "position": [
+        -5.6,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "anima-carrotto",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:quaking-gel",
+      "position": [
+        -2.8,
+        0.5,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "quaking-gel",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:gravewax",
+      "position": [
+        0,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "gravewax",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:alchemists-residue",
+      "position": [
+        2.8,
+        0.5,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "alchemists-residue",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:anima-roggo",
+      "position": [
+        5.6,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "anima-roggo",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000003",
+      "name": "signboard",
+      "position": [
+        0,
+        1.4,
+        -7
+      ],
+      "scale": [
+        6,
+        2.4,
+        0.2
+      ],
+      "behavior": "open-link",
+      "data": {
+        "kind": "signboard",
+        "url": "https://tastebud.pixygon.io",
+        "tagline": "Tastebud — taste, planned."
+      }
+    }
+  ],
+  "portals": [
+    {
+      "id": "to-nexus",
+      "position": [
+        -10,
+        1.4,
+        0
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://pixygon.io#entry",
+      "label": "The Nexus",
+      "preview": "live"
+    },
+    {
+      "id": "to-atlas",
+      "position": [
+        10,
+        1.4,
+        0
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://kartograf.pixygon.io/atlas#entry",
+      "label": "The Cartographer’s Hall",
+      "preview": "live"
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "codex-viewer",
+      "wasm": "codex-viewer-wasm",
+      "on": [
+        "interact"
+      ]
+    },
+    {
+      "id": "open-link",
+      "wasm": "open-link-wasm",
+      "on": [
+        "interact"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "codex-viewer-wasm",
+      "uri": "behaviors/codex-viewer.wasm",
+      "kind": "wasm"
+    },
+    {
+      "id": "open-link-wasm",
+      "uri": "behaviors/open-link.wasm",
+      "kind": "wasm"
+    }
+  ],
+  "presence": {
+    "relay": null,
+    "max_occupants": 64,
+    "voice": true
+  }
+}

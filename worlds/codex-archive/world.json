@@ -1,0 +1,47 @@
+{
+  "thread": "thread/0.1",
+  "world": {
+    "id": "codex-archive",
+    "title": "The Archive",
+    "description": "A walkable hall of the Codex. Each pedestal bears a canonical entry of the Pixygon universe — inspect one to read its lore, or step through the veil to the Bazaar.",
+    "author": { "id": "did:pixygon:pixygon", "name": "Pixygon" },
+    "codex": ["the-pearl-dress", "the-veil"],
+    "license": "CC-BY-4.0"
+  },
+  "environment": {
+    "year": 0,
+    "sky": { "zenith": [0.05, 0.06, 0.12], "horizon": [0.18, 0.16, 0.24], "sun_dir": [0.3, 0.7, 0.2] }
+  },
+  "spawns": [
+    { "name": "entry", "position": [0.0, 0.0, 8.0], "yaw": 3.14159 }
+  ],
+  "prefabs": [
+    { "id": "60000001", "mesh": { "builtin": "plane" }, "material": { "base_color": [0.14, 0.13, 0.18, 1.0], "roughness": 0.9 } },
+    { "id": "60000002", "mesh": { "builtin": "cube" }, "material": { "base_color": [0.35, 0.33, 0.42, 1.0], "roughness": 0.6, "metallic": 0.1 } }
+  ],
+  "placements": [
+    { "prefab": "60000001", "name": "floor", "position": [0.0, 0.0, 0.0], "scale": [24.0, 1.0, 24.0] },
+
+    { "prefab": "60000002", "name": "pedestal:veil", "position": [-4.0, 0.5, 0.0], "scale": [0.8, 1.0, 0.8],
+      "codex": "the-veil", "behavior": "codex-viewer" },
+    { "prefab": "60000002", "name": "pedestal:veilwalkers", "position": [-1.5, 0.5, -2.0], "scale": [0.8, 1.0, 0.8],
+      "codex": "the-veilwalkers", "behavior": "codex-viewer" },
+    { "prefab": "60000002", "name": "pedestal:first-apocalypse", "position": [1.5, 0.5, -2.0], "scale": [0.8, 1.0, 0.8],
+      "codex": "first-apocalypse", "behavior": "codex-viewer" },
+    { "prefab": "60000002", "name": "pedestal:amebrak", "position": [4.0, 0.5, 0.0], "scale": [0.8, 1.0, 0.8],
+      "codex": "amebrak", "behavior": "codex-viewer" },
+    { "prefab": "60000002", "name": "pedestal:pearl-dress", "position": [0.0, 0.5, 2.0], "scale": [0.8, 1.0, 0.8],
+      "codex": "the-pearl-dress", "behavior": "codex-viewer" }
+  ],
+  "portals": [
+    { "id": "to-market", "position": [0.0, 1.2, -6.0], "scale": [2.0, 3.0, 0.2],
+      "to": "thread://market.pixygon.io/market#entry", "label": "The Bazaar", "preview": "live" }
+  ],
+  "behaviors": [
+    { "id": "codex-viewer", "wasm": "codex-viewer-wasm", "on": ["interact"] }
+  ],
+  "assets": [
+    { "id": "codex-viewer-wasm", "uri": "behaviors/codex-viewer.wasm", "kind": "wasm" }
+  ],
+  "presence": { "relay": null, "max_occupants": 32, "voice": true }
+}

@@ -1,0 +1,920 @@
+{
+  "name": "weft-clock",
+  "exports": {
+    "clock": "weft:9449d4eb813ad6e1407e7b6470d0dc4149d2fe55605738a65225701c26f4fb1d"
+  },
+  "defs": {
+    "weft:9449d4eb813ad6e1407e7b6470d0dc4149d2fe55605738a65225701c26f4fb1d": {
+      "params": [
+        {
+          "Record": {
+            "beats": "Int"
+          }
+        },
+        {
+          "Record": {}
+        }
+      ],
+      "ret": {
+        "Record": {
+          "actions": {
+            "List": "Action"
+          },
+          "state": {
+            "Record": {
+              "beats": "Int"
+            }
+          }
+        }
+      },
+      "effects": [
+        "set_state",
+        "spawn"
+      ],
+      "body": {
+        "Let": [
+          {
+            "Prim": [
+              "add",
+              [
+                {
+                  "Get": [
+                    {
+                      "Var": 1
+                    },
+                    "beats"
+                  ]
+                },
+                {
+                  "Int": 1
+                }
+              ]
+            ]
+          },
+          {
+            "Rec": {
+              "actions": {
+                "If": [
+                  {
+                    "Prim": [
+                      "eq_int",
+                      [
+                        {
+                          "Prim": [
+                            "sub",
+                            [
+                              {
+                                "Var": 0
+                              },
+                              {
+                                "Prim": [
+                                  "mul",
+                                  [
+                                    {
+                                      "Prim": [
+                                        "div",
+                                        [
+                                          {
+                                            "Var": 0
+                                          },
+                                          {
+                                            "Int": 200
+                                          }
+                                        ]
+                                      ]
+                                    },
+                                    {
+                                      "Int": 200
+                                    }
+                                  ]
+                                ]
+                              }
+                            ]
+                          ]
+                        },
+                        {
+                          "Int": 0
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "Map": {
+                      "cap": 16,
+                      "list": {
+                        "Call": [
+                          "weft:9e3d74257fbc6f9b292c9f6d51082f7d3a00852d40ac29d2bf1ad144474f11fc",
+                          [
+                            {
+                              "Int": 12
+                            },
+                            {
+                              "Fix": 6000000
+                            }
+                          ]
+                        ]
+                      },
+                      "body": {
+                        "Effect": [
+                          "spawn",
+                          {
+                            "amp": {
+                              "Fix": 120000
+                            },
+                            "animate": {
+                              "Text": "bob"
+                            },
+                            "b": {
+                              "Int": 120
+                            },
+                            "builtin": {
+                              "Text": "sphere"
+                            },
+                            "g": {
+                              "Int": 210
+                            },
+                            "r": {
+                              "Int": 255
+                            },
+                            "scale": {
+                              "Fix": 120000
+                            },
+                            "speed": {
+                              "Fix": 500000
+                            },
+                            "x": {
+                              "Get": [
+                                {
+                                  "Var": 0
+                                },
+                                "x"
+                              ]
+                            },
+                            "y": {
+                              "Prim": [
+                                "f_add",
+                                [
+                                  {
+                                    "Get": [
+                                      {
+                                        "Var": 0
+                                      },
+                                      "y"
+                                    ]
+                                  },
+                                  {
+                                    "Fix": 2600000
+                                  }
+                                ]
+                              ]
+                            },
+                            "z": {
+                              "Get": [
+                                {
+                                  "Var": 0
+                                },
+                                "z"
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "If": [
+                      {
+                        "Prim": [
+                          "eq_int",
+                          [
+                            {
+                              "Prim": [
+                                "sub",
+                                [
+                                  {
+                                    "Var": 0
+                                  },
+                                  {
+                                    "Prim": [
+                                      "mul",
+                                      [
+                                        {
+                                          "Prim": [
+                                            "div",
+                                            [
+                                              {
+                                                "Var": 0
+                                              },
+                                              {
+                                                "Int": 40
+                                              }
+                                            ]
+                                          ]
+                                        },
+                                        {
+                                          "Int": 40
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                ]
+                              ]
+                            },
+                            {
+                              "Int": 0
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "ListNew": [
+                          {
+                            "Effect": [
+                              "set_state",
+                              {
+                                "placement": {
+                                  "Text": "clock"
+                                },
+                                "text": {
+                                  "Prim": [
+                                    "concat",
+                                    [
+                                      {
+                                        "Prim": [
+                                          "concat",
+                                          [
+                                            {
+                                              "Text": "The Atrium has been alive for "
+                                            },
+                                            {
+                                              "Prim": [
+                                                "to_text",
+                                                [
+                                                  {
+                                                    "Prim": [
+                                                      "div",
+                                                      [
+                                                        {
+                                                          "Var": 0
+                                                        },
+                                                        {
+                                                          "Int": 4
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      {
+                                        "Text": " seconds.\nWoven code, beating."
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "Effect": [
+                              "spawn",
+                              {
+                                "amp": {
+                                  "Fix": 180000
+                                },
+                                "animate": {
+                                  "Text": "bob"
+                                },
+                                "b": {
+                                  "Int": 255
+                                },
+                                "builtin": {
+                                  "Text": "sphere"
+                                },
+                                "g": {
+                                  "Prim": [
+                                    "add",
+                                    [
+                                      {
+                                        "Int": 150
+                                      },
+                                      {
+                                        "Prim": [
+                                          "sub",
+                                          [
+                                            {
+                                              "Prim": [
+                                                "mul",
+                                                [
+                                                  {
+                                                    "Var": 0
+                                                  },
+                                                  {
+                                                    "Int": 61
+                                                  }
+                                                ]
+                                              ]
+                                            },
+                                            {
+                                              "Prim": [
+                                                "mul",
+                                                [
+                                                  {
+                                                    "Prim": [
+                                                      "div",
+                                                      [
+                                                        {
+                                                          "Prim": [
+                                                            "mul",
+                                                            [
+                                                              {
+                                                                "Var": 0
+                                                              },
+                                                              {
+                                                                "Int": 61
+                                                              }
+                                                            ]
+                                                          ]
+                                                        },
+                                                        {
+                                                          "Int": 100
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  {
+                                                    "Int": 100
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                },
+                                "r": {
+                                  "Prim": [
+                                    "add",
+                                    [
+                                      {
+                                        "Int": 110
+                                      },
+                                      {
+                                        "Prim": [
+                                          "sub",
+                                          [
+                                            {
+                                              "Prim": [
+                                                "mul",
+                                                [
+                                                  {
+                                                    "Var": 0
+                                                  },
+                                                  {
+                                                    "Int": 97
+                                                  }
+                                                ]
+                                              ]
+                                            },
+                                            {
+                                              "Prim": [
+                                                "mul",
+                                                [
+                                                  {
+                                                    "Prim": [
+                                                      "div",
+                                                      [
+                                                        {
+                                                          "Prim": [
+                                                            "mul",
+                                                            [
+                                                              {
+                                                                "Var": 0
+                                                              },
+                                                              {
+                                                                "Int": 97
+                                                              }
+                                                            ]
+                                                          ]
+                                                        },
+                                                        {
+                                                          "Int": 130
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  {
+                                                    "Int": 130
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                },
+                                "scale": {
+                                  "Fix": 140000
+                                },
+                                "speed": {
+                                  "Fix": 700000
+                                },
+                                "x": {
+                                  "Prim": [
+                                    "f_div",
+                                    [
+                                      {
+                                        "Prim": [
+                                          "fix_of_int",
+                                          [
+                                            {
+                                              "Prim": [
+                                                "sub",
+                                                [
+                                                  {
+                                                    "Prim": [
+                                                      "sub",
+                                                      [
+                                                        {
+                                                          "Prim": [
+                                                            "mul",
+                                                            [
+                                                              {
+                                                                "Var": 0
+                                                              },
+                                                              {
+                                                                "Int": 137
+                                                              }
+                                                            ]
+                                                          ]
+                                                        },
+                                                        {
+                                                          "Prim": [
+                                                            "mul",
+                                                            [
+                                                              {
+                                                                "Prim": [
+                                                                  "div",
+                                                                  [
+                                                                    {
+                                                                      "Prim": [
+                                                                        "mul",
+                                                                        [
+                                                                          {
+                                                                            "Var": 0
+                                                                          },
+                                                                          {
+                                                                            "Int": 137
+                                                                          }
+                                                                        ]
+                                                                      ]
+                                                                    },
+                                                                    {
+                                                                      "Int": 1800
+                                                                    }
+                                                                  ]
+                                                                ]
+                                                              },
+                                                              {
+                                                                "Int": 1800
+                                                              }
+                                                            ]
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  {
+                                                    "Int": 900
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      {
+                                        "Prim": [
+                                          "fix_of_int",
+                                          [
+                                            {
+                                              "Int": 100
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                },
+                                "y": {
+                                  "Prim": [
+                                    "f_div",
+                                    [
+                                      {
+                                        "Prim": [
+                                          "fix_of_int",
+                                          [
+                                            {
+                                              "Prim": [
+                                                "add",
+                                                [
+                                                  {
+                                                    "Int": 220
+                                                  },
+                                                  {
+                                                    "Prim": [
+                                                      "sub",
+                                                      [
+                                                        {
+                                                          "Prim": [
+                                                            "mul",
+                                                            [
+                                                              {
+                                                                "Var": 0
+                                                              },
+                                                              {
+                                                                "Int": 71
+                                                              }
+                                                            ]
+                                                          ]
+                                                        },
+                                                        {
+                                                          "Prim": [
+                                                            "mul",
+                                                            [
+                                                              {
+                                                                "Prim": [
+                                                                  "div",
+                                                                  [
+                                                                    {
+                                                                      "Prim": [
+                                                                        "mul",
+                                                                        [
+                                                                          {
+                                                                            "Var": 0
+                                                                          },
+                                                                          {
+                                                                            "Int": 71
+                                                                          }
+                                                                        ]
+                                                                      ]
+                                                                    },
+                                                                    {
+                                                                      "Int": 320
+                                                                    }
+                                                                  ]
+                                                                ]
+                                                              },
+                                                              {
+                                                                "Int": 320
+                                                              }
+                                                            ]
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      {
+                                        "Prim": [
+                                          "fix_of_int",
+                                          [
+                                            {
+                                              "Int": 100
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                },
+                                "z": {
+                                  "Prim": [
+                                    "f_div",
+                                    [
+                                      {
+                                        "Prim": [
+                                          "fix_of_int",
+                                          [
+                                            {
+                                              "Prim": [
+                                                "sub",
+                                                [
+                                                  {
+                                                    "Prim": [
+                                                      "sub",
+                                                      [
+                                                        {
+                                                          "Prim": [
+                                                            "mul",
+                                                            [
+                                                              {
+                                                                "Var": 0
+                                                              },
+                                                              {
+                                                                "Int": 53
+                                                              }
+                                                            ]
+                                                          ]
+                                                        },
+                                                        {
+                                                          "Prim": [
+                                                            "mul",
+                                                            [
+                                                              {
+                                                                "Prim": [
+                                                                  "div",
+                                                                  [
+                                                                    {
+                                                                      "Prim": [
+                                                                        "mul",
+                                                                        [
+                                                                          {
+                                                                            "Var": 0
+                                                                          },
+                                                                          {
+                                                                            "Int": 53
+                                                                          }
+                                                                        ]
+                                                                      ]
+                                                                    },
+                                                                    {
+                                                                      "Int": 1800
+                                                                    }
+                                                                  ]
+                                                                ]
+                                                              },
+                                                              {
+                                                                "Int": 1800
+                                                              }
+                                                            ]
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ]
+                                                  },
+                                                  {
+                                                    "Int": 900
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      {
+                                        "Prim": [
+                                          "fix_of_int",
+                                          [
+                                            {
+                                              "Int": 100
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "ListNew": [
+                          {
+                            "Effect": [
+                              "set_state",
+                              {
+                                "placement": {
+                                  "Text": "clock"
+                                },
+                                "text": {
+                                  "Prim": [
+                                    "concat",
+                                    [
+                                      {
+                                        "Prim": [
+                                          "concat",
+                                          [
+                                            {
+                                              "Text": "The Atrium has been alive for "
+                                            },
+                                            {
+                                              "Prim": [
+                                                "to_text",
+                                                [
+                                                  {
+                                                    "Prim": [
+                                                      "div",
+                                                      [
+                                                        {
+                                                          "Var": 0
+                                                        },
+                                                        {
+                                                          "Int": 4
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      },
+                                      {
+                                        "Text": " seconds.\nWoven code, beating."
+                                      }
+                                    ]
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "state": {
+                "Rec": {
+                  "beats": {
+                    "Var": 0
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "pre": null,
+      "post": null
+    },
+    "weft:9e3d74257fbc6f9b292c9f6d51082f7d3a00852d40ac29d2bf1ad144474f11fc": {
+      "params": [
+        "Int",
+        "Fix"
+      ],
+      "ret": {
+        "List": {
+          "Record": {
+            "x": "Fix",
+            "y": "Fix",
+            "z": "Fix"
+          }
+        }
+      },
+      "effects": [],
+      "body": {
+        "Map": {
+          "cap": 256,
+          "list": {
+            "Iota": {
+              "cap": 256,
+              "count": {
+                "Var": 1
+              }
+            }
+          },
+          "body": {
+            "Call": [
+              "weft:a9b50b929cf488702b0e84c60be1f4532ad34ad88f3b15b58b73449c9d15b265",
+              [
+                {
+                  "Var": 0
+                },
+                {
+                  "Var": 2
+                },
+                {
+                  "Var": 1
+                }
+              ]
+            ]
+          }
+        }
+      },
+      "pre": null,
+      "post": null
+    },
+    "weft:a9b50b929cf488702b0e84c60be1f4532ad34ad88f3b15b58b73449c9d15b265": {
+      "params": [
+        "Int",
+        "Int",
+        "Fix"
+      ],
+      "ret": {
+        "Record": {
+          "x": "Fix",
+          "y": "Fix",
+          "z": "Fix"
+        }
+      },
+      "effects": [],
+      "body": {
+        "Let": [
+          {
+            "Prim": [
+              "f_mul",
+              [
+                {
+                  "Prim": [
+                    "f_div",
+                    [
+                      {
+                        "Prim": [
+                          "fix_of_int",
+                          [
+                            {
+                              "Var": 2
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Prim": [
+                          "fix_of_int",
+                          [
+                            {
+                              "Var": 1
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fix": 6283185
+                }
+              ]
+            ]
+          },
+          {
+            "Rec": {
+              "x": {
+                "Prim": [
+                  "f_mul",
+                  [
+                    {
+                      "Var": 1
+                    },
+                    {
+                      "Prim": [
+                        "f_cos",
+                        [
+                          {
+                            "Var": 0
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              },
+              "y": {
+                "Fix": 0
+              },
+              "z": {
+                "Prim": [
+                  "f_mul",
+                  [
+                    {
+                      "Var": 1
+                    },
+                    {
+                      "Prim": [
+                        "f_sin",
+                        [
+                          {
+                            "Var": 0
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "pre": null,
+      "post": null
+    }
+  }
+}

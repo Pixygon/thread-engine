@@ -1,0 +1,23 @@
+[package]
+# Published as `weft-lang` — the bare `weft` is an unrelated HTML templating
+# crate. "Weft" remains the language's name everywhere it is spoken about.
+name = "weft-lang"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Weft — the Thread's native code format: content-addressed, verified, total program graphs that cannot diverge, allocate unboundedly, or lie about what they are."
+repository = "https://github.com/Pixygon/thread-engine"
+license.workspace = true
+readme = "README.md"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+
+[dev-dependencies]
+rayon = "1.10"
+# The drafting library emits PLANS; the tests read them back through the
+# manifest crate's plan format. A dev-dependency only — the language itself
+# knows nothing about the manifest.
+infinite-manifest.workspace = true

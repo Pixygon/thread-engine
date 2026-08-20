@@ -1,0 +1,25 @@
+[package]
+# Published as `thread-chisel` — the bare `chisel` is an unrelated WebAssembly
+# transformation crate.
+name = "thread-chisel"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Chisel — the Thread's mesher: turns shape recipes and Weft model programs into renderable, PBR-complete meshes. Blender for agents, one word at a time."
+repository = "https://github.com/Pixygon/thread-engine"
+readme = "README.md"
+
+[dependencies]
+infinite-manifest.workspace = true
+serde_json.workspace = true
+image.workspace = true
+# Models as PROGRAMS: a Weft package export evaluates to a model. Weft is
+# pure Rust and dependency-light — the browser can carry it too.
+weft = { package = "weft-lang", path = "../weft", version = "0.1.0" }
+
+[dev-dependencies]
+serde_json.workspace = true
+# Read our own exports back with a THIRD-PARTY reader — a round trip through
+# our own loader would only prove we are self-consistent.
+gltf = { workspace = true, features = ["import"] }

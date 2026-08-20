@@ -1,0 +1,298 @@
+{
+  "thread": "thread/0.1",
+  "world": {
+    "id": "haze",
+    "title": "The Haze",
+    "description": "HazeChat’s parlour — companions half-seen in drifting fog, each a character you can speak with.",
+    "author": {
+      "id": "did:pixygon:pixygon",
+      "name": "Pixygon"
+    },
+    "codex": [
+      "mommas-eye",
+      "mimic-splinter",
+      "sayonara-ribbon",
+      "anima-mimic",
+      "anima-spellmaster"
+    ],
+    "license": "CC-BY-4.0"
+  },
+  "environment": {
+    "year": 0,
+    "sky": {
+      "zenith": [
+        0.09,
+        0.06,
+        0.11
+      ],
+      "horizon": [
+        0.21,
+        0.16,
+        0.25
+      ],
+      "sun_dir": [
+        0.3,
+        0.7,
+        0.2
+      ]
+    }
+  },
+  "spawns": [
+    {
+      "name": "entry",
+      "position": [
+        0,
+        0,
+        8
+      ],
+      "yaw": 3.14159
+    }
+  ],
+  "prefabs": [
+    {
+      "id": "60000001",
+      "mesh": {
+        "builtin": "plane"
+      },
+      "material": {
+        "base_color": [
+          0.12,
+          0.12,
+          0.16,
+          1
+        ],
+        "roughness": 0.95
+      }
+    },
+    {
+      "id": "60000002",
+      "mesh": {
+        "builtin": "cube"
+      },
+      "material": {
+        "base_color": [
+          0.78,
+          0.42,
+          0.72,
+          1
+        ],
+        "roughness": 0.5,
+        "metallic": 0.15
+      }
+    },
+    {
+      "id": "60000003",
+      "mesh": {
+        "builtin": "quad"
+      },
+      "material": {
+        "base_color": [
+          0.46799999999999997,
+          0.252,
+          0.432,
+          1
+        ],
+        "roughness": 0.7
+      }
+    },
+    {
+      "id": "60000004",
+      "mesh": {
+        "builtin": "cylinder"
+      },
+      "material": {
+        "base_color": [
+          0.78,
+          0.42,
+          0.72,
+          1
+        ],
+        "roughness": 0.35,
+        "metallic": 0.3
+      }
+    }
+  ],
+  "placements": [
+    {
+      "prefab": "60000001",
+      "name": "floor",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        30,
+        1,
+        30
+      ]
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:mommas-eye",
+      "position": [
+        -5.6,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "mommas-eye",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:mimic-splinter",
+      "position": [
+        -2.8,
+        0.5,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "mimic-splinter",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:sayonara-ribbon",
+      "position": [
+        0,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "sayonara-ribbon",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:anima-mimic",
+      "position": [
+        2.8,
+        0.5,
+        -3
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "anima-mimic",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000002",
+      "name": "pedestal:anima-spellmaster",
+      "position": [
+        5.6,
+        0.5,
+        -1
+      ],
+      "scale": [
+        0.8,
+        1,
+        0.8
+      ],
+      "codex": "anima-spellmaster",
+      "behavior": "codex-viewer"
+    },
+    {
+      "prefab": "60000003",
+      "name": "signboard",
+      "position": [
+        0,
+        1.4,
+        -7
+      ],
+      "scale": [
+        6,
+        2.4,
+        0.2
+      ],
+      "behavior": "open-link",
+      "data": {
+        "kind": "signboard",
+        "url": "https://hazechat.no",
+        "tagline": "HazeChat — companions in the haze."
+      }
+    }
+  ],
+  "portals": [
+    {
+      "id": "to-nexus",
+      "position": [
+        -10,
+        1.4,
+        0
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://pixygon.io#entry",
+      "label": "The Nexus",
+      "preview": "live"
+    },
+    {
+      "id": "to-table",
+      "position": [
+        10,
+        1.4,
+        0
+      ],
+      "scale": [
+        2,
+        3,
+        0.2
+      ],
+      "to": "thread://tastebud.pixygon.io/table#entry",
+      "label": "The Table",
+      "preview": "live"
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "codex-viewer",
+      "wasm": "codex-viewer-wasm",
+      "on": [
+        "interact"
+      ]
+    },
+    {
+      "id": "open-link",
+      "wasm": "open-link-wasm",
+      "on": [
+        "interact"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "codex-viewer-wasm",
+      "uri": "behaviors/codex-viewer.wasm",
+      "kind": "wasm"
+    },
+    {
+      "id": "open-link-wasm",
+      "uri": "behaviors/open-link.wasm",
+      "kind": "wasm"
+    }
+  ],
+  "presence": {
+    "relay": null,
+    "max_occupants": 64,
+    "voice": true
+  }
+}

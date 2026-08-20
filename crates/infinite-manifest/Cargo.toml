@@ -1,0 +1,23 @@
+[package]
+# Published to crates.io under the neutral name `thread-manifest` (see below); the
+# workspace refers to it as `infinite-manifest` via a `package = ` alias so no
+# in-repo `use infinite_manifest::…` has to change. To publish: set `name =
+# "thread-manifest"` here and `infinite-manifest = { package = "thread-manifest",
+# path = "crates/infinite-manifest" }` in the workspace dependency table.
+name = "thread-manifest"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "World Manifest — the open document format of the Thread (renderer-agnostic spatial-web content)"
+repository = "https://github.com/Pixygon/Infinite"
+readme = "README.md"
+keywords = ["thread", "spatial-web", "world", "manifest", "serde"]
+categories = ["game-development", "data-structures"]
+
+[dependencies]
+# Only the id scheme + serde — no engine or game code, so this crate is publishable
+# and implementable by anyone building for the Thread.
+thread-id.workspace = true
+serde.workspace = true
+serde_json.workspace = true

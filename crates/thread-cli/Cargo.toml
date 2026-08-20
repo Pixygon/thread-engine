@@ -1,0 +1,19 @@
+[package]
+name = "thread-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "The `thread` CLI — scaffold, validate, preview and doctor worlds on the Thread"
+
+[[bin]]
+name = "thread"
+path = "src/main.rs"
+
+[dependencies]
+infinite-manifest.workspace = true
+chisel = { workspace = true }
+weft = { package = "weft-lang", path = "../weft", version = "0.1.0" }
+serde_json.workspace = true
+reqwest.workspace = true
+tokio.workspace = true

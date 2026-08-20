@@ -1,0 +1,51 @@
+[package]
+# Published to crates.io as `thread-engine`. NOT `thread-loom`: the established
+# `loom` crate is a concurrency permutation tester, so anything `*-loom` reads as
+# its sibling to exactly the Rust audience we want. "Loom" stays the name in
+# prose and in the spec — the crate name is only how cargo finds it, the same
+# way we say "World Manifest" while the crate is `thread-manifest`.
+name = "thread-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Loom — the embeddable engine for the Thread: world resolution, veils, presence, Codex and the 2D-web reader. Infinite is the reference browser built on it."
+repository = "https://github.com/Pixygon/thread-engine"
+readme = "README.md"
+
+[dependencies]
+infinite-manifest.workspace = true
+infinite-avatar.workspace = true
+weft = { package = "weft-lang", path = "../weft", version = "0.1.0" }
+thread-id.workspace = true
+glam.workspace = true
+reqwest.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+tokio-tungstenite = { workspace = true, features = ["connect", "rustls-tls-webpki-roots"] }
+futures-util = "0.3"
+# The embedded room host: a traveler's browser hosting their own home for
+# guests (owner-tied P2P). Reuses the reference relay's Hub as a library.
+thread-relay = { path = "../thread-relay" }
+
+# Tier-1 P2P mesh transport over real WebRTC data channels. Heavy dependency —
+# off by default so the lean browser stays lean; enable with `--features p2p`.
+webrtc = { version = "0.11", optional = true }
+bytes = { version = "1", optional = true }
+
+# Sandboxed WASM behavior runtime (behavior-abi-v0.1). wasmi is a pure-Rust
+# interpreter — light, safe for untrusted code, no JIT. Off by default.
+wasmi = { version = "0.31", optional = true }
+
+[features]
+p2p = ["dep:webrtc", "dep:bytes"]
+behaviors = ["dep:wasmi"]
+
+[dev-dependencies]
+# Compile WAT test fixtures for the behavior sandbox tests (no committed .wasm).
+wat = "1"
+# In-process reference rendezvous for the live P2P mesh test (`--features p2p`).
+thread-rendezvous = { path = "../thread-rendezvous" }
+

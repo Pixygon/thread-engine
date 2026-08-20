@@ -1,0 +1,356 @@
+{
+ "thread": "thread/0.1",
+ "world": {
+  "id": "waystone",
+  "title": "The Waystone",
+  "description": "Where the ways meet. Every place on the Thread that others point to, gathered as veils and ranked by how many paths lead there. Step to any of them \u2014 or ask at the centre what you seek. The stone remembers every road.",
+  "author": {
+   "id": "did:pixygon:pixygon",
+   "name": "Pixygon"
+  },
+  "codex": [
+   "the-thread",
+   "world-manifest"
+  ],
+  "license": "CC-BY-4.0"
+ },
+ "environment": {
+  "year": 0,
+  "sky": {
+   "zenith": [
+    0.05,
+    0.05,
+    0.08
+   ],
+   "horizon": [
+    0.16999999999999998,
+    0.15000000000000002,
+    0.22000000000000003
+   ],
+   "sun_dir": [
+    0.3,
+    0.7,
+    0.2
+   ]
+  }
+ },
+ "spawns": [
+  {
+   "name": "entry",
+   "position": [
+    0,
+    0,
+    8
+   ],
+   "yaw": 3.14159
+  }
+ ],
+ "prefabs": [
+  {
+   "id": "60000001",
+   "mesh": {
+    "builtin": "plane"
+   },
+   "material": {
+    "base_color": [
+     0.12,
+     0.12,
+     0.16,
+     1
+    ],
+    "roughness": 0.95
+   }
+  },
+  {
+   "id": "60000002",
+   "mesh": {
+    "builtin": "cube"
+   },
+   "material": {
+    "base_color": [
+     0.85,
+     0.78,
+     0.45,
+     1
+    ],
+    "roughness": 0.5,
+    "metallic": 0.15
+   }
+  },
+  {
+   "id": "60000003",
+   "mesh": {
+    "builtin": "quad"
+   },
+   "material": {
+    "base_color": [
+     0.51,
+     0.46799999999999997,
+     0.27,
+     1
+    ],
+    "roughness": 0.7
+   }
+  },
+  {
+   "id": "60000004",
+   "mesh": {
+    "builtin": "cylinder"
+   },
+   "material": {
+    "base_color": [
+     0.85,
+     0.78,
+     0.45,
+     1
+    ],
+    "roughness": 0.35,
+    "metallic": 0.3
+   }
+  }
+ ],
+ "placements": [
+  {
+   "prefab": "60000001",
+   "name": "floor",
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    30,
+    1,
+    30
+   ]
+  },
+  {
+   "prefab": "60000002",
+   "name": "pedestal:the-thread",
+   "position": [
+    -1.5,
+    0.5,
+    -1
+   ],
+   "scale": [
+    0.8,
+    1,
+    0.8
+   ],
+   "codex": "the-thread",
+   "behavior": "codex-viewer"
+  },
+  {
+   "prefab": "60000002",
+   "name": "pedestal:world-manifest",
+   "position": [
+    1.5,
+    0.5,
+    -3
+   ],
+   "scale": [
+    0.8,
+    1,
+    0.8
+   ],
+   "codex": "world-manifest",
+   "behavior": "codex-viewer"
+  }
+ ],
+ "portals": [
+  {
+   "id": "to-46000001",
+   "position": [
+    -11.96,
+    1.4,
+    -0.94
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://archive.pixygon.io/codex-archive#entry",
+   "label": "The Archive",
+   "preview": "live"
+  },
+  {
+   "id": "to-46000008",
+   "position": [
+    -10.8,
+    1.4,
+    -5.24
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://kartograf.pixygon.io/atlas#entry",
+   "label": "The Cartographer\u2019s Hall",
+   "preview": "live"
+  },
+  {
+   "id": "to-46000009",
+   "position": [
+    -8.15,
+    1.4,
+    -8.81
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://corefeed.pixygon.io/feed#entry",
+   "label": "The Feed",
+   "preview": "live"
+  },
+  {
+   "id": "to-46000004",
+   "position": [
+    -4.37,
+    1.4,
+    -11.17
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://pixiel.ai/forge#entry",
+   "label": "The Forge",
+   "preview": "live"
+  },
+  {
+   "id": "to-46000012",
+   "position": [
+    0,
+    1.4,
+    -12
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://garden.pixygon.io/grove#entry",
+   "label": "The Grove",
+   "preview": "live"
+  },
+  {
+   "id": "to-46000006",
+   "position": [
+    4.37,
+    1.4,
+    -11.17
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://hazechat.pixygon.io/haze#entry",
+   "label": "The Haze",
+   "preview": "live"
+  },
+  {
+   "id": "to-46000005",
+   "position": [
+    8.15,
+    1.4,
+    -8.81
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://lonnlyst.pixygon.io/ledger#entry",
+   "label": "The Ledger Hall",
+   "preview": "live"
+  },
+  {
+   "id": "to-46000010",
+   "position": [
+    10.8,
+    1.4,
+    -5.24
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://animunda.pixygon.io/menagerie#entry",
+   "label": "The Menagerie",
+   "preview": "live"
+  },
+  {
+   "id": "to-46000007",
+   "position": [
+    11.96,
+    1.4,
+    -0.94
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://tastebud.pixygon.io/table#entry",
+   "label": "The Table",
+   "preview": "live"
+  },
+  {
+   "id": "to-nexus",
+   "position": [
+    0,
+    1.4,
+    10.8
+   ],
+   "scale": [
+    2,
+    3,
+    0.2
+   ],
+   "to": "thread://pixygon.io#entry",
+   "label": "The Nexus",
+   "preview": "live"
+  }
+ ],
+ "behaviors": [
+  {
+   "id": "codex-viewer",
+   "wasm": "codex-viewer-wasm",
+   "on": [
+    "interact"
+   ]
+  },
+  {
+   "id": "open-link",
+   "wasm": "open-link-wasm",
+   "on": [
+    "interact"
+   ]
+  }
+ ],
+ "assets": [
+  {
+   "id": "codex-viewer-wasm",
+   "uri": "behaviors/codex-viewer.wasm",
+   "kind": "wasm"
+  },
+  {
+   "id": "open-link-wasm",
+   "uri": "behaviors/open-link.wasm",
+   "kind": "wasm"
+  }
+ ],
+ "presence": {
+  "relays": [],
+  "relay": null,
+  "max_occupants": 64,
+  "voice": true
+ }
+}
