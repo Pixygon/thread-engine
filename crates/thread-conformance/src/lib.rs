@@ -359,10 +359,15 @@ pub fn run(corpus: &Corpus) -> Report {
     //
     // The check is deliberately narrow. It applies ONLY to the builtins whose
     // origin is their centre and whose extent is exactly `scale`: `cube`,
-    // `sphere`, `cylinder`. Not `plane` (flat, its y-scale means nothing), not
-    // `capsule` (three units tall by construction), not carved shapes or glTF
-    // assets — a model from a store is usually **base**-origin, so the same
-    // arithmetic would condemn every correctly-placed one of them.
+    // `sphere`, `cylinder`, `capsule`. Not `plane` (flat, its y-scale means
+    // nothing), not carved shapes or glTF assets — a model from a store is
+    // usually **base**-origin, so the same arithmetic would condemn every
+    // correctly-placed one of them.
+    //
+    // The capsule was excluded here until 0.2.1, because it was three units
+    // tall by construction and so its `scale` did not mean what every other
+    // primitive's did. It is one metre now, which removed the exception rather
+    // than documenting it.
     let mut sunk = Vec::new();
     for w in &corpus.worlds {
         let centre_origin: std::collections::HashSet<StructuredId> = w
@@ -372,7 +377,7 @@ pub fn run(corpus: &Corpus) -> Report {
             .filter(|p| {
                 matches!(
                     p.mesh.builtin.as_deref(),
-                    Some("cube" | "sphere" | "cylinder")
+                    Some("cube" | "sphere" | "cylinder" | "capsule")
                 )
             })
             .map(|p| p.id)
