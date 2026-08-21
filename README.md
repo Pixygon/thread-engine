@@ -59,6 +59,22 @@ ones served at `thread://pixygon.io`. Point the conformance suite at them:
 cargo run -p thread-conformance -- worlds
 ```
 
+## Releasing
+
+```bash
+./scripts/release.sh --dry      # the plan, and the checks, publishing nothing
+./scripts/release.sh --patch    # bump, publish all eleven in dependency order
+git tag v0.2.3 && git push origin v0.2.3   # binaries for people without Rust
+```
+
+The script exists because 0.2.0 was published by hand and four crates went out
+carrying doc links to `../../../docs/spec/*.md` — paths that resolved in the
+private monorepo they were written in and nowhere else. The fix had already
+been made, in the other copy of the source. So the script publishes from the
+repository it lives in, refuses a dirty tree, fails on a doc link that escapes
+its crate, and afterwards **downloads what it just published** and checks the
+bytes rather than the tree.
+
 ## Licence
 
 MIT OR Apache-2.0, at your option.
