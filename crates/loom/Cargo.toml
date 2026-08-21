@@ -15,7 +15,7 @@ repository = "https://github.com/Pixygon/thread-engine"
 [dependencies]
 infinite-manifest.workspace = true
 infinite-avatar.workspace = true
-weft = { package = "weft-lang", path = "../weft", version = "0.2.0" }
+weft = { package = "weft-lang", path = "../weft", version = "0.2.2" }
 thread-id.workspace = true
 glam.workspace = true
 reqwest.workspace = true
@@ -27,7 +27,7 @@ tokio-tungstenite = { workspace = true, features = ["connect", "rustls-tls-webpk
 futures-util = "0.3"
 # The embedded room host: a traveler's browser hosting their own home for
 # guests (owner-tied P2P). Reuses the reference relay's Hub as a library.
-thread-relay = { path = "../thread-relay", version = "0.2.0" }
+thread-relay = { path = "../thread-relay", version = "0.2.2" }
 
 # Tier-1 P2P mesh transport over real WebRTC data channels. Heavy dependency —
 # off by default so the lean browser stays lean; enable with `--features p2p`.
@@ -46,5 +46,5 @@ behaviors = ["dep:wasmi"]
 # Compile WAT test fixtures for the behavior sandbox tests (no committed .wasm).
 wat = "1"
 # In-process reference rendezvous for the live P2P mesh test (`--features p2p`).
-thread-rendezvous = { path = "../thread-rendezvous", version = "0.2.0" }
+thread-rendezvous = { path = "../thread-rendezvous", version = "0.2.2" }
 

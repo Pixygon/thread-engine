@@ -2860,7 +2860,7 @@ dependencies = [
 
 [[package]]
 name = "thread-avatar"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -2869,7 +2869,7 @@ dependencies = [
 
 [[package]]
 name = "thread-chisel"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "gltf",
  "image",
@@ -2880,7 +2880,7 @@ dependencies = [
 
 [[package]]
 name = "thread-cli"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "reqwest",
  "serde_json",
@@ -2904,7 +2904,7 @@ dependencies = [
 
 [[package]]
 name = "thread-engine"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "bytes",
  "futures-util",
@@ -2928,7 +2928,7 @@ dependencies = [
 
 [[package]]
 name = "thread-manifest"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -2937,7 +2937,7 @@ dependencies = [
 
 [[package]]
 name = "thread-relay"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "futures-util",
  "serde_json",
@@ -2950,7 +2950,7 @@ dependencies = [
 
 [[package]]
 name = "thread-rendezvous"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "futures-util",
  "serde_json",
@@ -2963,7 +2963,7 @@ dependencies = [
 
 [[package]]
 name = "thread-structured-id"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -3804,7 +3804,7 @@ checksum = "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88"
 
 [[package]]
 name = "weft-lang"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "rayon",
  "serde",
@@ -3815,7 +3815,7 @@ dependencies = [
 
 [[package]]
 name = "weft-pack"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "reqwest",
  "serde_json",

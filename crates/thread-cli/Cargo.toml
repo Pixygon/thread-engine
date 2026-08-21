@@ -13,7 +13,7 @@ path = "src/main.rs"
 [dependencies]
 infinite-manifest.workspace = true
 chisel = { workspace = true }
-weft = { package = "weft-lang", path = "../weft", version = "0.2.0" }
+weft = { package = "weft-lang", path = "../weft", version = "0.2.2" }
 serde_json.workspace = true
 reqwest.workspace = true
 tokio.workspace = true

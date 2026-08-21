@@ -15,7 +15,7 @@ serde_json.workspace = true
 image.workspace = true
 # Models as PROGRAMS: a Weft package export evaluates to a model. Weft is
 # pure Rust and dependency-light — the browser can carry it too.
-weft = { package = "weft-lang", path = "../weft", version = "0.2.0" }
+weft = { package = "weft-lang", path = "../weft", version = "0.2.2" }
 
 [dev-dependencies]
 serde_json.workspace = true
