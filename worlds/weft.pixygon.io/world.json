@@ -1894,5 +1894,12 @@
   ],
   "behaviors": [],
   "styles": [],
-  "presence": null
+  "presence": {
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io/thread/weft.pixygon.io"
+    ],
+    "max_occupants": 64,
+    "voice": true
+  }
 }

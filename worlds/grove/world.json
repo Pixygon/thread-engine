@@ -272,7 +272,10 @@
     }
   ],
   "presence": {
-    "relay": null,
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io/thread/garden.pixygon.io/grove"
+    ],
     "max_occupants": 64,
     "voice": true
   }

@@ -259,7 +259,7 @@
   "presence": {
     "mode": "relay",
     "relays": [
-      "wss://relay.pixygon.io"
+      "wss://relay.pixygon.io/thread/pixiel.ai/forge"
     ],
     "max_occupants": 64,
     "voice": true

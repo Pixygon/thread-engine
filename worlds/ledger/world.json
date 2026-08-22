@@ -274,7 +274,10 @@
     }
   ],
   "presence": {
-    "relay": null,
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io/thread/lonnlyst.no/ledger"
+    ],
     "max_occupants": 64,
     "voice": true
   }

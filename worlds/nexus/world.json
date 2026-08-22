@@ -1412,7 +1412,21 @@
         1.6,
         1
       ],
-      "codex": "the-thread"
+      "codex": "the-thread",
+      "text": {
+        "content": "THE NEXUS\n\nEvery Pixygon world opens off this ring.\nStep through a veil to walk one; the\npedestals at the centre hold the canon.\n\nLost? The Waystone knows every road.\nNew? Travelers talk in The Commons.",
+        "size": 0.11,
+        "links": [
+          {
+            "text": "The Waystone",
+            "to": "thread://waystone.pixygon.io"
+          },
+          {
+            "text": "The Commons",
+            "to": "thread://commons.pixygon.io"
+          }
+        ]
+      }
     },
     {
       "name": "signpost-l",
@@ -1757,7 +1771,7 @@
   "presence": {
     "mode": "relay",
     "relays": [
-      "wss://relay.pixygon.io"
+      "wss://relay.pixygon.io/thread/pixygon.io"
     ],
     "max_occupants": 64,
     "voice": true

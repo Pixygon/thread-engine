@@ -272,7 +272,10 @@
     }
   ],
   "presence": {
-    "relay": null,
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io/thread/vault.pixygon.io/vault"
+    ],
     "max_occupants": 64,
     "voice": true
   }

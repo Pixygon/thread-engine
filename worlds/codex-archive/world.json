@@ -209,7 +209,10 @@
     }
   ],
   "presence": {
-    "relay": null,
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io/thread/archive.pixygon.io/codex-archive"
+    ],
     "max_occupants": 32,
     "voice": true
   }

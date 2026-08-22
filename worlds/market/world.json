@@ -250,7 +250,10 @@
     }
   ],
   "presence": {
-    "relay": "thread://relay.pixygon.io/market",
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io/thread/market.pixygon.io/market"
+    ],
     "max_occupants": 64,
     "voice": true
   }

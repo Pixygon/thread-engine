@@ -396,8 +396,10 @@
     }
   ],
   "presence": {
-    "relays": [],
-    "relay": null,
+    "mode": "relay",
+    "relays": [
+      "wss://relay.pixygon.io/thread/waystone.pixygon.io"
+    ],
     "max_occupants": 64,
     "voice": true
   }
