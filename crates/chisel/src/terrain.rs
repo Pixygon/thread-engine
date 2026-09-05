@@ -205,16 +205,27 @@ fn smootherstep(t: f32) -> f32 {
     t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
 }
 
+/// Exposed for the flora scatter, which needs the same lattice the terrain
+/// used so its clustering lines up with the land rather than fighting it.
+pub fn value_noise_pub(x: f32, y: f32, seed: u32) -> f32 {
+    value_noise(x, y, seed)
+}
+
 fn value_noise(x: f32, y: f32, seed: u32) -> f32 {
     let xi = x.floor();
     let yi = y.floor();
     let tx = smootherstep(x - xi);
     let ty = smootherstep(y - yi);
+    // Saturating casts can land xi on i32::MAX, and the neighbouring lattice
+    // point is then one past it. Wrap rather than panic: the lattice is
+    // periodic anyway, so wrapping is the mathematically honest answer and a
+    // sample is never worth killing a world over.
     let (xi, yi) = (xi as i32, yi as i32);
+    let (xi1, yi1) = (xi.wrapping_add(1), yi.wrapping_add(1));
     let a = hash2(xi, yi, seed);
-    let b = hash2(xi + 1, yi, seed);
-    let c = hash2(xi, yi + 1, seed);
-    let d = hash2(xi + 1, yi + 1, seed);
+    let b = hash2(xi1, yi, seed);
+    let c = hash2(xi, yi1, seed);
+    let d = hash2(xi1, yi1, seed);
     let top = a + (b - a) * tx;
     let bot = c + (d - c) * tx;
     top + (bot - top) * ty

@@ -210,6 +210,11 @@ struct ActiveWorld {
     /// when its presence connection dies, the browser walks guests home.
     owner_required: bool,
     colliders: Vec<ColliderNav>,
+    /// Whether this world generates its own landscape
+    /// (`environment.terrain`). A browser that provides a default flat floor
+    /// must take it away for these worlds -- the generated ground is the
+    /// ground, and a second one underneath shows through every valley.
+    has_terrain: bool,
     /// Opt-in game mechanics this world enforces (default all off).
     rules: WorldRules,
     /// The world's sandboxed behavior modules (behavior-abi-v0.1).
@@ -495,6 +500,10 @@ impl Navigator {
 
     /// The active world's solid volumes — placement geometry as oriented boxes
     /// for the browser's physics. Empty when no world is loaded.
+    /// Whether the active world generates its own landscape.
+    pub fn has_terrain(&self) -> bool {
+        self.active.as_ref().is_some_and(|w| w.has_terrain)
+    }
     pub fn colliders(&self) -> &[ColliderNav] {
         self.active
             .as_ref()
@@ -805,6 +814,7 @@ impl Navigator {
             presence_relays: loaded.presence_relays,
             owner_required: manifest.presence.as_ref().is_some_and(|p| p.owner_required),
             colliders: loaded.colliders,
+            has_terrain: manifest.environment.terrain.is_some(),
             rules: manifest.environment.rules,
             #[cfg(feature = "behaviors")]
             behaviors: load_behaviors(&manifest, assets),
