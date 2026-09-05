@@ -17,6 +17,7 @@ pub mod builtin;
 pub mod gltf;
 pub mod model;
 pub mod preview;
+pub mod terrain;
 pub mod texture;
 pub mod weft_model;
 
