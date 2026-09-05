@@ -132,6 +132,10 @@ pub struct Environment {
     pub sky: Option<Sky>,
     #[serde(default)]
     pub bounds: Option<Bounds>,
+    /// A landscape, as a recipe. Absent -> the world is whatever its
+    /// placements make it; present -> the browser grows ground under them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub terrain: Option<Terrain>,
     /// Opt-in game mechanics this world enforces on visitors. Absent → none (the
     /// browser stays a browser; most places are not games).
     #[serde(default)]
@@ -139,6 +143,99 @@ pub struct Environment {
     /// Unknown fields, preserved across a round trip (see [`Extra`]).
     #[serde(flatten, default, skip_serializing_if = "Extra::is_empty")]
     pub extra: Extra,
+}
+
+/// A landscape, described rather than shipped.
+///
+/// The same bargain the material and shape recipes already make: a few lines
+/// of intent instead of a heightmap nobody can download at world scale. The
+/// browser runs the generator ([`chisel::terrain`]) on arrival, so a continent
+/// costs the same bytes as a sentence and every browser grows the same one.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Terrain {
+    /// The world's seed. Same seed, same land, on every machine, forever.
+    #[serde(default = "default_terrain_seed")]
+    pub seed: u32,
+    /// `plains` · `hills` · `alpine` · `badlands` · `archipelago`.
+    #[serde(default = "default_relief")]
+    pub relief: String,
+    /// Half-width in metres, or absent for unbounded — tiles stream in as the
+    /// traveler walks, so "as big as you like" costs nothing to declare.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub extent: Option<f32>,
+    /// Metres. The shoreline.
+    #[serde(default)]
+    pub sea_level: f32,
+    /// 0 = equator, 1 = pole.
+    #[serde(default = "default_latitude")]
+    pub latitude: f32,
+    /// Prevailing wind. Rain falls on the windward side of what it climbs.
+    #[serde(default = "default_wind")]
+    pub wind: [f32; 2],
+    /// 0 = arid, 1 = drenched.
+    #[serde(default = "default_humidity")]
+    pub humidity: f32,
+    /// Metres per simulation cell. Smaller is finer and slower.
+    #[serde(default = "default_cell_size")]
+    pub cell_size: f32,
+    /// How much of each cover type grows here. Read by the scatter.
+    #[serde(default)]
+    pub cover: TerrainCover,
+    #[serde(flatten, default, skip_serializing_if = "Extra::is_empty")]
+    pub extra: Extra,
+}
+
+fn default_terrain_seed() -> u32 {
+    1337
+}
+fn default_relief() -> String {
+    "hills".into()
+}
+fn default_latitude() -> f32 {
+    0.45
+}
+fn default_wind() -> [f32; 2] {
+    [1.0, 0.0]
+}
+fn default_humidity() -> f32 {
+    0.6
+}
+fn default_cell_size() -> f32 {
+    4.0
+}
+
+impl Default for Terrain {
+    fn default() -> Self {
+        Self {
+            seed: default_terrain_seed(),
+            relief: default_relief(),
+            extent: None,
+            sea_level: 0.0,
+            latitude: default_latitude(),
+            wind: default_wind(),
+            humidity: default_humidity(),
+            cell_size: default_cell_size(),
+            cover: TerrainCover::default(),
+            extra: Default::default(),
+        }
+    }
+}
+
+/// How densely things grow. Multipliers on what the climate already allows —
+/// a desert with `trees: 1.0` is still a desert.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct TerrainCover {
+    #[serde(default = "one")]
+    pub grass: f32,
+    #[serde(default = "one")]
+    pub trees: f32,
+    #[serde(default = "one")]
+    pub rocks: f32,
+}
+impl Default for TerrainCover {
+    fn default() -> Self {
+        Self { grass: 1.0, trees: 1.0, rocks: 1.0 }
+    }
 }
 
 /// Opt-in game mechanics a world enforces. **Default all off** — the browser

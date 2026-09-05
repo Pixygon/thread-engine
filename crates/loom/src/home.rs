@@ -498,6 +498,7 @@ fn starter_world() -> WorldManifest {
             year: None,
             sky: Some(estate_sky()),
             bounds: None,
+            terrain: None, // home is a room, not a landscape
             rules: Default::default(), // home is a home, not a game
             extra: Default::default(),
         },

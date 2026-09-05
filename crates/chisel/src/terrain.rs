@@ -960,3 +960,318 @@ mod tests {
         assert_eq!(Relief::from_str("ALPINE"), Relief::Alpine);
     }
 }
+
+// ─── meshing ──────────────────────────────────────────────────────────────
+
+/// Ground albedo at a cell, for the mesh's vertex colours.
+///
+/// Separate from [`preview_rgb`] on purpose: the preview is a *map*, shaded
+/// and tinted to be read from above, while this is the actual colour of the
+/// ground you stand on. Every PBR path here multiplies vertex colour into
+/// albedo, so a terrain arrives fully dressed without one new shader — the
+/// splat maps and triplanar rock refine it later, they do not replace it.
+pub fn ground_albedo(f: &Field, x: usize, y: usize, r: &TerrainRecipe) -> [f32; 3] {
+    // Ground tints, not map tints: what soil, sand and rock look like underfoot.
+    const TINT: [[f32; 3]; 8] = [
+        [0.09, 0.16, 0.20], // water — the bed seen through it
+        [0.76, 0.70, 0.54], // beach sand
+        [0.72, 0.61, 0.42], // desert
+        [0.33, 0.42, 0.18], // grassland
+        [0.40, 0.39, 0.22], // shrubland
+        [0.16, 0.26, 0.13], // forest floor
+        [0.19, 0.26, 0.21], // taiga
+        [0.44, 0.43, 0.41], // bare rock
+    ];
+    let i = f.idx(x, y);
+    let base = i * BIOMES.len();
+    let mut c = [0.0f32; 3];
+    for b in 0..BIOMES.len() {
+        let w = f.biome[base + b];
+        for k in 0..3 {
+            c[k] += TINT[b][k] * w;
+        }
+    }
+
+    // Loose material over the top: scree, silt, river sand.
+    let sed = (f.sediment[i] / 5.0).clamp(0.0, 0.5);
+    for k in 0..3 {
+        c[k] = c[k] * (1.0 - sed) + [0.58, 0.52, 0.42][k] * sed;
+    }
+
+    // Snow, faded in over a band rather than switched on — a hard freezing
+    // line draws a contour on the mountain that no snowfall ever drew.
+    let snow = smoothstep(0.0, -5.0, f.temperature[i]) * (1.0 - smoothstep(0.45, 0.75, f.slope[i]));
+    for k in 0..3 {
+        c[k] = c[k] * (1.0 - snow) + [0.92, 0.94, 0.97][k] * snow;
+    }
+
+    // Per-cell variation so a hillside is never one flat wash. Small, and
+    // keyed to position so it is stable across regenerations.
+    let v = 1.0 + value_noise(x as f32 * 0.37, y as f32 * 0.37, r.seed ^ 0xa53f) * 0.07;
+    [c[0] * v, c[1] * v, c[2] * v]
+}
+
+/// Turn a field into a renderable tile.
+///
+/// `lod` is a power-of-two stride: 0 renders every cell, 1 every other, and so
+/// on, which is what lets a distant tile cost a sixteenth of a near one while
+/// staying the same shape.
+///
+/// `skirt` drops a curtain of geometry around the tile's rim. Neighbouring
+/// tiles at different LODs disagree about the height along their shared edge
+/// by a few centimetres, and that gap is a crack you can see the sky through —
+/// a skirt hides it for the cost of one quad strip, which is the oldest trick
+/// in terrain rendering and still the right one.
+pub fn mesh(f: &Field, r: &TerrainRecipe, lod: u32, skirt: f32) -> crate::MeshData {
+    let step = 1usize << lod.min(5);
+    let n = ((f.size - 1) / step) + 1; // vertices per side
+    let mut m = crate::MeshData::default();
+    m.positions.reserve(n * n);
+
+    let at = |i: usize| (i * step).min(f.size - 1);
+    // Normals come from the height field's own gradient rather than from
+    // averaged face normals: it is cheaper, and it stays smooth across an LOD
+    // change instead of visibly re-faceting when the stride doubles.
+    let normal_at = |cx: usize, cy: usize| {
+        let xm = cx.saturating_sub(step);
+        let xp = (cx + step).min(f.size - 1);
+        let ym = cy.saturating_sub(step);
+        let yp = (cy + step).min(f.size - 1);
+        let dx = (f.height[cy * f.size + xp] - f.height[cy * f.size + xm])
+            / ((xp - xm).max(1) as f32 * f.cell_size);
+        let dz = (f.height[yp * f.size + cx] - f.height[ym * f.size + cx])
+            / ((yp - ym).max(1) as f32 * f.cell_size);
+        let n = [-dx, 1.0, -dz];
+        let l = (n[0] * n[0] + 1.0 + n[2] * n[2]).sqrt();
+        [n[0] / l, n[1] / l, n[2] / l]
+    };
+
+    for iy in 0..n {
+        for ix in 0..n {
+            let (cx, cy) = (at(ix), at(iy));
+            let i = f.idx(cx, cy);
+            m.positions.push([
+                cx as f32 * f.cell_size,
+                f.height[i],
+                cy as f32 * f.cell_size,
+            ]);
+            m.normals.push(normal_at(cx, cy));
+            // UVs in metres, so a material recipe tiles at a real-world scale
+            // and does not stretch when the tile's resolution changes.
+            m.uvs.push([cx as f32 * f.cell_size, cy as f32 * f.cell_size]);
+            let c = ground_albedo(f, cx, cy, r);
+            m.colors.push([c[0], c[1], c[2], 1.0]);
+        }
+    }
+    for iy in 0..n.saturating_sub(1) {
+        for ix in 0..n.saturating_sub(1) {
+            let a = (iy * n + ix) as u32;
+            let b = a + 1;
+            let c = a + n as u32;
+            let d = c + 1;
+            // Counter-clockwise seen from above — the winding every builtin
+            // here uses, and the one the guard test measures.
+            m.indices.extend_from_slice(&[a, c, b, b, c, d]);
+        }
+    }
+
+    if skirt > 0.0 && n >= 2 {
+        add_skirt(&mut m, n, skirt);
+    }
+    m.tangents = vec![[1.0, 0.0, 0.0, 1.0]; m.positions.len()];
+    m
+}
+
+/// Hang a curtain from the tile's four edges.
+fn add_skirt(m: &mut crate::MeshData, n: usize, drop: f32) {
+    let rim: Vec<u32> = {
+        let mut v = Vec::with_capacity(n * 4);
+        for ix in 0..n {
+            v.push(ix as u32); // north
+        }
+        for iy in 1..n {
+            v.push((iy * n + n - 1) as u32); // east
+        }
+        for ix in (0..n - 1).rev() {
+            v.push(((n - 1) * n + ix) as u32); // south
+        }
+        for iy in (1..n - 1).rev() {
+            v.push((iy * n) as u32); // west
+        }
+        v
+    };
+    let base = m.positions.len() as u32;
+    for &i in &rim {
+        let p = m.positions[i as usize];
+        m.positions.push([p[0], p[1] - drop, p[2]]);
+        // Outward-ish and level: a skirt lit like the ground above it reads as
+        // shadow rather than as a wall that appeared out of nowhere.
+        m.normals.push(m.normals[i as usize]);
+        m.uvs.push(m.uvs[i as usize]);
+        m.colors.push(m.colors[i as usize]);
+    }
+    for k in 0..rim.len() {
+        let k2 = (k + 1) % rim.len();
+        let (t0, t1) = (rim[k], rim[k2]);
+        let (b0, b1) = (base + k as u32, base + k2 as u32);
+        m.indices.extend_from_slice(&[t0, b0, t1, t1, b0, b1]);
+    }
+}
+
+#[cfg(test)]
+mod mesh_tests {
+    use super::*;
+
+    fn field() -> (Field, TerrainRecipe) {
+        let r = TerrainRecipe { relief: Relief::Hills, cell_size: 8.0, ..Default::default() };
+        (generate(&r, 65, 0.0, 0.0), r)
+    }
+
+    #[test]
+    fn mesh_is_well_formed_and_finite() {
+        let (f, r) = field();
+        let m = mesh(&f, &r, 0, 0.0);
+        assert_eq!(m.positions.len(), 65 * 65);
+        assert_eq!(m.normals.len(), m.positions.len());
+        assert_eq!(m.colors.len(), m.positions.len());
+        assert_eq!(m.indices.len(), 64 * 64 * 6);
+        assert!(m.positions.iter().flatten().all(|v| v.is_finite()));
+        assert!(m.indices.iter().all(|i| (*i as usize) < m.positions.len()));
+        // Normals point up-ish: this is ground, not a ceiling.
+        assert!(m.normals.iter().all(|n| n[1] > 0.0), "a normal pointed downward");
+    }
+
+    /// The mesh must sit exactly on the field the scatter will sample, or
+    /// every tree floats or sinks.
+    #[test]
+    fn vertices_sit_on_the_sampled_height() {
+        let (f, r) = field();
+        let m = mesh(&f, &r, 0, 0.0);
+        for (k, p) in m.positions.iter().enumerate() {
+            let (x, y) = (k % 65, k / 65);
+            assert!((p[1] - f.height_at(x as f32, y as f32)).abs() < 1e-3);
+        }
+    }
+
+    /// Each LOD level halves the resolution and keeps the same footprint —
+    /// that is what makes a distant tile cheap without changing its shape.
+    #[test]
+    fn lod_halves_resolution_and_keeps_extent() {
+        let (f, r) = field();
+        let full = mesh(&f, &r, 0, 0.0);
+        let half = mesh(&f, &r, 1, 0.0);
+        assert_eq!(half.positions.len(), 33 * 33);
+        let extent = |m: &crate::MeshData| {
+            let xs: Vec<f32> = m.positions.iter().map(|p| p[0]).collect();
+            xs.iter().cloned().fold(f32::MIN, f32::max) - xs.iter().cloned().fold(f32::MAX, f32::min)
+        };
+        assert!((extent(&full) - extent(&half)).abs() < 1e-3, "LOD changed the footprint");
+    }
+
+    /// A skirt adds a rim of geometry that hangs BELOW the surface — its whole
+    /// job is to be underground where the crack would be.
+    #[test]
+    fn skirt_hangs_below_the_rim() {
+        let (f, r) = field();
+        let bare = mesh(&f, &r, 1, 0.0);
+        let with = mesh(&f, &r, 1, 12.0);
+        assert!(with.positions.len() > bare.positions.len());
+        let lowest_bare = bare.positions.iter().map(|p| p[1]).fold(f32::MAX, f32::min);
+        let lowest_with = with.positions.iter().map(|p| p[1]).fold(f32::MAX, f32::min);
+        assert!(lowest_with < lowest_bare - 1.0, "the skirt did not hang below");
+        assert!(with.indices.iter().all(|i| (*i as usize) < with.positions.len()));
+    }
+
+    /// Ground colour must actually vary with the land — a terrain that returns
+    /// one colour everywhere is a painted plane.
+    #[test]
+    fn ground_albedo_tracks_the_landscape() {
+        let r = TerrainRecipe { relief: Relief::Alpine, cell_size: 10.0, ..Default::default() };
+        let f = generate(&r, 96, 0.0, 0.0);
+        let mut lo = [f32::MAX; 3];
+        let mut hi = [f32::MIN; 3];
+        for y in 0..f.size {
+            for x in 0..f.size {
+                let c = ground_albedo(&f, x, y, &r);
+                for k in 0..3 {
+                    lo[k] = lo[k].min(c[k]);
+                    hi[k] = hi[k].max(c[k]);
+                }
+            }
+        }
+        let spread: f32 = (0..3).map(|k| hi[k] - lo[k]).sum();
+        assert!(spread > 0.5, "ground colour barely varied (spread {spread:.2})");
+        assert!((0..3).all(|k| lo[k] >= 0.0 && hi[k] <= 1.2), "albedo out of range");
+    }
+}
+
+// ─── the manifest bridge ──────────────────────────────────────────────────
+
+impl TerrainRecipe {
+    /// Read a manifest's `environment.terrain` block.
+    ///
+    /// Every field has a default and an unknown relief falls back to hills, so
+    /// `"terrain": {}` is a legal, working landscape — the smallest thing an
+    /// author can write and still get ground.
+    pub fn from_manifest(t: &infinite_manifest::Terrain) -> Self {
+        Self {
+            seed: t.seed,
+            relief: Relief::from_str(&t.relief),
+            sea_level: t.sea_level,
+            latitude: t.latitude.clamp(0.0, 1.0),
+            wind: t.wind,
+            humidity: t.humidity.clamp(0.0, 1.0),
+            // A cell smaller than a footstep buys nothing and costs the square
+            // of it; larger than a house and hills stop reading as hills.
+            cell_size: t.cell_size.clamp(0.5, 64.0),
+        }
+    }
+}
+
+#[cfg(test)]
+mod manifest_tests {
+    use super::*;
+
+    #[test]
+    fn an_empty_terrain_block_is_a_working_landscape() {
+        let t = infinite_manifest::Terrain::default();
+        let r = TerrainRecipe::from_manifest(&t);
+        assert_eq!(r.relief, Relief::Hills);
+        let f = generate(&r, 48, 0.0, 0.0);
+        assert!(f.height.iter().all(|v| v.is_finite()));
+    }
+
+    #[test]
+    fn the_recipe_survives_a_json_round_trip() {
+        let json = r#"{
+            "seed": 99, "relief": "alpine", "sea_level": -12.5,
+            "latitude": 0.7, "wind": [0.0, 1.0], "humidity": 0.9,
+            "cell_size": 6.0, "cover": { "trees": 0.4 },
+            "unknown_future_field": 7
+        }"#;
+        let t: infinite_manifest::Terrain = serde_json::from_str(json).unwrap();
+        let r = TerrainRecipe::from_manifest(&t);
+        assert_eq!(r.seed, 99);
+        assert_eq!(r.relief, Relief::Alpine);
+        assert_eq!(r.wind, [0.0, 1.0]);
+        assert!((r.sea_level + 12.5).abs() < 1e-6);
+        assert!((t.cover.trees - 0.4).abs() < 1e-6);
+        assert!((t.cover.grass - 1.0).abs() < 1e-6, "an unset cover defaults to full");
+        // Forward compatibility: a field from a later version must survive.
+        let back = serde_json::to_string(&t).unwrap();
+        assert!(back.contains("unknown_future_field"), "unknown field was dropped");
+    }
+
+    /// Absurd inputs must produce a landscape, not a panic or a wall.
+    #[test]
+    fn hostile_values_are_clamped_not_obeyed() {
+        let json = r#"{ "cell_size": 0.0001, "latitude": 40.0, "humidity": -3.0 }"#;
+        let t: infinite_manifest::Terrain = serde_json::from_str(json).unwrap();
+        let r = TerrainRecipe::from_manifest(&t);
+        assert!(r.cell_size >= 0.5, "a sub-millimetre cell would hang the generator");
+        assert!((0.0..=1.0).contains(&r.latitude));
+        assert!((0.0..=1.0).contains(&r.humidity));
+        let f = generate(&r, 32, 0.0, 0.0);
+        assert!(f.height.iter().all(|v| v.is_finite()));
+    }
+}
