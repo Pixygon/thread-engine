@@ -54,6 +54,12 @@ pub struct Species {
     pub moisture: (f32, f32),
     /// Coldest and warmest, in the field's temperature units.
     pub temperature: (f32, f32),
+    /// Blades per placement. Grass does not grow as isolated stems — it grows
+    /// in tufts from one root crown, and a scatter of single blades reads as
+    /// hair on a scalp rather than as ground cover. Emitting a cluster per
+    /// placement is also far cheaper than scattering the same number of
+    /// individuals: blue-noise rejection runs per tuft, not per blade.
+    pub tuft: usize,
     /// Metres of soil this species needs to establish. A moss cushion will
     /// take a crack; a spruce will not. This is what stops a forest from
     /// walking up a cliff face that happens to share the valley's climate.
@@ -94,12 +100,13 @@ pub fn default_species() -> Vec<Species> {
         Species {
             name: "meadow grass",
             form: Form::Grass,
-            spacing: 0.17,
-            height: (0.22, 0.55),
+            spacing: 0.30,
+            height: (0.13, 0.30),
             affinity: [0.0, 0.15, 0.05, 1.0, 0.7, 0.5, 0.35, 0.05],
             max_slope: 0.55,
             moisture: (0.18, 1.0),
             temperature: (-6.0, 40.0),
+            tuft: 9,
             min_soil: 0.06,
             clumping: 0.30,
             color: [0.34, 0.46, 0.16],
@@ -107,12 +114,13 @@ pub fn default_species() -> Vec<Species> {
         Species {
             name: "dune grass",
             form: Form::Grass,
-            spacing: 0.34,
-            height: (0.25, 0.6),
+            spacing: 0.45,
+            height: (0.14, 0.32),
             affinity: [0.0, 1.0, 0.55, 0.1, 0.25, 0.0, 0.0, 0.0],
             max_slope: 0.5,
             moisture: (0.0, 0.45),
             temperature: (2.0, 45.0),
+            tuft: 6,
             min_soil: 0.04,
             clumping: 0.55,
             color: [0.62, 0.58, 0.34],
@@ -126,6 +134,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.45,
             moisture: (0.3, 0.95),
             temperature: (0.0, 32.0),
+            tuft: 3,
             min_soil: 0.08,
             clumping: 0.88,
             color: [0.85, 0.78, 0.35],
@@ -139,6 +148,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.62,
             moisture: (0.1, 0.8),
             temperature: (-10.0, 28.0),
+            tuft: 1,
             min_soil: 0.10,
             clumping: 0.62,
             color: [0.38, 0.34, 0.24],
@@ -152,6 +162,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.5,
             moisture: (0.45, 1.0),
             temperature: (4.0, 32.0),
+            tuft: 1,
             min_soil: 0.55,
             clumping: 0.72,
             color: [0.20, 0.33, 0.14],
@@ -169,6 +180,7 @@ pub fn default_species() -> Vec<Species> {
             // marched conifers all the way onto the snowfields. Boreal treeline
             // is around -2 degrees of annual mean; below that, tundra.
             temperature: (-2.0, 16.0),
+            tuft: 1,
             min_soil: 0.40,
             clumping: 0.86,
             color: [0.15, 0.26, 0.17],
@@ -182,6 +194,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.55,
             moisture: (0.0, 0.32),
             temperature: (6.0, 48.0),
+            tuft: 1,
             min_soil: 0.05,
             clumping: 0.70,
             color: [0.44, 0.42, 0.26],
@@ -492,6 +505,35 @@ impl Builder {
     }
 }
 
+/// Tip a vector away from vertical, toward the compass direction `dir`.
+///
+/// A rotation rather than the obvious shear, because a shear moves positions
+/// without moving the normals that belong to them: the geometry leans and its
+/// shading does not follow, and lit from the wrong side a blade goes black.
+/// A rotation transforms both identically, so it can be applied to a normal
+/// with the same call.
+#[inline]
+fn tip(v: [f32; 3], dir: f32, angle: f32) -> [f32; 3] {
+    let (s, c) = angle.sin_cos();
+    if angle.abs() < 1e-5 {
+        return v;
+    }
+    // Axis is horizontal and perpendicular to `dir`.
+    let (ds, dc) = dir.sin_cos();
+    let k = [-ds, 0.0, dc];
+    let kv = [
+        k[1] * v[2] - k[2] * v[1],
+        k[2] * v[0] - k[0] * v[2],
+        k[0] * v[1] - k[1] * v[0],
+    ];
+    let kd = k[0] * v[0] + k[1] * v[1] + k[2] * v[2];
+    [
+        v[0] * c + kv[0] * s + k[0] * kd * (1.0 - c),
+        v[1] * c + kv[1] * s + k[1] * kd * (1.0 - c),
+        v[2] * c + kv[2] * s + k[2] * kd * (1.0 - c),
+    ]
+}
+
 #[inline]
 fn rot(p: [f32; 3], yaw: f32) -> [f32; 3] {
     let (s, c) = yaw.sin_cos();
@@ -664,7 +706,56 @@ pub fn build(plants: &[Plant], table: &[Species], detail: Detail) -> crate::Mesh
                 if detail != Detail::Near {
                     continue;
                 }
-                blade(&mut b, pl, pl.height * 0.055, 0.30, scale);
+                // A tuft: blades fanning from one crown, each with its own
+                // lean, length and yaw. The variation is the point — a
+                // cluster of identical blades reads as a stamped decal.
+                let mut h = (0x51ed ^ (i as u32).wrapping_mul(2_654_435_761)) | 1;
+                let mut rnd = move || {
+                    h ^= h << 13;
+                    h ^= h >> 17;
+                    h ^= h << 5;
+                    h as f32 / u32::MAX as f32
+                };
+                for _ in 0..sp.tuft.max(1) {
+                    let ang = rnd() * std::f32::consts::TAU;
+                    // sqrt for an even fill of the disc rather than a pile in
+                    // the middle.
+                    let rr = rnd().sqrt() * sp.spacing * 0.40;
+                    let mut q = *pl;
+                    q.yaw = ang + (rnd() - 0.5) * 1.4;
+                    q.height = pl.height * (0.55 + rnd() * 0.9);
+                    q.tilt_dir = ang;
+                    // Blades within one tuft vary a little, not a lot. At the
+                    // wider spread this reads as tinsel: a few bright blades
+                    // catching the eye out of an otherwise dark mat.
+                    let v = 0.90 + rnd() * 0.16;
+                    q.color = [pl.color[0] * v, pl.color[1] * v, pl.color[2] * v];
+                    // Each blade owns its own vertex range, so it can be placed
+                    // and splayed individually — the outer transform below only
+                    // knows about the tuft as a whole.
+                    let bs = b.m.positions.len();
+                    blade(&mut b, &q, q.height * 0.058, 0.30, scale);
+                    // Blades splay outward from the crown: that is what gives a
+                    // tuft its rounded silhouette instead of a bundle of
+                    // parallel spikes.
+                    let splay = rr / sp.spacing * 0.62 + rnd() * 0.12;
+                    let (dz, dx) = (ang.sin(), ang.cos());
+                    for k in bs..b.m.positions.len() {
+                        let v = tip(b.m.positions[k], ang, splay);
+                        b.m.positions[k] = [v[0] + dx * rr, v[1], v[2] + dz * rr];
+                        b.m.normals[k] = tip(b.m.normals[k], ang, splay);
+                        let t = tip(
+                            [
+                                b.m.tangents[k][0],
+                                b.m.tangents[k][1],
+                                b.m.tangents[k][2],
+                            ],
+                            ang,
+                            splay,
+                        );
+                        b.m.tangents[k] = [t[0], t[1], t[2], b.m.tangents[k][3]];
+                    }
+                }
             }
             Form::Flower => {
                 if detail != Detail::Near {
@@ -1010,10 +1101,20 @@ mod tests {
     /// a distant conifer wood did the first time this ran. Checked by
     /// comparing each triangle's geometric normal against the shading normals
     /// its own vertices carry.
+    ///
+    /// CLOSED forms only. A blade of grass is a double-sided sheet whose
+    /// normals are deliberately not its geometric ones -- they are biased
+    /// upward so a lawn reads as lit ground rather than as a field of dark
+    /// slivers -- so "outward" is not defined for it and the comparison is
+    /// meaningless. Both faces are drawn either way; the bug this test exists
+    /// to catch is a solid built inside-out.
     #[test]
     fn geometry_is_wound_outward() {
         let table = default_species();
         for (i, sp) in table.iter().enumerate() {
+            if matches!(sp.form, Form::Grass | Form::Flower) {
+                continue;
+            }
             let pl = Plant {
                 position: [0.0, 0.0, 0.0], yaw: 0.0, height: 6.0, tilt: 0.0,
                 tilt_dir: 0.0, color: [0.3, 0.4, 0.2], species: i as u16,

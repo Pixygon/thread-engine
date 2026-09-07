@@ -148,6 +148,57 @@ pub struct Field {
 }
 
 impl Field {
+
+    /// Cut a square sub-field out of this one, sharing its cell size.
+    ///
+    /// This is how a landscape is broken into renderable tiles WITHOUT
+    /// breaking the simulation into tiles. Erosion is not a function of a
+    /// point — it is a sequential simulation over a grid — so two tiles that
+    /// simulate the same ground separately erode it into two different shapes
+    /// and the traveler finds a cliff where they meet. Overlap margins only
+    /// narrow that gap: measured across a real alpine seam it fell from 94 m
+    /// to about 10 m as the margin grew, and then stopped falling, because
+    /// what remains is the order the droplets were applied in, not the area
+    /// they were applied to.
+    ///
+    /// Simulating once and windowing is seamless by construction, and it is
+    /// also CHEAPER than tiling — nine tiles with margins simulate about
+    /// twice the cells of one field that covers the same ground, because
+    /// every margin is ground simulated twice and thrown away.
+    pub fn window(&self, x0: usize, y0: usize, size: usize) -> Field {
+        let size = size.min(self.size.saturating_sub(x0)).min(self.size.saturating_sub(y0));
+        let mut f = Field {
+            size,
+            cell_size: self.cell_size,
+            height: vec![0.0; size * size],
+            sediment: vec![0.0; size * size],
+            flow: vec![0.0; size * size],
+            slope: vec![0.0; size * size],
+            temperature: vec![0.0; size * size],
+            moisture: vec![0.0; size * size],
+            soil: vec![0.0; size * size],
+            curvature: vec![0.0; size * size],
+            biome: vec![0.0; size * size * BIOMES.len()],
+        };
+        for y in 0..size {
+            for x in 0..size {
+                let src = self.idx(x0 + x, y0 + y);
+                let dst = y * size + x;
+                f.height[dst] = self.height[src];
+                f.sediment[dst] = self.sediment[src];
+                f.flow[dst] = self.flow[src];
+                f.slope[dst] = self.slope[src];
+                f.temperature[dst] = self.temperature[src];
+                f.moisture[dst] = self.moisture[src];
+                f.soil[dst] = self.soil[src];
+                f.curvature[dst] = self.curvature[src];
+                let (sb, db) = (src * BIOMES.len(), dst * BIOMES.len());
+                f.biome[db..db + BIOMES.len()]
+                    .copy_from_slice(&self.biome[sb..sb + BIOMES.len()]);
+            }
+        }
+        f
+    }
     #[inline]
     pub fn idx(&self, x: usize, y: usize) -> usize {
         y * self.size + x
@@ -200,6 +251,14 @@ fn bilinear(v: &[f32], size: usize, fx: f32, fy: f32) -> f32 {
 // Value noise with a hashed lattice: no tables, no allocation, identical on
 // every machine. Terrain quality comes from what we *stack* on top of it —
 // the ridges, the warp, and above all the erosion — not from the noise basis.
+
+/// A 0..1 hash of a world cell. The droplet seeding needs a value that
+/// depends on WHERE a cell is in the world, never on where it sits in the
+/// tile currently being simulated.
+#[inline]
+fn hash01(x: i32, y: i32, seed: u32) -> f32 {
+    hash2(x, y, seed) * 0.5 + 0.5
+}
 
 #[inline]
 fn hash2(x: i32, y: i32, seed: u32) -> f32 {
@@ -332,8 +391,11 @@ pub fn generate(r: &TerrainRecipe, size: usize, origin_x: f32, origin_y: f32) ->
     // 2. Erosion — the step that turns noise into landscape.
     let mut sediment = vec![0.0f32; big * big];
     let (_, _, budget) = r.relief.profile();
-    let droplets = ((big * big) as f32 * budget) as usize;
-    hydraulic(&mut height, &mut sediment, big, cs, droplets, r.seed);
+    // World cell index of this padded grid's (0, 0), so droplets can be
+    // seeded from where they are in the world rather than in the tile.
+    let wx0 = (origin_x / cs).round() as i64 - margin as i64;
+    let wy0 = (origin_y / cs).round() as i64 - margin as i64;
+    hydraulic(&mut height, &mut sediment, big, cs, budget, r.seed, wx0, wy0);
     thermal(&mut height, &mut sediment, big, cs, 12);
 
     // Loose material settles: a light smoothing of the deposition map. Raw
@@ -525,7 +587,18 @@ fn regolith(
 /// dendritic drainage every real landscape has and no noise function contains:
 /// V-profile valleys upstream, alluvial fans where the grade eases, ridgelines
 /// that connect because the water had to go *around* them.
-fn hydraulic(h: &mut [f32], sed: &mut [f32], size: usize, cell: f32, droplets: usize, seed: u32) {
+/// `density` is droplets per cell per pass; `wx0`/`wy0` are the WORLD cell
+/// indices of grid position (0, 0).
+fn hydraulic(
+    h: &mut [f32],
+    sed: &mut [f32],
+    size: usize,
+    cell: f32,
+    density: f32,
+    seed: u32,
+    wx0: i64,
+    wy0: i64,
+) {
     const INERTIA: f32 = 0.05;
     const CAPACITY: f32 = 4.0;
     const EROSION: f32 = 0.3;
@@ -535,17 +608,35 @@ fn hydraulic(h: &mut [f32], sed: &mut [f32], size: usize, cell: f32, droplets: u
     const MAX_STEPS: usize = 64;
     const RADIUS: i32 = 2;
 
-    let mut rng = seed.wrapping_mul(2_654_435_761).wrapping_add(1);
-    let mut next = || {
-        rng ^= rng << 13;
-        rng ^= rng >> 17;
-        rng ^= rng << 5;
-        rng as f32 / u32::MAX as f32
-    };
+    // Droplets are seeded from their WORLD position, not from a per-tile
+    // random stream.
+    //
+    // This is what makes an unbounded landscape possible at all. Erosion is
+    // not a function of a point — it is a simulation over a grid — so two
+    // tiles covering the same ground with different droplets erode it into
+    // two different shapes, and the traveler walks up to a 30 m cliff where
+    // they meet. No amount of overlap margin fixes that, because the margin
+    // was simulating the right AREA with the wrong RAIN. Hash the world cell
+    // instead and the same ground gets the same weather no matter which tile
+    // is asking.
+    let whole = density.floor().max(0.0) as usize;
+    let extra = density - density.floor();
 
-    for _ in 0..droplets {
-        let mut px = next() * (size as f32 - 1.0);
-        let mut py = next() * (size as f32 - 1.0);
+    for gy in 0..size {
+        for gx in 0..size {
+            let wx = (wx0 + gx as i64) as i32;
+            let wy = (wy0 + gy as i64) as i32;
+            // Fractional density: the cell spawns its last droplet only if
+            // its own hash says so, which keeps the count right on average
+            // without making it depend on the tile.
+            let n = whole + usize::from(hash01(wx, wy, seed ^ 0xd10d) < extra);
+            for k in 0..n {
+                let ks = seed.wrapping_add(k as u32 * 7919);
+                let mut px = gx as f32 + hash01(wx, wy, ks ^ 0x1111);
+                let mut py = gy as f32 + hash01(wx, wy, ks ^ 0x2222);
+                if px >= size as f32 - 1.0 || py >= size as f32 - 1.0 {
+                    continue;
+                }
         let (mut dx, mut dy) = (0.0f32, 0.0f32);
         let mut water = 1.0f32;
         let mut carry = 0.0f32;
@@ -598,6 +689,8 @@ fn hydraulic(h: &mut [f32], sed: &mut [f32], size: usize, cell: f32, droplets: u
             py = ny;
         }
         let _ = cell;
+        }
+        }
     }
 }
 
@@ -997,6 +1090,47 @@ pub fn preview(f: &Field, r: &TerrainRecipe) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
 
+    /// Windowed tiles must agree EXACTLY along the edge they share.
+    ///
+    /// Not approximately: they are cut from one simulation, so the shared
+    /// column is literally the same numbers. A crack in the ground is the one
+    /// artifact a walkable world cannot have, and this is the property that
+    /// rules it out by construction rather than by tuning.
+    #[test]
+    fn windowed_tiles_agree_exactly_at_the_seam() {
+        let r = TerrainRecipe {
+            relief: Relief::Alpine,
+            cell_size: 10.0,
+            latitude: 0.44,
+            ..Default::default()
+        };
+        const T: usize = 33; // tile side in vertices
+        let field = generate(&r, T * 2 - 1, 0.0, 0.0);
+        let a = field.window(0, 0, T);
+        let b = field.window(T - 1, 0, T);
+        let c = field.window(0, T - 1, T);
+        for y in 0..T {
+            assert_eq!(
+                a.height[a.idx(T - 1, y)],
+                b.height[b.idx(0, y)],
+                "vertical seam disagrees at row {y}"
+            );
+        }
+        for x in 0..T {
+            assert_eq!(
+                a.height[a.idx(x, T - 1)],
+                c.height[c.idx(x, 0)],
+                "horizontal seam disagrees at column {x}"
+            );
+        }
+        // And every other field a window carries, not just the height.
+        for y in 0..T {
+            assert_eq!(a.soil[a.idx(T - 1, y)], b.soil[b.idx(0, y)]);
+            assert_eq!(a.slope[a.idx(T - 1, y)], b.slope[b.idx(0, y)]);
+            assert_eq!(a.moisture[a.idx(T - 1, y)], b.moisture[b.idx(0, y)]);
+        }
+    }
+
     /// Every ground material must bake, at a matching size, with real
     /// variation in it. A flat map would mean the surface carries no detail at
     /// all, which is the thing baking them is meant to fix.
@@ -1239,7 +1373,7 @@ mod tests {
         }
         let mut eroded = raw.clone();
         let mut sed = vec![0.0f32; size * size];
-        hydraulic(&mut eroded, &mut sed, size, 8.0, size * size, r.seed);
+        hydraulic(&mut eroded, &mut sed, size, 8.0, 1.0, r.seed, 0, 0);
         let cut = raw.iter().zip(&eroded).filter(|(a, b)| **a - **b > 0.5).count();
         assert!(cut > size * size / 100, "erosion barely cut anything ({cut} cells)");
         assert!(sed.iter().any(|s| *s > 0.0), "nothing was ever deposited");
@@ -1336,6 +1470,16 @@ pub fn soil_cover(soil: f32) -> f32 {
     smoothstep(0.03, 0.30, soil)
 }
 
+/// How much snow lies on this cell, 0..1.
+///
+/// Faded in over a temperature band rather than switched on at freezing — a
+/// hard line draws a contour on the mountain that no snowfall ever drew — and
+/// shed by steep ground, because snow does not settle on a face.
+#[inline]
+pub fn snow_cover(f: &Field, i: usize) -> f32 {
+    smoothstep(0.0, -5.0, f.temperature[i]) * (1.0 - smoothstep(0.45, 0.75, f.slope[i]))
+}
+
 pub fn ground_albedo(f: &Field, x: usize, y: usize, r: &TerrainRecipe) -> [f32; 3] {
     // Ground tints, not map tints: what soil, sand and rock look like underfoot.
     const TINT: [[f32; 3]; 8] = [
@@ -1377,9 +1521,7 @@ pub fn ground_albedo(f: &Field, x: usize, y: usize, r: &TerrainRecipe) -> [f32; 
         c[k] = c[k] * (1.0 - sed) + [0.58, 0.52, 0.42][k] * sed;
     }
 
-    // Snow, faded in over a band rather than switched on — a hard freezing
-    // line draws a contour on the mountain that no snowfall ever drew.
-    let snow = smoothstep(0.0, -5.0, f.temperature[i]) * (1.0 - smoothstep(0.45, 0.75, f.slope[i]));
+    let snow = snow_cover(f, i);
     for k in 0..3 {
         c[k] = c[k] * (1.0 - snow) + [0.92, 0.94, 0.97][k] * snow;
     }
@@ -1416,17 +1558,28 @@ pub fn ground_materials() -> [TextureRecipe; 4] {
         // it is most of the reason real rock is not grey.
         TextureRecipe {
             kind: "voronoi".into(),
-            scale: 9.0,
+            // Finer cells. At scale 9 the cells came out metres across, and a
+            // voronoi's cell WALLS are its darkest value — so from a distance
+            // the network of walls resolved into a scatter of dark X and Y
+            // junctions peppered over every rock face, which reads as damage
+            // rather than as stone.
+            scale: 26.0,
             octaves: 4,
             seed: 1201,
+            // And a shallower ramp. A joint in granite is a shade darker than
+            // the block beside it, not eight times darker.
             colors: vec![
-                [0.115, 0.112, 0.108],
-                [0.30, 0.295, 0.285],
-                [0.47, 0.455, 0.435],
+                [0.235, 0.230, 0.222],
+                [0.34, 0.335, 0.322],
+                [0.45, 0.440, 0.420],
             ],
             roughness: [0.62, 0.92],
-            height: 0.85,
-            ao: 0.7,
+            height: 0.62,
+            // Joints, not cracked concrete. Voronoi cell walls at full
+            // occlusion read as a shattered pavement once the camera is a
+            // metre away — real granite has its jointing, but the joints are
+            // hairlines, not trenches.
+            ao: 0.38,
             size: 512,
             over: Some(Box::new(TextureRecipe {
                 kind: "fbm".into(),
@@ -1450,21 +1603,30 @@ pub fn ground_materials() -> [TextureRecipe; 4] {
             ..recipe_defaults()
         },
         // TURF. Alpine mat, not lawn: heath and moss and sedge, tight and
-        // uneven, with the rust and ochre that comes of a short season.
+        // uneven, with the rust and ochre of a short season.
+        //
+        // Lighter than it looks like it should be. Ground reflectance is
+        // measured in daylight, and a palette picked to look right as swatches
+        // on a screen is far too dark once a sun and an ambient sky are
+        // multiplied through it — the first version of this came out as mud.
+        // Real summer tundra sits around 0.20 albedo, not 0.05.
         TextureRecipe {
             kind: "fbm".into(),
-            scale: 14.0,
+            scale: 11.0,
             octaves: 5,
             seed: 305,
             colors: vec![
-                [0.14, 0.17, 0.08],
-                [0.28, 0.32, 0.14],
-                [0.44, 0.43, 0.21],
-                [0.55, 0.44, 0.24],
+                [0.20, 0.23, 0.12],
+                [0.33, 0.36, 0.17],
+                [0.47, 0.47, 0.25],
+                [0.58, 0.50, 0.30],
             ],
             roughness: [0.92, 1.0],
             height: 0.55,
-            ao: 0.5,
+            // Less baked shadow. The material already darkens through its own
+            // normal map under real light; occlusion on top of that is the
+            // same shadow counted twice, and twice-counted shadow is mud.
+            ao: 0.32,
             size: 512,
             ..recipe_defaults()
         },
@@ -1472,13 +1634,13 @@ pub fn ground_materials() -> [TextureRecipe; 4] {
         // and a much stronger height field — it is a pile, not a surface.
         TextureRecipe {
             kind: "voronoi".into(),
-            scale: 5.5,
+            scale: 14.0,
             octaves: 3,
             seed: 4409,
             colors: vec![
-                [0.135, 0.130, 0.125],
+                [0.185, 0.178, 0.170],
                 [0.33, 0.32, 0.30],
-                [0.52, 0.50, 0.47],
+                [0.50, 0.48, 0.45],
             ],
             roughness: [0.75, 0.98],
             height: 1.0,
@@ -1571,9 +1733,15 @@ pub fn mesh(f: &Field, r: &TerrainRecipe, lod: u32, skirt: f32) -> crate::MeshDa
                 cy as f32 * f.cell_size,
             ]);
             m.normals.push(normal_at(cx, cy));
-            // UVs in metres, so a material recipe tiles at a real-world scale
-            // and does not stretch when the tile's resolution changes.
-            m.uvs.push([cx as f32 * f.cell_size, cy as f32 * f.cell_size]);
+            // UVs carry the SURFACE MASKS: x = soil cover, y = snow cover.
+            //
+            // Terrain is sampled triplanar from world position, so its UVs are
+            // dead weight otherwise — and a renderer needs to know which
+            // surface a vertex is without guessing. Guessing was tried and it
+            // fails on exactly the case that matters: snow and bare alpine rock
+            // are both bright and both neutral, so no amount of reading the
+            // albedo back out can tell a snowfield from a granite face.
+            m.uvs.push([soil_cover(f.soil[i]), snow_cover(f, i)]);
             let c = ground_albedo(f, cx, cy, r);
             // Alpha carries soil cover to the material shader, which needs the
             // mask at a finer scale than any colour the mesh can hold. Terrain
