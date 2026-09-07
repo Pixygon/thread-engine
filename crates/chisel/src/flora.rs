@@ -54,6 +54,10 @@ pub struct Species {
     pub moisture: (f32, f32),
     /// Coldest and warmest, in the field's temperature units.
     pub temperature: (f32, f32),
+    /// Metres of soil this species needs to establish. A moss cushion will
+    /// take a crack; a spruce will not. This is what stops a forest from
+    /// walking up a cliff face that happens to share the valley's climate.
+    pub min_soil: f32,
     /// How tightly this species gathers, 0..1. At 0 it spreads evenly over
     /// everything it tolerates; at 1 it grows in tight stands with real
     /// clearings between them. Forests have edges -- this is where the edge
@@ -96,6 +100,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.55,
             moisture: (0.18, 1.0),
             temperature: (-6.0, 40.0),
+            min_soil: 0.06,
             clumping: 0.30,
             color: [0.34, 0.46, 0.16],
         },
@@ -108,6 +113,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.5,
             moisture: (0.0, 0.45),
             temperature: (2.0, 45.0),
+            min_soil: 0.04,
             clumping: 0.55,
             color: [0.62, 0.58, 0.34],
         },
@@ -120,6 +126,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.45,
             moisture: (0.3, 0.95),
             temperature: (0.0, 32.0),
+            min_soil: 0.08,
             clumping: 0.88,
             color: [0.85, 0.78, 0.35],
         },
@@ -132,6 +139,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.62,
             moisture: (0.1, 0.8),
             temperature: (-10.0, 28.0),
+            min_soil: 0.10,
             clumping: 0.62,
             color: [0.38, 0.34, 0.24],
         },
@@ -144,6 +152,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.5,
             moisture: (0.45, 1.0),
             temperature: (4.0, 32.0),
+            min_soil: 0.55,
             clumping: 0.72,
             color: [0.20, 0.33, 0.14],
         },
@@ -155,10 +164,12 @@ pub fn default_species() -> Vec<Species> {
             affinity: [0.0, 0.0, 0.0, 0.1, 0.25, 0.55, 1.0, 0.2],
             max_slope: 0.62,
             moisture: (0.3, 1.0),
-            // The tree line: conifers simply stop being tolerated up there,
-            // and the mountain gets its bare shoulder without anyone drawing
-            // a contour on it.
-            temperature: (-9.0, 16.0),
+            // The tree line. It sits WARMER than the snow line -- forest gives
+            // out well before permanent snow begins -- so a cold limit of -9
+            // marched conifers all the way onto the snowfields. Boreal treeline
+            // is around -2 degrees of annual mean; below that, tundra.
+            temperature: (-2.0, 16.0),
+            min_soil: 0.40,
             clumping: 0.86,
             color: [0.15, 0.26, 0.17],
         },
@@ -171,6 +182,7 @@ pub fn default_species() -> Vec<Species> {
             max_slope: 0.55,
             moisture: (0.0, 0.32),
             temperature: (6.0, 48.0),
+            min_soil: 0.05,
             clumping: 0.70,
             color: [0.44, 0.42, 0.26],
         },
@@ -204,9 +216,15 @@ fn density_at(f: &Field, sp: &Species, x: usize, y: usize) -> f32 {
     // Nothing grows in open water, and the shoulder of a cliff is not soil.
     let wet = f.biome[base + B_WATER];
     let slope = 1.0 - ((f.slope[i] - sp.max_slope) / 0.15).clamp(0.0, 1.0);
+    // Nothing roots in bare rock. This is the term that turns an even wash of
+    // vegetation into the patchwork a real slope has.
+    let rooted = smoothstep(sp.min_soil * 0.4, sp.min_soil * 1.6, f.soil[i]);
+    if rooted <= 0.001 {
+        return 0.0;
+    }
     let moist = band(f.moisture[i], sp.moisture.0, sp.moisture.1, 0.12);
     let temp = band(f.temperature[i], sp.temperature.0, sp.temperature.1, 4.0);
-    aff * slope * moist * temp * (1.0 - wet)
+    aff * slope * moist * temp * rooted * (1.0 - wet)
 }
 
 /// Scatter one species across a tile.
@@ -873,8 +891,14 @@ mod tests {
         assert!(clumped.len() > 100, "too few trees to judge ({})", clumped.len());
         let (cv_a, open_a) = measure(&clumped);
         let (cv_b, open_b) = measure(&sprinkled);
+        // 1.35, down from 1.5 when this was written. That is not the clustering
+        // getting worse -- it is the SOIL field arriving underneath it. Real
+        // stands are patchy mostly because the ground is patchy, and now that
+        // the ground genuinely is, the clustering noise has less left to
+        // explain. Both scatters got more structured; clumping still adds its
+        // own on top.
         assert!(
-            cv_a > cv_b * 1.5,
+            cv_a > cv_b * 1.35,
             "clumping barely changed the distribution (cv {cv_a:.2} vs {cv_b:.2})"
         );
         // The point of clustering is the clearing, so measure the clearing.

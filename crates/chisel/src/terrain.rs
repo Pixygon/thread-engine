@@ -132,6 +132,16 @@ pub struct Field {
     pub temperature: Vec<f32>,
     /// 0..1 after rain shadow and river proximity.
     pub moisture: Vec<f32>,
+    /// Metres of soil over bedrock — the regolith. THIS is the field that
+    /// decides where a landscape is green and where it is bare stone. On an
+    /// alpine slope every cell shares one climate, so climate cannot draw
+    /// that boundary; soil depth can, and does, because plants need
+    /// something to root in and soil only rests where the ground will hold it.
+    pub soil: Vec<f32>,
+    /// Laplacian of the surface, roughly metres of deviation from the local
+    /// plane. **Positive is concave** — a hollow, which collects soil, water
+    /// and snow. Negative is convex — a shoulder, which sheds all three.
+    pub curvature: Vec<f32>,
     /// `size*size*8` — biome weights per cell, summing to 1.
     pub biome: Vec<f32>,
 }
@@ -337,6 +347,10 @@ pub fn generate(r: &TerrainRecipe, size: usize, origin_x: f32, origin_y: f32) ->
     let slope_full = slopes(&height, big, cs);
     let moisture_full = blur(&moisture(&height, &flow, big, cs, r), big, 4);
 
+    // 4b. Soil. Everything above the bedrock reads from this.
+    let curvature_full = curvatures(&height, big, cs);
+    let soil_full = regolith(&height, &slope_full, &moisture_full, &flow_soft, big, cs, r);
+
     // Trim the margin away: everything below is tile-local.
     let mut f = Field {
         size,
@@ -347,6 +361,8 @@ pub fn generate(r: &TerrainRecipe, size: usize, origin_x: f32, origin_y: f32) ->
         slope: vec![0.0; size * size],
         temperature: vec![0.0; size * size],
         moisture: vec![0.0; size * size],
+        soil: vec![0.0; size * size],
+        curvature: vec![0.0; size * size],
         biome: vec![0.0; size * size * BIOMES.len()],
     };
     for y in 0..size {
@@ -358,6 +374,8 @@ pub fn generate(r: &TerrainRecipe, size: usize, origin_x: f32, origin_y: f32) ->
             f.flow[d] = flow[s];
             f.slope[d] = slope_full[s];
             f.moisture[d] = moisture_full[s];
+            f.soil[d] = soil_full[s];
+            f.curvature[d] = curvature_full[s];
             f.temperature[d] = temperature(height[s], r);
             let w = classify(
                 height[s],
@@ -373,6 +391,130 @@ pub fn generate(r: &TerrainRecipe, size: usize, origin_x: f32, origin_y: f32) ->
     f
 }
 
+/// Curvature: how far each cell sits from the plane its neighbours describe.
+///
+/// Cheap (one Laplacian) and worth far more than it costs, because almost
+/// every surface question is really a curvature question: hollows collect and
+/// shoulders shed, and that is what makes the patchwork of soil and bare rock
+/// on a mountainside look like a mountainside instead of a gradient.
+fn curvatures(h: &[f32], size: usize, cell: f32) -> Vec<f32> {
+    let mut out = vec![0.0f32; size * size];
+    for y in 1..size - 1 {
+        for x in 1..size - 1 {
+            let i = y * size + x;
+            let lap = h[i - 1] + h[i + 1] + h[i - size] + h[i + size] - 4.0 * h[i];
+            // Normalized by cell size so curvature means the same thing at any
+            // resolution -- otherwise a coarse tile reads as smooth ground.
+            out[i] = lap / cell;
+        }
+    }
+    out
+}
+
+/// Regolith — the soil balance.
+///
+/// Soil is not decoration painted onto a landscape; it is the standing
+/// balance of three competing processes, and running them is what produces
+/// the shapes the eye recognises:
+///
+/// 1. **Production.** Bedrock weathers into soil, faster where it is wet and
+///    warm. The rate falls as soil thickens, because a soil blanket shields
+///    the rock beneath it -- which is why thin soils grow quickly and deep
+///    ones barely grow at all.
+/// 2. **Creep.** Soil flows downhill, slowly, driven by the slope of the
+///    surface it sits on. This is diffusion, and diffusion is what empties
+///    the convex shoulders and fills the concave hollows.
+/// 3. **Loss.** Above the angle of repose soil simply will not stay, and
+///    running water strips what is left in the channels.
+///
+/// The result is bare stone on ridges, steep faces and scoured channels, with
+/// soil banked in the benches and hollows between them. That patchwork is the
+/// single most recognisable thing about ground above the treeline.
+fn regolith(
+    height: &[f32],
+    slope: &[f32],
+    moisture: &[f32],
+    flow: &[f32],
+    size: usize,
+    cell: f32,
+    r: &TerrainRecipe,
+) -> Vec<f32> {
+    let mut soil = vec![0.0f32; size * size];
+    // Metres of soil produced per pass on bare rock in ideal conditions.
+    const PRODUCTION: f32 = 0.09;
+    // Depth at which the soil blanket has substantially shut production down.
+    const SHIELD: f32 = 0.6;
+    const CREEP: f32 = 0.28;
+    const PASSES: usize = 18;
+
+    for _ in 0..PASSES {
+        // 1. Production.
+        for i in 0..soil.len() {
+            let t = temperature(height[i], r);
+            // Weathering wants water and warmth. Frost weathering does work in
+            // the cold too, but it SHATTERS rock rather than making soil -- it
+            // feeds the scree, not the meadow.
+            let warm = smoothstep(-14.0, 8.0, t);
+            let wet = 0.25 + 0.75 * moisture[i];
+            soil[i] += PRODUCTION * warm * wet * (-soil[i] / SHIELD).exp();
+        }
+
+        // 2. Creep: soil diffuses down the surface it lies on.
+        let mut moved = soil.clone();
+        for y in 1..size - 1 {
+            for x in 1..size - 1 {
+                let i = y * size + x;
+                if soil[i] <= 1e-4 {
+                    continue;
+                }
+                let here = height[i] + soil[i];
+                let mut total = 0.0f32;
+                let mut drop = [0.0f32; 4];
+                for (k, j) in [i - 1, i + 1, i - size, i + size].into_iter().enumerate() {
+                    let d = here - (height[j] + soil[j]);
+                    if d > 0.0 {
+                        drop[k] = d;
+                        total += d;
+                    }
+                }
+                if total <= 0.0 {
+                    continue;
+                }
+                // Creep transports a FRACTION of the column, not an absolute
+                // depth: the standard law is q = -K * depth * grad(z), so a
+                // slope with little soil on it moves little soil. Written as
+                // an absolute amount instead, `min(soil[i])` quietly meant
+                // "move everything" on any real slope, and the whole
+                // mountainside scoured itself to bedrock every pass.
+                //
+                // Capped at half the column so the diffusion settles rather
+                // than oscillating between neighbours.
+                let frac = (CREEP * total / cell).min(0.5);
+                let budget = soil[i] * frac;
+                moved[i] -= budget;
+                for (k, j) in [i - 1, i + 1, i - size, i + size].into_iter().enumerate() {
+                    if drop[k] > 0.0 {
+                        moved[j] += budget * drop[k] / total;
+                    }
+                }
+            }
+        }
+        soil = moved;
+
+        // 3. Loss: the angle of repose, and the channels.
+        for i in 0..soil.len() {
+            // What a slope of this steepness can hold at all. Near-vertical
+            // rock holds nothing, which is why cliffs are grey everywhere.
+            let hold = 2.6 * (1.0 - slope[i].clamp(0.0, 1.0)).powi(3);
+            soil[i] = soil[i].min(hold);
+            // Running water carries soil away; the more that drains through a
+            // cell the less stays in it.
+            let wash = (flow[i] / 240.0).clamp(0.0, 0.85);
+            soil[i] *= 1.0 - wash;
+        }
+    }
+    soil
+}
 /// Droplet hydraulic erosion.
 ///
 /// Each droplet is a particle with position, velocity, water and a sediment
@@ -853,6 +995,127 @@ pub fn preview(f: &Field, r: &TerrainRecipe) -> Vec<u8> {
 
 #[cfg(test)]
 mod tests {
+
+
+    /// Soil must obey the angle of repose. A cliff face holds nothing, and if
+    /// it did, every mountain in every world would be carpeted to the summit.
+    #[test]
+    fn steep_ground_holds_no_soil() {
+        let r = TerrainRecipe {
+            relief: Relief::Alpine,
+            cell_size: 12.0,
+            humidity: 0.7,
+            ..Default::default()
+        };
+        let f = generate(&r, 97, 0.0, 0.0);
+        // Deciles, not absolute thresholds: how steep a slope field gets
+        // depends on relief and cell size, so pinning a number here tests the
+        // generator's scale rather than the claim. The claim is a comparison.
+        let mut by_slope: Vec<usize> = (0..f.soil.len()).collect();
+        by_slope.sort_by(|a, b| f.slope[*a].total_cmp(&f.slope[*b]));
+        let d = by_slope.len() / 10;
+        let avg = |idx: &[usize]| idx.iter().map(|i| f.soil[*i]).sum::<f32>() / idx.len() as f32;
+        let flattest = avg(&by_slope[..d]);
+        let steepest = avg(&by_slope[by_slope.len() - d..]);
+        assert!(
+            steepest < flattest * 0.5,
+            "the steepest tenth held {steepest:.3} m against the flattest tenth's {flattest:.3} m"
+        );
+    }
+
+    /// On steep ground, soil must arrive as a patchwork — this is the mask
+    /// that decides where a mountainside is green and where it is stone, and
+    /// a mountainside that is uniformly either is the failure we are chasing.
+    #[test]
+    fn steep_ground_is_a_patchwork() {
+        let r = TerrainRecipe {
+            relief: Relief::Alpine,
+            cell_size: 10.0,
+            latitude: 0.4,
+            humidity: 0.7,
+            ..Default::default()
+        };
+        let f = generate(&r, 97, 0.0, 0.0);
+        let cover: Vec<f32> = f.soil.iter().map(|s| soil_cover(*s)).collect();
+        let bare = cover.iter().filter(|c| **c < 0.25).count() as f32 / cover.len() as f32;
+        let clothed = cover.iter().filter(|c| **c > 0.75).count() as f32 / cover.len() as f32;
+        assert!(
+            bare > 0.05 && clothed > 0.05,
+            "alpine ground was near-uniform: {:.0}% bare, {:.0}% clothed",
+            bare * 100.0,
+            clothed * 100.0
+        );
+    }
+
+    /// And the other half of the same claim: gentle, wet, temperate ground
+    /// should come out mostly clothed. Patchiness is a property of steep
+    /// country, not a texture to sprinkle everywhere — rolling hills that came
+    /// out half bare rock would be just as wrong as a green cliff.
+    #[test]
+    fn gentle_wet_ground_is_mostly_clothed() {
+        let r = TerrainRecipe {
+            relief: Relief::Hills,
+            cell_size: 7.0,
+            latitude: 0.35,
+            humidity: 0.8,
+            ..Default::default()
+        };
+        let f = generate(&r, 97, 0.0, 0.0);
+        let clothed = f.soil.iter().filter(|s| soil_cover(**s) > 0.6).count() as f32
+            / f.soil.len() as f32;
+        assert!(
+            clothed > 0.7,
+            "only {:.0}% of gentle wet ground held soil",
+            clothed * 100.0
+        );
+    }
+    /// Hollows collect and shoulders shed. Concave ground should carry more
+    /// soil than convex ground of comparable steepness -- that asymmetry is
+    /// what creep produces, and it is why benches are green.
+    #[test]
+    fn hollows_collect_more_than_shoulders() {
+        let r = TerrainRecipe {
+            relief: Relief::Hills,
+            cell_size: 7.0,
+            humidity: 0.75,
+            ..Default::default()
+        };
+        let f = generate(&r, 97, 0.0, 0.0);
+        let (mut hollow, mut hn, mut shoulder, mut sn) = (0.0f32, 0usize, 0.0f32, 0usize);
+        for i in 0..f.soil.len() {
+            // Compare like with like: only moderate slopes, so this measures
+            // curvature and not just steepness.
+            if !(0.1..0.45).contains(&f.slope[i]) {
+                continue;
+            }
+            if f.curvature[i] > 0.02 {
+                hollow += f.soil[i];
+                hn += 1;
+            } else if f.curvature[i] < -0.02 {
+                shoulder += f.soil[i];
+                sn += 1;
+            }
+        }
+        assert!(hn > 20 && sn > 20, "not enough curvature range ({hn} / {sn})");
+        let (h, sh) = (hollow / hn as f32, shoulder / sn as f32);
+        assert!(h > sh, "hollows ({h:.3} m) held no more than shoulders ({sh:.3} m)");
+    }
+
+    /// Soil depth is finite and non-negative everywhere. A negative depth or a
+    /// runaway would both show up as the ground changing colour in a way
+    /// nothing physical explains.
+    #[test]
+    fn soil_stays_physical() {
+        for relief in [Relief::Plains, Relief::Alpine, Relief::Badlands, Relief::Archipelago] {
+            let r = TerrainRecipe { relief, cell_size: 10.0, ..Default::default() };
+            let f = generate(&r, 65, 0.0, 0.0);
+            for (i, s) in f.soil.iter().enumerate() {
+                assert!(s.is_finite(), "{relief:?}: non-finite soil");
+                assert!(*s >= 0.0, "{relief:?}: negative soil {s}");
+                assert!(*s <= 3.0, "{relief:?}: {s} m of soil at cell {i}");
+            }
+        }
+    }
     use super::*;
 
     fn tile(relief: Relief, size: usize) -> (Field, TerrainRecipe) {
@@ -981,6 +1244,19 @@ mod tests {
 /// ground you stand on. Every PBR path here multiplies vertex colour into
 /// albedo, so a terrain arrives fully dressed without one new shader — the
 /// splat maps and triplanar rock refine it later, they do not replace it.
+/// How completely soil of this depth clothes the rock, 0..1.
+///
+/// Alpine plants root in almost nothing -- a few centimetres in a crack is a
+/// cushion of moss -- so this saturates early. The interesting range is the
+/// first hand's depth of soil, not the first metre.
+#[inline]
+pub fn soil_cover(soil: f32) -> f32 {
+    // 16 cm for full cover, not 28. Alpine turf is a thin mat over stone --
+    // a spade goes through it in one push -- and pitching the curve deeper
+    // than the soil ever gets leaves the whole mountain reading as bare rock.
+    smoothstep(0.015, 0.16, soil)
+}
+
 pub fn ground_albedo(f: &Field, x: usize, y: usize, r: &TerrainRecipe) -> [f32; 3] {
     // Ground tints, not map tints: what soil, sand and rock look like underfoot.
     const TINT: [[f32; 3]; 8] = [
@@ -1001,6 +1277,19 @@ pub fn ground_albedo(f: &Field, x: usize, y: usize, r: &TerrainRecipe) -> [f32; 
         for k in 0..3 {
             c[k] += TINT[b][k] * w;
         }
+    }
+
+    // Bare rock wherever the soil ran out. This is the boundary the eye
+    // actually reads on a mountainside -- green in the hollows and benches,
+    // grey on the shoulders and faces -- and no climate term can draw it,
+    // because the whole slope shares one climate.
+    let cover = soil_cover(f.soil[i]);
+    // Granite reflects about a quarter of the light that hits it. Rock painted
+    // at 0.42 is the colour of concrete in sunlight and reads as overexposed
+    // the moment a real sun is on it.
+    const ROCK: [f32; 3] = [0.29, 0.285, 0.275];
+    for k in 0..3 {
+        c[k] = ROCK[k] * (1.0 - cover) + c[k] * cover;
     }
 
     // Loose material over the top: scree, silt, river sand.
@@ -1071,7 +1360,11 @@ pub fn mesh(f: &Field, r: &TerrainRecipe, lod: u32, skirt: f32) -> crate::MeshDa
             // and does not stretch when the tile's resolution changes.
             m.uvs.push([cx as f32 * f.cell_size, cy as f32 * f.cell_size]);
             let c = ground_albedo(f, cx, cy, r);
-            m.colors.push([c[0], c[1], c[2], 1.0]);
+            // Alpha carries soil cover to the material shader, which needs the
+            // mask at a finer scale than any colour the mesh can hold. Terrain
+            // never sways, so this does not collide with the wind convention
+            // -- but the shader must know it is terrain to skip the wind.
+            m.colors.push([c[0], c[1], c[2], soil_cover(f.soil[i])]);
         }
     }
     for iy in 0..n.saturating_sub(1) {
