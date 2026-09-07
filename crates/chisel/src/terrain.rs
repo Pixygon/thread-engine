@@ -21,6 +21,7 @@
 //! implementation, so a world cannot look different depending on who opened
 //! it — the same rule the builtin primitives live under.
 
+use infinite_manifest::texture::TextureRecipe;
 use std::f32::consts::PI;
 
 /// How dramatic the land is. A preset picks the uplift blend and the erosion
@@ -996,6 +997,82 @@ pub fn preview(f: &Field, r: &TerrainRecipe) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
 
+    /// Every ground material must bake, at a matching size, with real
+    /// variation in it. A flat map would mean the surface carries no detail at
+    /// all, which is the thing baking them is meant to fix.
+    #[test]
+    fn ground_materials_bake_with_detail() {
+        for m in ground_materials() {
+            let b = crate::texture::bake(&m);
+            assert_eq!(b.size, 512, "{} baked at {}", m.kind, b.size);
+            let n = (b.size * b.size) as usize;
+            assert_eq!(b.albedo.len(), n * 4);
+            assert_eq!(b.normal.len(), n * 4);
+            assert_eq!(b.orm.len(), n * 4);
+            // Spread of the albedo's luminance: a material with none is a
+            // painted colour, not a surface.
+            let lum: Vec<f32> = (0..n)
+                .map(|i| {
+                    let p = &b.albedo[i * 4..i * 4 + 3];
+                    (p[0] as f32 * 0.2126 + p[1] as f32 * 0.7152 + p[2] as f32 * 0.0722) / 255.0
+                })
+                .collect();
+            let mean = lum.iter().sum::<f32>() / n as f32;
+            let albedo_sd =
+                (lum.iter().map(|l| (l - mean).powi(2)).sum::<f32>() / n as f32).sqrt();
+            // Detail does not have to live in the colour. Snow is genuinely
+            // near-uniform in albedo and carries all its surface in relief —
+            // asking every material for colour variation would be asking snow
+            // to stop being snow. What matters is that a material has detail
+            // SOMEWHERE, or it is a painted colour rather than a surface.
+            let nx: Vec<f32> = (0..n).map(|i| b.normal[i * 4] as f32 / 255.0).collect();
+            let nmean = nx.iter().sum::<f32>() / n as f32;
+            let normal_sd =
+                (nx.iter().map(|v| (v - nmean).powi(2)).sum::<f32>() / n as f32).sqrt();
+            assert!(
+                albedo_sd > 0.02 || normal_sd > 0.02,
+                "{} baked flat in both colour and relief (albedo sd {albedo_sd:.4}, normal sd {normal_sd:.4})",
+                m.kind
+            );
+        }
+    }
+
+    /// Baking is deterministic — the same recipe must give the same texels on
+    /// every machine, or two travelers standing in one world see two worlds.
+    #[test]
+    fn ground_materials_are_deterministic() {
+        let a = crate::texture::bake(&ground_materials()[0]);
+        let b = crate::texture::bake(&ground_materials()[0]);
+        assert_eq!(a.albedo, b.albedo);
+        assert_eq!(a.normal, b.normal);
+        assert_eq!(a.orm, b.orm);
+    }
+
+    /// Rock and turf must not look alike. If two ground materials bake to
+    /// nearly the same colour, blending between them by soil depth buys
+    /// nothing and the mountainside stays one flat wash.
+    #[test]
+    fn ground_materials_are_distinguishable() {
+        let mats = ground_materials();
+        let avg = |i: usize| {
+            let b = crate::texture::bake(&mats[i]);
+            let n = (b.size * b.size) as usize;
+            let mut c = [0.0f32; 3];
+            for k in 0..n {
+                for ch in 0..3 {
+                    c[ch] += b.albedo[k * 4 + ch] as f32 / 255.0;
+                }
+            }
+            [c[0] / n as f32, c[1] / n as f32, c[2] / n as f32]
+        };
+        let rock = avg(0);
+        let turf = avg(1);
+        let d = ((rock[0] - turf[0]).powi(2) + (rock[1] - turf[1]).powi(2)
+            + (rock[2] - turf[2]).powi(2))
+        .sqrt();
+        assert!(d > 0.08, "rock and turf bake to nearly the same colour (d {d:.3})");
+    }
+
 
     /// Soil must obey the angle of repose. A cliff face holds nothing, and if
     /// it did, every mountain in every world would be carpeted to the summit.
@@ -1251,10 +1328,12 @@ mod tests {
 /// first hand's depth of soil, not the first metre.
 #[inline]
 pub fn soil_cover(soil: f32) -> f32 {
-    // 16 cm for full cover, not 28. Alpine turf is a thin mat over stone --
-    // a spade goes through it in one push -- and pitching the curve deeper
-    // than the soil ever gets leaves the whole mountain reading as bare rock.
-    smoothstep(0.015, 0.16, soil)
+    // Tuned twice, from pictures. At 28 cm nothing was ever clothed and every
+    // world read as bare rock; at 16 cm everything was, and an alpine massif
+    // read as a hill. Soil this shallow is common on any weathering slope, so
+    // full cover has to sit deeper than the common case -- turf in the
+    // hollows, stone on the shoulders, which is what a mountainside is.
+    smoothstep(0.03, 0.30, soil)
 }
 
 pub fn ground_albedo(f: &Field, x: usize, y: usize, r: &TerrainRecipe) -> [f32; 3] {
@@ -1311,6 +1390,142 @@ pub fn ground_albedo(f: &Field, x: usize, y: usize, r: &TerrainRecipe) -> [f32; 
     [c[0] * v, c[1] * v, c[2] * v]
 }
 
+// ---------------------------------------------------------------------------
+// Ground materials
+// ---------------------------------------------------------------------------
+//
+// Terrain surfaces are baked by our own texture tool — the same
+// [`TextureRecipe`] vocabulary a world author writes for a wall or a column.
+// Nothing is scanned, bought or shipped as an image: a material is a sentence,
+// it bakes identically on every machine, and it costs a few kilobytes of
+// manifest instead of a few megabytes of download.
+//
+// Four surfaces cover a landscape, because four processes make one: bedrock,
+// the turf that grows where soil collects, the loose debris that gathers below
+// the steep ground, and snow. The simulation decides where each one is; these
+// decide what each one looks like underfoot.
+
+/// The ground materials, in the order the renderer expects them:
+/// `[rock, turf, scree, snow]`.
+pub fn ground_materials() -> [TextureRecipe; 4] {
+    [
+        // ROCK. Voronoi is the right pattern for stone: its cells are grains
+        // and its cell walls are the joints water and frost get into. Lichen
+        // is layered over it rather than tinted into it, because lichen is a
+        // separate organism with its own colour and its own patchiness — and
+        // it is most of the reason real rock is not grey.
+        TextureRecipe {
+            kind: "voronoi".into(),
+            scale: 9.0,
+            octaves: 4,
+            seed: 1201,
+            colors: vec![
+                [0.115, 0.112, 0.108],
+                [0.30, 0.295, 0.285],
+                [0.47, 0.455, 0.435],
+            ],
+            roughness: [0.62, 0.92],
+            height: 0.85,
+            ao: 0.7,
+            size: 512,
+            over: Some(Box::new(TextureRecipe {
+                kind: "fbm".into(),
+                scale: 5.0,
+                octaves: 5,
+                seed: 77,
+                // Crustose lichen is pale grey-green, close to the stone it
+                // grows on — not the olive of a moss bank. Painted too warm
+                // and too green, it turns an entire massif the colour of a
+                // meadow when seen from a kilometre away.
+                colors: vec![[0.42, 0.44, 0.39], [0.62, 0.63, 0.57], [0.76, 0.76, 0.72]],
+                roughness: [0.95, 1.0],
+                height: 0.18,
+                ao: 0.25,
+                size: 512,
+                ..recipe_defaults()
+            })),
+            mix: 0.24,
+            mask_scale: 2.6,
+            mask_seed: 613,
+            ..recipe_defaults()
+        },
+        // TURF. Alpine mat, not lawn: heath and moss and sedge, tight and
+        // uneven, with the rust and ochre that comes of a short season.
+        TextureRecipe {
+            kind: "fbm".into(),
+            scale: 14.0,
+            octaves: 5,
+            seed: 305,
+            colors: vec![
+                [0.14, 0.17, 0.08],
+                [0.28, 0.32, 0.14],
+                [0.44, 0.43, 0.21],
+                [0.55, 0.44, 0.24],
+            ],
+            roughness: [0.92, 1.0],
+            height: 0.55,
+            ao: 0.5,
+            size: 512,
+            ..recipe_defaults()
+        },
+        // SCREE. Broken rock, so: bigger cells, deeper shadow between them,
+        // and a much stronger height field — it is a pile, not a surface.
+        TextureRecipe {
+            kind: "voronoi".into(),
+            scale: 5.5,
+            octaves: 3,
+            seed: 4409,
+            colors: vec![
+                [0.135, 0.130, 0.125],
+                [0.33, 0.32, 0.30],
+                [0.52, 0.50, 0.47],
+            ],
+            roughness: [0.75, 0.98],
+            height: 1.0,
+            ao: 0.95,
+            size: 512,
+            ..recipe_defaults()
+        },
+        // SNOW. Nearly white, but not smooth: wind builds drifts and sastrugi,
+        // and snow with no relief at all reads as a hole in the image where the
+        // mountain used to be. Its detail lives almost entirely in the normal —
+        // the colour barely moves, which is exactly right.
+        TextureRecipe {
+            kind: "fbm".into(),
+            scale: 5.0,
+            octaves: 5,
+            seed: 88,
+            colors: vec![[0.66, 0.71, 0.82], [0.84, 0.88, 0.95], [0.94, 0.96, 0.99]],
+            roughness: [0.32, 0.66],
+            height: 0.75,
+            ao: 0.35,
+            size: 512,
+            ..recipe_defaults()
+        },
+    ]
+}
+
+/// The fields every ground recipe leaves at their defaults.
+fn recipe_defaults() -> TextureRecipe {
+    TextureRecipe {
+        kind: "fbm".into(),
+        scale: 4.0,
+        octaves: 4,
+        seed: 0,
+        colors: vec![[0.5, 0.5, 0.5]],
+        roughness: [0.9, 0.9],
+        smoothness: None,
+        metallic: [0.0, 0.0],
+        height: 0.0,
+        ao: 0.0,
+        size: 256,
+        over: None,
+        mix: 0.5,
+        mask_scale: 3.0,
+        mask_seed: 0,
+        triplanar: 0.0,
+    }
+}
 /// Turn a field into a renderable tile.
 ///
 /// `lod` is a power-of-two stride: 0 renders every cell, 1 every other, and so
