@@ -119,6 +119,11 @@ pub struct SkyNav {
     pub zenith: [f32; 3],
     pub horizon: [f32; 3],
     pub sun_dir: [f32; 3],
+    /// `[coverage, base_m, top_m, density]` — the world's cloud deck.
+    /// Coverage 0 is a clear sky, which is the default.
+    pub clouds: [f32; 4],
+    /// How darkly the deck prints its shadow on the ground, 0..1.
+    pub cloud_shadow: f32,
 }
 
 impl Default for SkyNav {
@@ -127,6 +132,8 @@ impl Default for SkyNav {
             zenith: [0.05, 0.06, 0.12],
             horizon: [0.18, 0.16, 0.24],
             sun_dir: [0.3, 0.7, 0.2],
+            clouds: [0.0, 1400.0, 2300.0, 1.0],
+            cloud_shadow: 0.65,
         }
     }
 }

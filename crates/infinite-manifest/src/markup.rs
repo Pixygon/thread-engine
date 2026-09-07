@@ -1724,6 +1724,7 @@ fn parse_sky(s: Option<&String>) -> Option<Sky> {
             zenith: [*zx, *zy, *zz],
             horizon: [*hx, *hy, *hz],
             sun_dir,
+            clouds: None,
         })
     } else {
         None
@@ -1746,6 +1747,7 @@ fn sky_preset(name: &str) -> Option<Sky> {
         zenith,
         horizon,
         sun_dir: Some(sun),
+        clouds: None,
     })
 }
 

@@ -874,6 +874,7 @@ fn sky_for(name: &str) -> Option<Sky> {
         zenith: z,
         horizon: h,
         sun_dir: Some(s),
+        clouds: None,
     })
 }
 

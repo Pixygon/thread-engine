@@ -262,6 +262,59 @@ pub struct Sky {
     pub horizon: [f32; 3],
     #[serde(default)]
     pub sun_dir: Option<[f32; 3]>,
+    /// The world's weather. Absent means a clear sky.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub clouds: Option<Clouds>,
+}
+
+/// A cloud deck: how much sky it covers and the altitudes it lives between.
+///
+/// Altitudes are metres in the world's own space, which is what lets a deck
+/// sit *in* a valley rather than always above everything — a cloud bank
+/// wrapping a mountain at its waist is the strongest sense-of-scale cue a
+/// landscape has, and it is only possible if weather has a height.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Clouds {
+    /// 0 = clear, 1 = overcast.
+    #[serde(default = "half")]
+    pub coverage: f32,
+    /// Metres. The deck's underside.
+    #[serde(default = "cloud_base")]
+    pub base: f32,
+    /// Metres. The deck's top.
+    #[serde(default = "cloud_top")]
+    pub top: f32,
+    /// How thick the cloud material is — how fast light dies inside it.
+    #[serde(default = "one")]
+    pub density: f32,
+    /// How darkly the deck prints its shadow on the ground, 0..1.
+    #[serde(default = "cloud_shadow")]
+    pub shadow: f32,
+}
+
+fn half() -> f32 {
+    0.5
+}
+fn cloud_base() -> f32 {
+    1400.0
+}
+fn cloud_top() -> f32 {
+    2300.0
+}
+fn cloud_shadow() -> f32 {
+    0.65
+}
+
+impl Default for Clouds {
+    fn default() -> Self {
+        Self {
+            coverage: half(),
+            base: cloud_base(),
+            top: cloud_top(),
+            density: 1.0,
+            shadow: cloud_shadow(),
+        }
+    }
 }
 
 /// Axis-aligned world bounds (advisory).

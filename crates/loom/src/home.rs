@@ -371,6 +371,7 @@ fn estate_sky() -> Sky {
         zenith: [0.07, 0.09, 0.20],
         horizon: [0.80, 0.42, 0.24],
         sun_dir: Some([0.30, 0.35, 0.25]),
+        clouds: None,
     }
 }
 
@@ -417,6 +418,7 @@ pub fn upgrade(dir: &Path) -> bool {
             zenith: [0.10, 0.12, 0.22],
             horizon: [0.55, 0.35, 0.28],
             sun_dir: Some([0.35, 0.45, 0.30]),
+            clouds: None,
         };
         if m.environment.sky.as_ref() == Some(&old_seed_sky) {
             m.environment.sky = Some(estate_sky());
