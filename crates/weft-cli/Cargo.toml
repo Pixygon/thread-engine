@@ -1,0 +1,16 @@
+[package]
+name = "weft-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "The `weft` CLI — verify, run, fmt and parse Weft packages (the agent-facing surface of crates/weft)"
+
+[[bin]]
+name = "weft"
+path = "src/main.rs"
+
+[dependencies]
+weft = { package = "weft-lang", path = "../weft", version = "0.2.2" }
+serde_json.workspace = true

@@ -30,9 +30,11 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 pub mod draft_lib;
+pub mod json;
 pub mod model_lib;
 pub mod pack;
 pub mod project;
+pub mod text;
 
 // ---------------------------------------------------------------------------
 // Identity

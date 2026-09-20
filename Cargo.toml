@@ -11,6 +11,7 @@ members = [
     "crates/thread-rendezvous",
     "crates/thread-conformance",
     "crates/weft-pack",
+    "crates/weft-cli",
     "crates/thread-cli",
 ]
 
