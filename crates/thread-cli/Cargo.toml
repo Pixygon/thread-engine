@@ -11,6 +11,8 @@ name = "thread"
 path = "src/main.rs"
 
 [dependencies]
+gltf = { workspace = true, features = ["import"] }
+image.workspace = true
 infinite-manifest.workspace = true
 chisel = { workspace = true }
 weft = { package = "weft-lang", path = "../weft", version = "0.2.2" }

@@ -2882,6 +2882,8 @@ dependencies = [
 name = "thread-cli"
 version = "0.2.2"
 dependencies = [
+ "gltf",
+ "image",
  "reqwest",
  "serde_json",
  "thread-chisel",

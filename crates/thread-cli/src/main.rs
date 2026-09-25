@@ -10,6 +10,7 @@
 //! anyone can walk `thread://yourdomain`, with zero contact with anyone.
 
 mod level;
+mod view;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -30,6 +31,7 @@ fn main() -> ExitCode {
         "export" => cmd_export(rest),
         "model" => cmd_model(rest),
         "level" => cmd_level(rest),
+        "view" => view::cmd_view(rest),
         "compile" => cmd_compile(args.get(1)),
         "doctor" => cmd_doctor(args.get(1)),
         "preview" => cmd_preview(args.get(1)),
@@ -53,6 +55,7 @@ fn print_help() {
          thread lint <world>      quality findings (floating/buried/overflow/dark)\n  \
          thread export <world> --id <name> [-o out.glb]   carved shape -> glTF\n  \
          thread model <model|weftpack> [-o out.glb] [--preview sheet.png] [--publish]\n  \
+         thread view <file.glb> [-o sheet.png] [--views n]   turntable proof of ANY glb\n  \
          thread level --figure <hall|courtyard> --args '[…]' [--publish]\n  \
          thread validate [path]   check a world.json or .thread file (default ./world.json)\n  \
          thread compile <file>    compile a .thread markup file → world.json\n  \
