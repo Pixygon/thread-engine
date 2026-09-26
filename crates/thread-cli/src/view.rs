@@ -69,7 +69,7 @@ pub fn cmd_view(args: &[String]) -> ExitCode {
     }
 }
 
-fn load(path: &str) -> Result<Built, String> {
+pub(crate) fn load(path: &str) -> Result<Built, String> {
     let (doc, buffers, images) = gltf::import(path).map_err(|e| format!("cannot read glTF: {e}"))?;
     let name = std::path::Path::new(path)
         .file_stem()

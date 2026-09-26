@@ -21,5 +21,7 @@
 //! texture baking and glb export — and never on its carving vocabulary.
 pub mod flora;
 pub mod grow;
+pub mod hang;
 
 pub use grow::{grow, GrowRecipe, Grown, Socket};
+pub use hang::{hang, HangRecipe, Placement};
