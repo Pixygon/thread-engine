@@ -28,8 +28,8 @@
 use infinite_manifest::texture::TextureRecipe;
 use serde::{Deserialize, Serialize};
 
-use crate::model::{Built, BuiltPart};
-use crate::MeshData;
+use chisel::model::{Built, BuiltPart};
+use chisel::MeshData;
 
 /// Everything a tree needs to be told.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -455,7 +455,7 @@ pub fn grow(r: &GrowRecipe) -> Result<Grown, String> {
             level: b.level,
         });
     }
-    let baked = r.bark.as_ref().map(crate::texture::bake);
+    let baked = r.bark.as_ref().map(chisel::texture::bake);
     let built = Built {
         name: r.name.clone(),
         parts: vec![BuiltPart { name: "wood".into(), mesh: lod0, baked, color: r.color, emissive: r.emissive }],

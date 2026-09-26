@@ -14,11 +14,11 @@
 //!    Forests have edges; the mask is where edges come from.
 //!
 //! Everything else — which species, how big, how dense — is read from the
-//! [`Field`](crate::terrain::Field) the terrain simulation already produced,
+//! [`Field`](chisel::terrain::Field) the terrain simulation already produced,
 //! so a spruce line stops at altitude because the *temperature* stopped it,
 //! not because someone drew a line.
 
-use crate::terrain::{value_noise_pub as noise, Field, BIOMES, B_WATER};
+use chisel::terrain::{value_noise_pub as noise, Field, BIOMES, B_WATER};
 
 /// What kind of thing this is, which decides how a renderer draws it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -448,7 +448,7 @@ pub fn scatter_form(
 /// Accumulates merged plant geometry.
 #[derive(Default)]
 struct Builder {
-    m: crate::MeshData,
+    m: chisel::MeshData,
 }
 
 impl Builder {
@@ -688,7 +688,7 @@ pub enum Detail {
 
 /// Builds one merged mesh for a scattered set. Positions are tile-local, so the
 /// caller places the batch with the tile's own transform.
-pub fn build(plants: &[Plant], table: &[Species], detail: Detail) -> crate::MeshData {
+pub fn build(plants: &[Plant], table: &[Species], detail: Detail) -> chisel::MeshData {
     let mut b = Builder::default();
     for (i, pl) in plants.iter().enumerate() {
         let sp = match table.get(pl.species as usize) {
@@ -828,7 +828,7 @@ pub fn build(plants: &[Plant], table: &[Species], detail: Detail) -> crate::Mesh
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::terrain::{generate, Relief, TerrainRecipe};
+    use chisel::terrain::{generate, Relief, TerrainRecipe};
 
     fn tile() -> (Field, TerrainRecipe) {
         let r = TerrainRecipe {

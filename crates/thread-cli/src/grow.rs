@@ -1,12 +1,12 @@
 //! `thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json] [--views n]`
 //!
-//! Grow a tree from a [`chisel::grow::GrowRecipe`]: LOD0 to `-o`, coarser
+//! Grow a tree from a [`grove::grow::GrowRecipe`]: LOD0 to `-o`, coarser
 //! LODs beside it as `<stem>.lod1.glb`, `<stem>.lod2.glb`…, the tip sockets
 //! to a JSON file the layout binder / the Unity importer can hang props on,
 //! and the same turntable proof every other model gets.
 use std::process::ExitCode;
 
-use chisel::grow::{grow, GrowRecipe};
+use grove::grow::{grow, GrowRecipe};
 use chisel::model::{Built, BuiltPart};
 
 pub fn cmd_grow(args: &[String]) -> ExitCode {

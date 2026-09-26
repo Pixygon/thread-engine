@@ -15,6 +15,7 @@ gltf = { workspace = true, features = ["import"] }
 image.workspace = true
 infinite-manifest.workspace = true
 chisel = { workspace = true }
+grove = { workspace = true }
 weft = { package = "weft-lang", path = "../weft", version = "0.2.2" }
 serde_json.workspace = true
 reqwest.workspace = true

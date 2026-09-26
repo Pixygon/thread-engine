@@ -14,9 +14,7 @@
 //! never in the frame loop; a 40³ grid meshes in well under a millisecond).
 
 pub mod builtin;
-pub mod flora;
 pub mod gltf;
-pub mod grow;
 pub mod model;
 pub mod preview;
 pub mod terrain;

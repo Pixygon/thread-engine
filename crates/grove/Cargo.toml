@@ -1,0 +1,17 @@
+[package]
+# Published as `thread-grove`. Chisel carves the inorganic, Avatar carries the
+# humanoid; Grove grows everything that grows — and knows wind, LODs and
+# sockets from the first vertex.
+name = "thread-grove"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Grove — the Thread's plant grower: trees, foliage and undergrowth from a recipe, with wind, LODs and sockets built in. Agentic SpeedTree for the open metaverse."
+repository = "https://github.com/Pixygon/thread-engine"
+
+[dependencies]
+chisel.workspace = true
+infinite-manifest.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true

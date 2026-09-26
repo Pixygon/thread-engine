@@ -6,6 +6,7 @@ members = [
     "crates/infinite-avatar",
     "crates/weft",
     "crates/chisel",
+    "crates/grove",
     "crates/loom",
     "crates/thread-relay",
     "crates/thread-rendezvous",
@@ -24,6 +25,7 @@ repository = "https://github.com/Pixygon/thread-engine"
 
 [workspace.dependencies]
 chisel = { package = "thread-chisel", path = "crates/chisel", version = "0.2.2" }
+grove = { package = "thread-grove", path = "crates/grove", version = "0.2.2" }
 glam = { version = "0.29", features = ["serde"] }
 gltf = "1.4"
 image = "0.25"

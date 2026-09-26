@@ -2888,6 +2888,7 @@ dependencies = [
  "reqwest",
  "serde_json",
  "thread-chisel",
+ "thread-grove",
  "thread-manifest",
  "tokio",
  "weft-lang",
@@ -2927,6 +2928,16 @@ dependencies = [
  "wat",
  "webrtc",
  "weft-lang",
+]
+
+[[package]]
+name = "thread-grove"
+version = "0.2.2"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thread-chisel",
+ "thread-manifest",
 ]
 
 [[package]]
