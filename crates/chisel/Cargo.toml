@@ -12,6 +12,7 @@ repository = "https://github.com/Pixygon/thread-engine"
 [dependencies]
 infinite-manifest.workspace = true
 serde_json.workspace = true
+serde = { workspace = true, features = ["derive"] }
 image.workspace = true
 # Models as PROGRAMS: a Weft package export evaluates to a model. Weft is
 # pure Rust and dependency-light — the browser can carry it too.

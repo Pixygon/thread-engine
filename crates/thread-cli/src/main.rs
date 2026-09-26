@@ -11,6 +11,7 @@
 
 mod level;
 mod view;
+mod grow;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -32,6 +33,7 @@ fn main() -> ExitCode {
         "model" => cmd_model(rest),
         "level" => cmd_level(rest),
         "view" => view::cmd_view(rest),
+        "grow" => grow::cmd_grow(rest),
         "compile" => cmd_compile(args.get(1)),
         "doctor" => cmd_doctor(args.get(1)),
         "preview" => cmd_preview(args.get(1)),
@@ -56,6 +58,7 @@ fn print_help() {
          thread export <world> --id <name> [-o out.glb]   carved shape -> glTF\n  \
          thread model <model|weftpack> [-o out.glb] [--preview sheet.png] [--publish]\n  \
          thread view <file.glb> [-o sheet.png] [--views n]   turntable proof of ANY glb\n  \
+         thread grow <recipe.json> [-o tree.glb] [--preview sheet.png]   grow a tree (LODs, wind, sockets)\n  \
          thread level --figure <hall|courtyard> --args '[…]' [--publish]\n  \
          thread validate [path]   check a world.json or .thread file (default ./world.json)\n  \
          thread compile <file>    compile a .thread markup file → world.json\n  \

@@ -10,6 +10,7 @@ use infinite_manifest::texture::{TextureRecipe, MAX_SIZE};
 
 /// Baked RGBA8 maps, each `size × size`. `orm` is glTF-packed:
 /// R = occlusion, G = roughness, B = metallic.
+#[derive(Clone)]
 pub struct Baked {
     pub size: u32,
     pub albedo: Vec<u8>,

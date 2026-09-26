@@ -2873,6 +2873,7 @@ version = "0.2.2"
 dependencies = [
  "gltf",
  "image",
+ "serde",
  "serde_json",
  "thread-manifest",
  "weft-lang",

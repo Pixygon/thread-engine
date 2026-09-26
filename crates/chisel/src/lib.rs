@@ -16,6 +16,7 @@
 pub mod builtin;
 pub mod flora;
 pub mod gltf;
+pub mod grow;
 pub mod model;
 pub mod preview;
 pub mod terrain;
