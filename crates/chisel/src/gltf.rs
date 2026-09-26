@@ -24,6 +24,8 @@ pub struct SceneMesh<'a> {
     /// Glow strength; >0 writes an `emissiveFactor` (and the strength
     /// extension when it exceeds 1) so the glow survives the export.
     pub emissive: f32,
+    /// Leaves and thin cards render both faces; solid parts cull the back.
+    pub double_sided: bool,
 }
 
 /// One placed node of an exported scene (TRS, glTF conventions).
@@ -46,6 +48,7 @@ pub fn write_glb(mesh: &MeshData, baked: Option<&Baked>, name: &str) -> Result<V
             baked,
             base_color: [1.0; 4],
             emissive: 0.0,
+            double_sided: false,
         }],
         &[SceneNode {
             name: name.into(),
@@ -170,7 +173,7 @@ pub fn write_glb_scene(meshes: &[SceneMesh], nodes: &[SceneNode]) -> Result<Vec<
                 "occlusionTexture": { "index": tex_indices[1], "strength": 1.0 },
                 "normalTexture": { "index": tex_indices[2], "scale": 1.0 },
                 "emissiveFactor": emissive_rgb,
-                "doubleSided": false,
+                "doubleSided": sm.double_sided,
             });
             if sm.emissive > 1.0 {
                 mat["extensions"] = serde_json::json!({
@@ -186,7 +189,7 @@ pub fn write_glb_scene(meshes: &[SceneMesh], nodes: &[SceneNode]) -> Result<Vec<
                     "metallicFactor": 0.0, "roughnessFactor": 1.0,
                 },
                 "emissiveFactor": emissive_rgb,
-                "doubleSided": false,
+                "doubleSided": sm.double_sided,
             })
         };
         materials.push(material);

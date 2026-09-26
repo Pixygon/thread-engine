@@ -20,8 +20,10 @@
 //! Grove leans on Chisel for the substrate — [`chisel::MeshData`], bark
 //! texture baking and glb export — and never on its carving vocabulary.
 pub mod flora;
+pub mod foliage;
 pub mod grow;
 pub mod hang;
 
 pub use grow::{grow, GrowRecipe, Grown, Socket};
 pub use hang::{hang, HangRecipe, Placement};
+pub use foliage::{leaves, LeafRecipe, LeafSite};

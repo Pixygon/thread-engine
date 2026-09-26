@@ -1,0 +1,103 @@
+{
+ "name": "lantern-tree",
+ "seed": 7,
+ "height": 1.9,
+ "trunk_radius": 0.36,
+ "levels": 4,
+ "branches": [
+  1,
+  1,
+  1,
+  0
+ ],
+ "angle": [
+  34,
+  32,
+  30,
+  30
+ ],
+ "length": [
+  1,
+  0.8,
+  0.7,
+  0.6
+ ],
+ "taper": 0.75,
+ "child_radius": 0.55,
+ "gravity": -0.16,
+ "wobble": 0.16,
+ "sprout_from": 0.5,
+ "sides": 10,
+ "segments": 8,
+ "sway": 0.5,
+ "color": [
+  0.78,
+  0.9,
+  1,
+  1
+ ],
+ "emissive": 0.12,
+ "lods": [
+  0.5,
+  0.25
+ ],
+ "bark": {
+  "kind": "veins",
+  "scale": 5,
+  "octaves": 5,
+  "seed": 11,
+  "colors": [
+   [
+    0.2,
+    0.44,
+    0.74
+   ],
+   [
+    0.78,
+    0.92,
+    1
+   ],
+   [
+    0.32,
+    0.62,
+    0.88
+   ],
+   [
+    0.97,
+    0.99,
+    1
+   ],
+   [
+    0.22,
+    0.5,
+    0.8
+   ]
+  ],
+  "smoothness": [
+   0.9,
+   0.97
+  ],
+  "metallic": [
+   0.1,
+   0.25
+  ],
+  "height": 0.7,
+  "ao": 0.3,
+  "size": 512
+ },
+ "flare": 0.9,
+ "forks": [
+  3,
+  3,
+  2,
+  2
+ ],
+ "curve": [
+  10,
+  16,
+  22,
+  28
+ ],
+ "trunk_curve": 6,
+ "lean": 3
+}

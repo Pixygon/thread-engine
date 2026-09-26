@@ -1,0 +1,122 @@
+{
+ "name": "oak",
+ "seed": 5,
+ "height": 2.2,
+ "trunk_radius": 0.34,
+ "levels": 4,
+ "forks": [
+  3,
+  2,
+  2,
+  2
+ ],
+ "branches": [
+  1,
+  1,
+  1,
+  0
+ ],
+ "angle": [
+  38,
+  36,
+  34,
+  32
+ ],
+ "length": [
+  1,
+  0.78,
+  0.7,
+  0.6
+ ],
+ "curve": [
+  14,
+  20,
+  26,
+  30
+ ],
+ "trunk_curve": 6,
+ "lean": 2,
+ "taper": 0.75,
+ "child_radius": 0.55,
+ "gravity": -0.06,
+ "wobble": 0.2,
+ "sprout_from": 0.45,
+ "sides": 10,
+ "segments": 8,
+ "flare": 0.9,
+ "sway": 0.5,
+ "color": [
+  0.32,
+  0.24,
+  0.17,
+  1
+ ],
+ "bark": {
+  "kind": "fbm",
+  "scale": 6,
+  "octaves": 5,
+  "seed": 5,
+  "colors": [
+   [
+    0.22,
+    0.16,
+    0.11
+   ],
+   [
+    0.4,
+    0.31,
+    0.22
+   ],
+   [
+    0.15,
+    0.11,
+    0.08
+   ],
+   [
+    0.48,
+    0.4,
+    0.3
+   ]
+  ],
+  "roughness": [
+   0.7,
+   0.9
+  ],
+  "metallic": [
+   0,
+   0.02
+  ],
+  "height": 0.8,
+  "ao": 0.6,
+  "size": 512
+ },
+ "lods": [
+  0.5,
+  0.25
+ ],
+ "leaves": {
+  "per_tip": 9,
+  "along": 0.9,
+  "along_count": 8,
+  "length": 0.22,
+  "width": 0.14,
+  "fold": 0.02,
+  "spread": 65,
+  "droop": 0.35,
+  "jitter": 0.3,
+  "color": [
+   0.14,
+   0.32,
+   0.1,
+   1
+  ],
+  "color_tip": [
+   0.4,
+   0.6,
+   0.18,
+   1
+  ],
+  "sway": 0.3,
+  "depth": 2
+ }
+}

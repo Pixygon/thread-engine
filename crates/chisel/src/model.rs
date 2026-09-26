@@ -20,6 +20,8 @@ pub struct BuiltPart {
     pub baked: Option<Baked>,
     pub color: [f32; 4],
     pub emissive: f32,
+    /// Render both faces: leaves, cloth, thin cards. Solid parts are false.
+    pub double_sided: bool,
 }
 
 /// A finished model: named parts, each with geometry and materials.
@@ -76,6 +78,7 @@ pub fn build(model: &Model) -> Result<Built, String> {
                 baked: m.texture.as_ref().map(crate::texture::bake),
                 color: m.color,
                 emissive: m.emissive,
+                double_sided: false,
             }
         })
         .collect();
@@ -135,6 +138,7 @@ pub fn export_glb(built: &Built) -> Result<Vec<u8>, String> {
             baked: p.baked.as_ref(),
             base_color: p.color,
             emissive: p.emissive,
+            double_sided: p.double_sided,
         })
         .collect();
     let nodes: Vec<crate::gltf::SceneNode> = built

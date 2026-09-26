@@ -116,13 +116,9 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             return ExitCode::from(1);
         }
     }
-    for (i, lod) in grown.lods.iter().enumerate().skip(1) {
-        let part = &grown.built.parts[0];
-        let lod_built = Built {
-            name: format!("{stem}-lod{i}"),
-            parts: vec![BuiltPart { name: part.name.clone(), mesh: lod.clone(), baked: part.baked.clone(), color: part.color, emissive: part.emissive }],
-        };
-        match chisel::model::export_glb(&lod_built) {
+    for (k, lod_built) in grown.lods.iter().enumerate() {
+        let i = k + 1;
+        match chisel::model::export_glb(lod_built) {
             Ok(glb) => {
                 let p = format!("{base}.lod{i}.glb");
                 if std::fs::write(&p, &glb).is_ok() {
@@ -149,7 +145,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             .built
             .parts
             .iter()
-            .map(|p| BuiltPart { name: p.name.clone(), mesh: p.mesh.clone(), baked: p.baked.clone(), color: p.color, emissive: p.emissive })
+            .map(|p| BuiltPart { name: p.name.clone(), mesh: p.mesh.clone(), baked: p.baked.clone(), color: p.color, emissive: p.emissive, double_sided: p.double_sided })
             .collect(),
     };
     if let Some(hp) = hang_path {
@@ -168,9 +164,9 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         let (_, tmax) = thing.bounds();
         let placements = hang(&grown.sockets, tmax[1], &hang_recipe);
         let wood = &grown.built.parts[0];
-        let mut meshes: Vec<SceneMesh> = vec![SceneMesh { name: wood.name.clone(), mesh: &wood.mesh, baked: wood.baked.as_ref(), base_color: wood.color, emissive: wood.emissive }];
+        let mut meshes: Vec<SceneMesh> = vec![SceneMesh { name: wood.name.clone(), mesh: &wood.mesh, baked: wood.baked.as_ref(), base_color: wood.color, emissive: wood.emissive, double_sided: wood.double_sided }];
         for p in &thing.parts {
-            meshes.push(SceneMesh { name: format!("{}-{}", thing.name, p.name), mesh: &p.mesh, baked: p.baked.as_ref(), base_color: p.color, emissive: p.emissive });
+            meshes.push(SceneMesh { name: format!("{}-{}", thing.name, p.name), mesh: &p.mesh, baked: p.baked.as_ref(), base_color: p.color, emissive: p.emissive, double_sided: p.double_sided });
         }
         let mut nodes: Vec<SceneNode> = vec![SceneNode { name: "wood".into(), mesh: 0, translation: [0.0; 3], rotation: [0.0, 0.0, 0.0, 1.0], scale: [1.0; 3] }];
         for pl in &placements {
@@ -200,7 +196,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         // The turntable sees what the scene holds: bake the instances in.
         for pl in &placements {
             for p in &thing.parts {
-                shown.parts.push(BuiltPart { name: format!("{}@{}", p.name, pl.socket), mesh: transformed(&p.mesh, pl), baked: p.baked.clone(), color: p.color, emissive: p.emissive });
+                shown.parts.push(BuiltPart { name: format!("{}@{}", p.name, pl.socket), mesh: transformed(&p.mesh, pl), baked: p.baked.clone(), color: p.color, emissive: p.emissive, double_sided: p.double_sided });
             }
         }
     }

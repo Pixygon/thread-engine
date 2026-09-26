@@ -174,7 +174,10 @@ fn render_view(
             // Backface cull (screen-space winding; CCW-outside → negative area).
             let area = (screen[1][0] - screen[0][0]) * (screen[2][1] - screen[0][1])
                 - (screen[2][0] - screen[0][0]) * (screen[1][1] - screen[0][1]);
-            if area >= 0.0 {
+            // A double-sided part (leaves, cloth) draws its back faces too,
+            // lit by the flipped normal.
+            let backface = area >= 0.0;
+            if backface && !part.double_sided {
                 continue;
             }
             let minx = screen
@@ -244,7 +247,10 @@ fn render_view(
                         ]
                     };
 
-                    let n_geo = norm(interp3(&|i| m.normals[i]));
+                    let mut n_geo = norm(interp3(&|i| m.normals[i]));
+                    if backface {
+                        n_geo = scale(n_geo, -1.0);
+                    }
                     let uv = interp2(&|i| m.uvs.get(i).copied().unwrap_or([0.0; 2]));
                     let vcol = interp3(&|i| {
                         let c = m.colors.get(i).copied().unwrap_or([1.0; 4]);

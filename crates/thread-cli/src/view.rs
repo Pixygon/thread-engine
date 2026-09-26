@@ -174,6 +174,7 @@ fn primitive_part(
         baked,
         color,
         emissive,
+        double_sided: false,
     })
 }
 

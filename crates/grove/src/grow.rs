@@ -31,6 +31,8 @@ use serde::{Deserialize, Serialize};
 use chisel::model::{Built, BuiltPart};
 use chisel::MeshData;
 
+use crate::foliage::{leaves, LeafRecipe, LeafSite};
+
 /// Everything a tree needs to be told.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -92,6 +94,9 @@ pub struct GrowRecipe {
     pub emissive: f32,
     /// Detail fractions for LOD1, LOD2… (sides and segments scale by these).
     pub lods: Vec<f32>,
+    /// Foliage: leaf clusters at the tips and along the last twigs. Absent =
+    /// bare wood (a crystal tree, a dead one, winter).
+    pub leaves: Option<LeafRecipe>,
 }
 
 impl Default for GrowRecipe {
@@ -122,6 +127,7 @@ impl Default for GrowRecipe {
             color: [0.4, 0.3, 0.2, 1.0],
             emissive: 0.0,
             lods: vec![0.5, 0.25],
+            leaves: None,
         }
     }
 }
@@ -138,11 +144,12 @@ pub struct Socket {
     pub level: u32,
 }
 
-/// One grown tree: the LOD0 model (for preview and single-mesh export), the
-/// LOD meshes in order, and the sockets.
+/// One grown tree: the LOD0 model (wood, and leaves when the recipe has
+/// them), the coarser LODs as whole models (nearest first), and the sockets.
 pub struct Grown {
     pub built: Built,
-    pub lods: Vec<MeshData>,
+    /// LOD1, LOD2… — each a complete model (same parts, fewer triangles).
+    pub lods: Vec<Built>,
     pub sockets: Vec<Socket>,
     pub bounds: ([f32; 3], [f32; 3]),
 }
@@ -367,7 +374,12 @@ fn tube(m: &mut MeshData, b: &Branch, sides: u32, uv_scale: f32) {
     let base = m.positions.len() as u32;
     let mut v_along = 0.0f32;
     for i in 0..n {
-        let d = if i + 1 < n { norm(sub(b.pts[i + 1], b.pts[i])) } else { norm(sub(b.pts[i], b.pts[i - 1])) };
+        let mut d = if i + 1 < n { norm(sub(b.pts[i + 1], b.pts[i])) } else { norm(sub(b.pts[i], b.pts[i - 1])) };
+        if b.level == 0 && i == 0 {
+            // The root ring lies flat on the ground however the trunk leans:
+            // a tree rests on y = 0, and a layout engine files it as `base`.
+            d = [0.0, 1.0, 0.0];
+        }
         // Parallel transport: remove the tangent component, renormalise.
         frame = norm(sub(frame, scale(d, dot(frame, d))));
         let side2 = cross(d, frame);
@@ -411,7 +423,9 @@ fn len(a: [f32; 3]) -> f32 {
     (a[0] * a[0] + a[1] * a[1] + a[2] * a[2]).sqrt()
 }
 
-fn mesh_for(r: &GrowRecipe, detail: f32) -> (MeshData, Vec<Branch>) {
+/// The wood mesh, the branch graph, and the leaf mesh (when the recipe has
+/// leaves) at one level of detail.
+fn mesh_for(r: &GrowRecipe, detail: f32) -> (MeshData, Vec<Branch>, Option<MeshData>) {
     let sides = ((r.sides as f32 * detail).round() as u32).max(3);
     let segments = ((r.segments as f32 * detail).round() as u32).max(2);
     let branches = graph(r, segments);
@@ -422,19 +436,54 @@ fn mesh_for(r: &GrowRecipe, detail: f32) -> (MeshData, Vec<Branch>) {
     for b in branches.iter().filter(|b| b.level <= max_level) {
         tube(&mut m, b, sides, uv_scale);
     }
-    (m, branches)
+    // Leaves gather where the drawn wood ends: the tips of the outermost
+    // generation this LOD keeps, and back along those twigs.
+    let leaf_mesh = r.leaves.as_ref().map(|lr| {
+        let mut sites: Vec<LeafSite> = Vec::new();
+        let first_level = (max_level + 1).saturating_sub(lr.depth.max(1)).max(1);
+        for b in branches.iter().filter(|b| b.level >= first_level && b.level <= max_level) {
+            let n = b.pts.len();
+            if b.level == max_level {
+                sites.push(LeafSite { position: b.pts[n - 1], direction: norm(sub(b.pts[n - 1], b.pts[n - 2])), sway: b.sway[n - 1], count: lr.per_tip });
+            }
+            if lr.along > 0.0 && lr.along_count > 0 {
+                // Along the twig the clusters are smaller than at its tip.
+                let per = (lr.per_tip / 2).max(1);
+                for k in 0..lr.along_count {
+                    let t = 1.0 - lr.along * (k as f32 + 0.5) / lr.along_count as f32;
+                    let (p, d, _, sw) = sample(b, t);
+                    sites.push(LeafSite { position: p, direction: d, sway: sw, count: per });
+                }
+            }
+        }
+        leaves(&sites, lr, detail, r.seed)
+    });
+    (m, branches, leaf_mesh)
 }
 
-/// Grow the tree: LOD0 as a [`Built`] for preview/export, every LOD mesh, sockets.
+/// The parts of one LOD: the wood, then the leaves when there are any.
+fn parts_for(r: &GrowRecipe, wood: MeshData, leaf_mesh: Option<MeshData>, bark: &Option<chisel::texture::Baked>, leaf_baked: &Option<chisel::texture::Baked>) -> Vec<BuiltPart> {
+    let mut parts = vec![BuiltPart { name: "wood".into(), mesh: wood, baked: bark.clone(), color: r.color, emissive: r.emissive, double_sided: false }];
+    if let (Some(lm), Some(lr)) = (leaf_mesh, r.leaves.as_ref()) {
+        // Vertex colour carries the base→tip gradient, so the material is white.
+        parts.push(BuiltPart { name: "leaves".into(), mesh: lm, baked: leaf_baked.clone(), color: [1.0, 1.0, 1.0, 1.0], emissive: lr.emissive, double_sided: true });
+    }
+    parts
+}
+
+/// Grow the tree: LOD0 as a [`Built`] for preview/export, every LOD, sockets.
 pub fn grow(r: &GrowRecipe) -> Result<Grown, String> {
     if r.height <= 0.0 || r.trunk_radius <= 0.0 {
         return Err("height and trunk_radius must be positive".into());
     }
-    let (lod0, branches) = mesh_for(r, 1.0);
-    let mut lods = vec![lod0.clone()];
+    let bark = r.bark.as_ref().map(chisel::texture::bake);
+    let leaf_baked = r.leaves.as_ref().and_then(|l| l.texture.as_ref()).map(chisel::texture::bake);
+    let (lod0, branches, leaf0) = mesh_for(r, 1.0);
+    let mut lods: Vec<Built> = Vec::new();
     for &f in &r.lods {
         if f > 0.0 && f < 1.0 {
-            lods.push(mesh_for(r, f).0);
+            let (wood, _, lm) = mesh_for(r, f);
+            lods.push(Built { name: format!("{}-lod{}", r.name, lods.len() + 1), parts: parts_for(r, wood, lm, &bark, &leaf_baked) });
         }
     }
     // Sockets: every branch tip at the outermost level (and the trunk's own
@@ -455,11 +504,7 @@ pub fn grow(r: &GrowRecipe) -> Result<Grown, String> {
             level: b.level,
         });
     }
-    let baked = r.bark.as_ref().map(chisel::texture::bake);
-    let built = Built {
-        name: r.name.clone(),
-        parts: vec![BuiltPart { name: "wood".into(), mesh: lod0, baked, color: r.color, emissive: r.emissive }],
-    };
+    let built = Built { name: r.name.clone(), parts: parts_for(r, lod0, leaf0, &bark, &leaf_baked) };
     let bounds = built.bounds();
     Ok(Grown { built, lods, sockets, bounds })
 }
@@ -472,8 +517,9 @@ mod tests {
     fn a_default_tree_grows_branches_and_sockets() {
         let g = grow(&GrowRecipe::default()).unwrap();
         assert!(g.built.triangles() > 500, "tris {}", g.built.triangles());
-        assert_eq!(g.lods.len(), 3, "LOD0 + two coarser");
-        assert!(g.lods[1].indices.len() < g.lods[0].indices.len());
+        assert_eq!(g.lods.len(), 2, "two coarser LODs");
+        assert!(g.lods[0].triangles() < g.built.triangles());
+        assert!(g.lods[1].triangles() < g.lods[0].triangles());
         assert!(g.sockets.len() >= 8, "sockets {}", g.sockets.len());
         // Root rigid, tips sway: the engine's alpha convention.
         let m = &g.built.parts[0].mesh;

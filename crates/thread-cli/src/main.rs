@@ -561,6 +561,7 @@ fn export_world(m: &WorldManifest, world_path: &str, out: Option<&String>) -> Ex
             baked: baked.as_ref(),
             base_color: *color,
             emissive: 0.0,
+            double_sided: false,
         })
         .collect();
     let scene_nodes: Vec<chisel::gltf::SceneNode> = nodes
