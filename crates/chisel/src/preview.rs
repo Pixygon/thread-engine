@@ -24,6 +24,11 @@ pub struct PreviewOptions {
     pub pitch: f32,
     /// Supersampling factor (2 = 4× samples per pixel).
     pub ss: u32,
+    /// How much of the frame the model fills. 1.0 is the classic turntable
+    /// framing, sized to the bounding sphere so a model never clips as it
+    /// spins. A wide sheet holding a row of models — a plant's whole life,
+    /// side by side — has room to spare and wants more.
+    pub fill: f32,
 }
 
 impl Default for PreviewOptions {
@@ -34,6 +39,7 @@ impl Default for PreviewOptions {
             views: 3,
             pitch: 18.0,
             ss: 2,
+            fill: 1.0,
         }
     }
 }
@@ -63,7 +69,7 @@ pub fn render(built: &Built, opts: PreviewOptions) -> (Vec<u8>, u32, u32) {
         // Turntable: start three-quarter, sweep the rest of the way round.
         let yaw = (35.0 + v as f32 * 360.0 / views as f32).to_radians();
         let pitch = opts.pitch.to_radians();
-        let dist = radius * 3.1;
+        let dist = radius * 3.1 / opts.fill.clamp(0.2, 6.0);
         let eye = [
             center[0] + dist * yaw.cos() * pitch.cos(),
             center[1] + dist * pitch.sin(),

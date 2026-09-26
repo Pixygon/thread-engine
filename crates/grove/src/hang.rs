@@ -1,15 +1,25 @@
 //! Hang things at sockets — fruit, lanterns, leaf clusters, props.
 //!
-//! A grown tree ends in sockets (position, direction, radius at every
-//! terminal tip). Hanging is the first composition: pick some of those tips
-//! and place one thing at each, so a lantern tree carries its lanterns
-//! exactly where its branches end and the fruit is a separate, reusable
-//! model (Trellis-made, carved, or grown) instanced once per tip. The
-//! recipe is rules — how many, how deep in the crown, how big, how far the
-//! stem drops — and the same seed picks the same tips everywhere.
+//! A grown plant ends in sockets (position, direction, radius, and the branch
+//! each tip belongs to). Hanging is the first composition: pick some of those
+//! tips and place one thing at each, so a lantern tree carries its lanterns
+//! exactly where its branches end and the fruit is a separate, reusable model
+//! (Trellis-made, carved, or grown) instanced once per tip.
+//!
+//! Which tips carry one is **the tip's own business**, not the list's: every
+//! socket scores itself from its branch id, and the lowest scores win. A pool
+//! that gains or loses tips — a sapling that has not sprouted them yet, a
+//! branch cut off, a fruit picked — leaves every other tip's answer alone.
+//! That is what makes picking and regrowth state instead of a re-roll.
 use serde::{Deserialize, Serialize};
 
 use crate::grow::Socket;
+use crate::rand::unit;
+
+/// Slots on a tip's branch id: whether it is chosen, and how the thing sits.
+const SLOT_CHOSEN: u32 = 0;
+const SLOT_SCALE: u32 = 1;
+const SLOT_YAW: u32 = 2;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -44,32 +54,25 @@ pub struct Placement {
     pub scale: [f32; 3],
 }
 
-fn rnd(state: &mut u32) -> f32 {
-    *state = state.wrapping_mul(747_796_405).wrapping_add(2_891_336_453);
-    let mut x = *state;
-    x = ((x >> ((x >> 28).wrapping_add(4))) ^ x).wrapping_mul(277_803_737);
-    x = (x >> 22) ^ x;
-    (x as f32) / (u32::MAX as f32)
-}
-
 /// Place one thing per chosen socket, hanging straight down from the tip.
 /// `top_y` is the hung model's own top (its bounds max Y), so its top sits
 /// `drop` metres under the tip whatever its origin is.
 pub fn hang(sockets: &[Socket], top_y: f32, r: &HangRecipe) -> Vec<Placement> {
-    let mut rng = r.seed.wrapping_mul(2_246_822_519).wrapping_add(7);
-    let mut pool: Vec<&Socket> = sockets.iter().filter(|s| s.level >= r.min_level).collect();
-    // Seeded shuffle, then take `count`.
-    for i in (1..pool.len()).rev() {
-        let j = (rnd(&mut rng) * (i as f32 + 1.0)) as usize;
-        pool.swap(i, j.min(i));
-    }
+    let mut pool: Vec<(f32, &Socket)> = sockets
+        .iter()
+        .filter(|s| s.level >= r.min_level)
+        .map(|s| (unit(r.seed, s.branch, SLOT_CHOSEN), s))
+        .collect();
+    // Lowest score first; the name breaks ties so the order is never the
+    // order the sockets happened to arrive in.
+    pool.sort_by(|a, b| a.0.total_cmp(&b.0).then_with(|| a.1.name.cmp(&b.1.name)));
     if r.count > 0 {
         pool.truncate(r.count as usize);
     }
     pool.iter()
-        .map(|s| {
-            let sc = r.scale * (1.0 + (rnd(&mut rng) * 2.0 - 1.0) * r.scale_jitter);
-            let yaw = if r.spin { rnd(&mut rng) * std::f32::consts::TAU } else { 0.0 };
+        .map(|(_, s)| {
+            let sc = r.scale * (1.0 + (unit(r.seed, s.branch, SLOT_SCALE) * 2.0 - 1.0) * r.scale_jitter);
+            let yaw = if r.spin { unit(r.seed, s.branch, SLOT_YAW) * std::f32::consts::TAU } else { 0.0 };
             let (sy, cy) = (yaw * 0.5).sin_cos();
             Placement {
                 socket: s.name.clone(),
@@ -87,7 +90,17 @@ mod tests {
 
     fn sockets(n: usize) -> Vec<Socket> {
         (0..n)
-            .map(|i| Socket { name: format!("tip-{i}"), position: [i as f32, 3.0, 0.0], direction: [0.0, 1.0, 0.0], radius: 0.01, level: (i % 3) as u32 })
+            .map(|i| {
+                let branch = 0x1000 + i as u32 * 7;
+                Socket {
+                    name: format!("tip-{branch:08x}"),
+                    position: [i as f32, 3.0, 0.0],
+                    direction: [0.0, 1.0, 0.0],
+                    radius: 0.01,
+                    level: (i % 3) as u32,
+                    branch,
+                }
+            })
             .collect()
     }
 
@@ -105,6 +118,41 @@ mod tests {
             assert!((top - (3.0 - 0.2)).abs() < 1e-4);
         }
         let again = hang(&s, 0.4, &r);
-        assert_eq!(p.iter().map(|p| &p.socket).collect::<Vec<_>>(), again.iter().map(|p| &p.socket).collect::<Vec<_>>());
+        assert_eq!(
+            p.iter().map(|p| &p.socket).collect::<Vec<_>>(),
+            again.iter().map(|p| &p.socket).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn a_tip_decides_for_itself() {
+        // The pool changes — tips not yet sprouted, a branch cut off, the list
+        // in another order — and every tip that stays keeps its answer.
+        let all = sockets(30);
+        let r = HangRecipe { count: 0, min_level: 0, ..Default::default() };
+        let full = hang(&all, 0.4, &r);
+        let mut shuffled = all.clone();
+        shuffled.reverse();
+        let same = hang(&shuffled, 0.4, &r);
+        assert_eq!(
+            full.iter().map(|p| &p.socket).collect::<Vec<_>>(),
+            same.iter().map(|p| &p.socket).collect::<Vec<_>>(),
+            "the order sockets arrive in must not matter"
+        );
+        // Half the tree missing: the placements that remain are unchanged.
+        let half: Vec<Socket> = all.iter().take(15).cloned().collect();
+        for pl in hang(&half, 0.4, &r) {
+            let was = full.iter().find(|p| p.socket == pl.socket).expect("a tip appeared from nowhere");
+            assert_eq!(was.translation, pl.translation);
+            assert_eq!(was.scale, pl.scale);
+            assert_eq!(was.rotation, pl.rotation);
+        }
+        // And `count` takes a stable prefix: fewer fruit is a subset, not a re-roll.
+        let nine = hang(&all, 0.4, &HangRecipe { count: 9, ..r.clone() });
+        let four = hang(&all, 0.4, &HangRecipe { count: 4, ..r.clone() });
+        assert_eq!(
+            four.iter().map(|p| &p.socket).collect::<Vec<_>>(),
+            nine.iter().take(4).map(|p| &p.socket).collect::<Vec<_>>()
+        );
     }
 }

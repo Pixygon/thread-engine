@@ -58,7 +58,7 @@ fn print_help() {
          thread export <world> --id <name> [-o out.glb]   carved shape -> glTF\n  \
          thread model <model|weftpack> [-o out.glb] [--preview sheet.png] [--publish]\n  \
          thread view <file.glb> [-o sheet.png] [--views n]   turntable proof of ANY glb\n  \
-         thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--hang thing.glb]   grow a tree (LODs, wind, sockets; hang fruit/props at the tips)\n  \
+         thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--seed n] [--age seasons] [--hang thing.glb]   grow a plant (species + seed + clock; LODs, wind, sockets; hang fruit/props at the tips)\n  \
          thread level --figure <hall|courtyard> --args '[…]' [--publish]\n  \
          thread validate [path]   check a world.json or .thread file (default ./world.json)\n  \
          thread compile <file>    compile a .thread markup file → world.json\n  \

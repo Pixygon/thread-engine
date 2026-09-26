@@ -58,10 +58,11 @@ in the Quarry — and always comes out the same.
 
 ## Build order
 
-1. **Species / seed / clock split.** The seed decides the full potential
-   graph; age filters and scales. `grow(species, seed, clock)`. The Quarry's
-   design id stays the species (it already hashes only non-default fields —
-   keep it that way, never let a schema default reach the hash).
+1. **Species / seed / clock split.** ✅ *landed 2026-09-26 — see "Where it
+   stands".* The seed decides the full potential graph; age filters and
+   scales. `grow(species, seed, clock)`. The Quarry's design id stays the
+   species (it already hashes only non-default fields — keep it that way,
+   never let a schema default reach the hash).
 2. **Life stages and the year**, typed sockets for bloom and fruit, and the
    lantern tree's `withered` event state as the test. Turntable next to the
    concept before it is called done (`thread grow --preview`).
@@ -82,3 +83,52 @@ in the Quarry — and always comes out the same.
 - Every visual claim is a turntable next to the concept. The previewer
   washes strong emissive to white; Unity is the judge for glow.
 - Same seed, same plant, everywhere — a test for every generator.
+
+## Where it stands
+
+**Step 1 is in.** The refactor it stood on was the randomness: Grove consumed
+one stream as the tree grew, so gating by age reshuffled everything that
+remained. Randomness is **addressed** now (`src/rand.rs`) — every value is
+`hash(seed, branch key, slot)`, and a branch's key is hashed from its path
+through the plant, never from the order anything was built in. Nothing is
+consumed, so nothing can drift.
+
+On that: `potential()` builds the whole plant the seed decided, with no
+knowledge of age at all, and `at_clock()` is the clock's entire job — drop the
+branches that have not emerged, cut each remaining one where it has grown to,
+scale the plant by its age. A branch emerges when its parent has grown past the
+point it sprouts from, so the joints are never loose, and both growth curves
+reach 1 at full size, which makes the grown plant *exactly* the potential plant.
+
+What else came with it:
+
+- `Species` is the rule set and the identity; the seed left it, and a
+  a `Clock` (`age` in seasons, `season` in the year) joined it. `Planting`
+  is the three together — what a `.grow.json` file holds, flat, and what
+  travels to the Quarry.
+- Sockets are named after the branch that ends there (`tip-<branch id>`) and
+  carry it, so state can name a tip and mean it. A tip is now a branch with no
+  children *yet*, so a sapling has sockets at the ends it actually has. Step 3
+  gets its ids for free.
+- Hanging picks per tip, not per list: a socket scores itself from its branch
+  id, so a fruit picked or a branch cut leaves every other fruit alone.
+- Leaf clusters are keyed the same way, so a coarser LOD drops leaves instead
+  of growing a different crown.
+- `thread grow --life sheet.png` renders six ages in one frame at one scale
+  (`chisel::preview` gained a `fill` knob for it). Framing each age to fill its
+  own tile hides the one thing age does — this is the proof sheet for every
+  species from here on.
+- `thread grow --age <seasons> --season <0..1>` on top of `--seed`.
+
+**Ground truth for the next session:** `cargo test --workspace` is green (34
+in Grove). The three recipes are unchanged files and still read as themselves
+— they are different *individuals* than before the refactor, because the
+addresses changed; the species did not.
+
+**One thing the Quarry needs at the next `sync-vendor.sh`:** `grove::grow`
+takes three arguments now. `src/entry.rs` should read the submission with
+`grove::Planting::from_value(&value)?` and call `grove::grow_planting(&p)?`,
+and `canonical_recipe` should strip against `grove::Planting::default().to_value()`
+instead of `GrowRecipe::default()`. That keeps `seed` (and now `age`) inside the
+design id, so nothing that is already published forks. `GrowRecipe` still names
+the species, so the type in that file keeps resolving.

@@ -1,10 +1,18 @@
 //! `thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json]
+//!              [--seed n] [--age seasons] [--season 0..1]
 //!              [--hang thing.glb [--hang-count n] [--hang-scale s] [--hang-drop m] [--hang-level l]]`
 //!
-//! Grow a tree from a [`grove::grow::GrowRecipe`]: LOD0 to `-o`, coarser
-//! LODs beside it as `<stem>.lod1.glb`, `<stem>.lod2.glb`…, the tip sockets
-//! to a JSON file the layout binder / the Unity importer can hang props on,
-//! and the same turntable proof every other model gets.
+//! Grow a plant from a recipe file. The file is a
+//! [species](grove::grow::Species) — the rules, the plant's identity — plus
+//! the individual (`seed`) and the moment (`age`, `season`) it shows by
+//! default; `--seed`, `--age` and `--season` override them, so one recipe
+//! renders a whole stand of individuals and a whole life without editing
+//! anything.
+//!
+//! Out come LOD0 to `-o`, coarser LODs beside it as `<stem>.lod1.glb`,
+//! `<stem>.lod2.glb`…, the sockets to a JSON file the layout binder / the
+//! Unity importer can hang props on, and the same turntable proof every other
+//! model gets.
 //!
 //! With `--hang`, a second model (a Trellis fruit, a carved lantern, a leaf
 //! cluster) is placed at chosen sockets by [`grove::hang`] and `-o` becomes
@@ -16,16 +24,19 @@ use std::process::ExitCode;
 use chisel::gltf::{write_glb_scene, SceneMesh, SceneNode};
 use chisel::model::{Built, BuiltPart};
 use chisel::MeshData;
-use grove::grow::{grow, GrowRecipe};
+use grove::grow::{grow_planting, Planting};
 use grove::hang::{hang, HangRecipe, Placement};
 
 pub fn cmd_grow(args: &[String]) -> ExitCode {
     let mut file: Option<&String> = None;
     let mut out: Option<&String> = None;
     let mut preview: Option<&String> = None;
+    let mut life: Option<&String> = None;
     let mut sockets_out: Option<&String> = None;
     let mut views: u32 = 3;
     let mut seed: Option<u32> = None;
+    let mut age: Option<f32> = None;
+    let mut season: Option<f32> = None;
     let mut hang_path: Option<&String> = None;
     let mut hang_recipe = HangRecipe { count: 9, min_level: 1, scale: 1.0, ..Default::default() };
     // Glow for the hung thing (a lantern fruit is a light source); None keeps what its glb says.
@@ -40,8 +51,11 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         match a.as_str() {
             "-o" | "--out" => out = it.next(),
             "--preview" | "-p" => preview = it.next(),
+            "--life" => life = it.next(),
             "--sockets" => sockets_out = it.next(),
             "--seed" => seed = it.next().and_then(|v| v.parse().ok()),
+            "--age" => age = it.next().and_then(|v| v.parse().ok()),
+            "--season" => season = it.next().and_then(|v| v.parse().ok()),
             "--views" => views = it.next().and_then(|v| v.parse().ok()).unwrap_or(3),
             "--hang" => hang_path = it.next(),
             "--hang-count" => hang_recipe.count = it.next().and_then(|v| v.parse().ok()).unwrap_or(9),
@@ -59,7 +73,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         }
     }
     let Some(file) = file else {
-        eprintln!("usage: thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json] [--seed n] [--views n] [--hang thing.glb --hang-count n --hang-scale s --hang-drop m --hang-level l]");
+        eprintln!("usage: thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json] [--seed n] [--age seasons] [--season 0..1] [--life life.png] [--views n] [--hang thing.glb --hang-count n --hang-scale s --hang-drop m --hang-level l]");
         return ExitCode::from(2);
     };
     let text = match std::fs::read_to_string(file) {
@@ -69,27 +83,39 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             return ExitCode::from(1);
         }
     };
-    let mut recipe: GrowRecipe = match serde_json::from_str(&text) {
-        Ok(r) => r,
+    let mut planting = match Planting::from_json(&text) {
+        Ok(p) => p,
         Err(e) => {
-            eprintln!("✗ {file} is not a grow recipe: {e}");
+            eprintln!("✗ {file}: {e}");
             return ExitCode::from(1);
         }
     };
     if let Some(s) = seed {
-        recipe.seed = s;
+        planting.seed = s;
     }
-    hang_recipe.seed = recipe.seed;
-    let grown = match grow(&recipe) {
+    if let Some(a) = age {
+        planting.clock.age = Some(a);
+    }
+    if let Some(s) = season {
+        planting.clock.season = s;
+    }
+    hang_recipe.seed = planting.seed;
+    let grown = match grow_planting(&planting) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("✗ {e}");
             return ExitCode::from(1);
         }
     };
-    let stem = if recipe.name.is_empty() { "tree".to_string() } else { recipe.name.clone() };
+    let name = planting.species.name.clone();
+    let stem = if name.is_empty() { "tree".to_string() } else { name.clone() };
     let out_path = out.cloned().unwrap_or_else(|| format!("{stem}.glb"));
     let base = out_path.trim_end_matches(".glb").to_string();
+    // The clock, as the line should read it: a plant is an individual at a moment.
+    let when = match planting.clock.age {
+        Some(a) => format!("age {a} of {} season(s), maturity {:.2}", planting.species.seasons_to_grown, grown.maturity),
+        None => "grown".to_string(),
+    };
 
     // The bare wood: `-o` when nothing hangs, `<stem>.wood.glb` otherwise.
     let wood_path = if hang_path.is_some() { format!("{base}.wood.glb") } else { out_path.clone() };
@@ -101,14 +127,13 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             }
             let (min, max) = grown.bounds;
             println!(
-                "✓ {} → {wood_path} — {} tris, {:.2} × {:.2} × {:.2} m, {} socket(s), seed {}",
-                recipe.name,
+                "✓ {name} → {wood_path} — {} tris, {:.2} × {:.2} × {:.2} m, {} socket(s), seed {}, {when}",
                 grown.built.triangles(),
                 max[0] - min[0],
                 max[1] - min[1],
                 max[2] - min[2],
                 grown.sockets.len(),
-                recipe.seed
+                planting.seed
             );
         }
         Err(e) => {
@@ -180,7 +205,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
                     eprintln!("✗ cannot write {out_path}: {e}");
                     return ExitCode::from(1);
                 }
-                println!("✓ {} + {} × {} → {out_path}", recipe.name, placements.len(), thing.name);
+                println!("✓ {name} + {} × {} → {out_path}", placements.len(), thing.name);
             }
             Err(e) => {
                 eprintln!("✗ scene export failed: {e}");
@@ -207,12 +232,19 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             Err(e) => eprintln!("⚠ preview failed: {e}"),
         }
     }
-    // Same posture as `thread model`: --publish sends the RECIPE and the
-    // Quarry grows the tree itself, measuring its sockets. Nothing uploaded.
+    if let Some(sheet) = life {
+        match life_sheet(&planting, sheet) {
+            Ok(n) => println!("✓ life → {sheet} ({n} ages, one scale)"),
+            Err(e) => eprintln!("⚠ life sheet failed: {e}"),
+        }
+    }
+    // Same posture as `thread model`: --publish sends the PLANTING — species,
+    // seed and clock — and the Quarry grows the plant itself, measuring its
+    // sockets. Nothing uploaded.
     if publish {
         let quarry = std::env::var("QUARRY_URL").unwrap_or_else(|_| "https://quarry.pixygon.io".to_string());
         let submission = serde_json::json!({
-            "title": title.cloned().unwrap_or_else(|| recipe.name.replace('-', " ")),
+            "title": title.cloned().unwrap_or_else(|| name.replace('-', " ")),
             "description": String::new(),
             "kind": kind.cloned().unwrap_or_else(|| "tree".into()),
             "style": style.cloned().unwrap_or_default(),
@@ -220,7 +252,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
                 .map(|t| t.split(',').map(|s| s.trim().to_string()).collect::<Vec<_>>())
                 .unwrap_or_else(|| vec!["tree".into(), "grown".into()]),
             "package": "grove",
-            "recipe": serde_json::to_value(&recipe).unwrap_or_default(),
+            "recipe": planting.to_value(),
             "origin": "grown",
         });
         match crate::post_json(&format!("{}/publish", quarry.trim_end_matches('/')), &submission) {
@@ -243,6 +275,57 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         }
     }
     ExitCode::SUCCESS
+}
+
+/// The plant's whole life in one frame: the same individual at six moments,
+/// standing in a row **at one scale**, youngest first.
+///
+/// A turntable per age would frame each one to fill its tile and so hide the
+/// very thing age does. Here they share a camera, so a sapling is a sapling —
+/// and because the seed decided the whole potential plant, every branch in the
+/// young one is a branch of the old one.
+fn life_sheet(planting: &Planting, path: &str) -> Result<usize, String> {
+    // Six moments across the life curve: a sprout, a sapling, a young plant,
+    // one filling out, one nearly there, and the grown plant.
+    const MOMENTS: [f32; 6] = [0.12, 0.25, 0.4, 0.58, 0.78, 1.0];
+    // The previewer's single view looks in from 35°, so the row is laid
+    // broadside to it: six plants in a line, none behind another.
+    let yaw = 35f32.to_radians();
+    // Negated, so the row reads youngest on the left, grown on the right.
+    let (ax, az) = (yaw.sin(), -yaw.cos());
+    let mut row = Built { name: format!("{}-life", planting.species.name), parts: Vec::new() };
+    let mut x = 0.0f32;
+    let mut prev_half = 0.0f32;
+    for m in MOMENTS {
+        let mut at = planting.clone();
+        at.clock.age = Some(m * planting.species.seasons_to_grown);
+        let g = grow_planting(&at)?;
+        let (min, max) = g.bounds;
+        let half = ((max[0] - min[0]).max(max[2] - min[2]) / 2.0).max(0.05);
+        // Stand them a clear gap apart, each on its own centre line.
+        x += prev_half + half * 1.15 + 0.2;
+        prev_half = half * 1.15;
+        let (dx, dz) = (ax * x, az * x);
+        for p in &g.built.parts {
+            let mut mesh = p.mesh.clone();
+            for v in mesh.positions.iter_mut() {
+                v[0] += dx;
+                v[2] += dz;
+            }
+            row.parts.push(BuiltPart {
+                name: format!("{}-{:.2}", p.name, m),
+                mesh,
+                baked: p.baked.clone(),
+                color: p.color,
+                emissive: p.emissive,
+                double_sided: p.double_sided,
+            });
+        }
+    }
+    let opts =
+        chisel::preview::PreviewOptions { width: 1600, height: 460, views: 1, pitch: 8.0, fill: 2.6, ..Default::default() };
+    chisel::preview::write_png(&row, opts, path)?;
+    Ok(MOMENTS.len())
 }
 
 /// Apply a placement (scale, then rotate, then translate) to a mesh copy.

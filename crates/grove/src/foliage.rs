@@ -9,12 +9,28 @@
 //!
 //! The recipe is rules: leaves per tip, how far back along the twig, size,
 //! how wide the cluster fans, how much it droops, its colours base→tip (in
-//! vertex colour, which every PBR renderer multiplies into albedo). One seed,
-//! one crown, everywhere. Coarser LODs thin the count and keep the silhouette.
+//! vertex colour, which every PBR renderer multiplies into albedo).
+//!
+//! Every cluster carries a **key** — the twig's identity, not its position in
+//! a list — and each leaf is [addressed](crate::rand) on it. So one seed grows
+//! one crown, everywhere: a coarser LOD thins the count and the leaves that
+//! remain are the very same leaves, and a sapling's crown is the crown its
+//! grown self will have on the twigs it already has.
 use infinite_manifest::texture::TextureRecipe;
 use serde::{Deserialize, Serialize};
 
 use chisel::MeshData;
+
+use crate::rand::Rnd;
+
+/// Slots per leaf on its cluster's key: which way it points, how far it tilts,
+/// how big it is, how it is rolled. A stride, so leaf 9 keeps its address
+/// whether the cluster grows eight leaves or eighty.
+const PER_LEAF: u32 = 4;
+const SLOT_AROUND: u32 = 0;
+const SLOT_TILT: u32 = 1;
+const SLOT_SIZE: u32 = 2;
+const SLOT_ROLL: u32 = 3;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -30,7 +46,8 @@ pub struct LeafRecipe {
     /// twigs only; 2 = the branches they grow from as well, along their
     /// length). A full crown is 2; a sparse or young one is 1.
     pub depth: u32,
-    /// Leaf length and width in metres.
+    /// Leaf length and width in metres. A leaf is its own size from the start —
+    /// a sapling's leaves are not miniatures — so this does not scale with age.
     pub length: f32,
     pub width: f32,
     /// Fold across the midrib, metres the centre rises.
@@ -77,6 +94,9 @@ impl Default for LeafRecipe {
 /// Where a cluster grows: a point on a twig, the twig's direction there, and
 /// how much that spot already sways.
 pub struct LeafSite {
+    /// The cluster's identity — hashed from the twig it grows on, so this
+    /// cluster's leaves are the same leaves at every age and every LOD.
+    pub key: u32,
     pub position: [f32; 3],
     pub direction: [f32; 3],
     pub sway: f32,
@@ -84,13 +104,6 @@ pub struct LeafSite {
     pub count: u32,
 }
 
-fn rnd(state: &mut u32) -> f32 {
-    *state = state.wrapping_mul(747_796_405).wrapping_add(2_891_336_453);
-    let mut x = *state;
-    x = ((x >> ((x >> 28).wrapping_add(4))) ^ x).wrapping_mul(277_803_737);
-    x = (x >> 22) ^ x;
-    (x as f32) / (u32::MAX as f32)
-}
 fn norm(v: [f32; 3]) -> [f32; 3] {
     let l = (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt().max(1e-6);
     [v[0] / l, v[1] / l, v[2] / l]
@@ -123,29 +136,31 @@ fn perp(d: [f32; 3]) -> [f32; 3] {
 }
 
 /// Grow every leaf into one mesh. `detail` thins the count for coarser LODs
-/// (never below one leaf per site) and `seed` keeps the crown the same.
+/// (never below one leaf per site) and `seed`, with each site's key, keeps the
+/// crown the same.
 pub fn leaves(sites: &[LeafSite], r: &LeafRecipe, detail: f32, seed: u32) -> MeshData {
     let mut m = MeshData::default();
-    let mut rng = seed.wrapping_mul(1_597_334_677).wrapping_add(101);
     let spread = r.spread.to_radians();
     for site in sites {
+        let rnd = Rnd::new(seed, site.key);
         let n = ((site.count as f32 * detail).round() as u32).max(1);
         let d = norm(site.direction);
         let side0 = perp(d);
-        for _ in 0..n {
+        for i in 0..n {
+            let slot = i * PER_LEAF;
             // Direction: inside the cone around the twig, then pulled down by droop.
-            let around = rnd(&mut rng) * std::f32::consts::TAU;
-            let tilt = spread * rnd(&mut rng).sqrt();
+            let around = rnd.at(slot + SLOT_AROUND) * std::f32::consts::TAU;
+            let tilt = spread * rnd.at(slot + SLOT_TILT).sqrt();
             let side = rotate(side0, d, around);
             let mut axis = norm(add(scale(d, tilt.cos()), scale(side, tilt.sin())));
             if r.droop > 0.0 {
                 axis = norm(add(scale(axis, 1.0 - r.droop), scale([0.0, -1.0, 0.0], r.droop)));
             }
-            let s = 1.0 + (rnd(&mut rng) * 2.0 - 1.0) * r.jitter;
+            let s = 1.0 + rnd.signed(slot + SLOT_SIZE) * r.jitter;
             let len = r.length * s;
             let wid = r.width * s;
             // Leaf frame: axis along the midrib, `flat` across it, `up` out of the blade.
-            let roll = rnd(&mut rng) * std::f32::consts::TAU;
+            let roll = rnd.at(slot + SLOT_ROLL) * std::f32::consts::TAU;
             let flat = rotate(perp(axis), axis, roll);
             let up = norm(cross(axis, flat));
             let sway = (site.sway + r.sway).clamp(0.0, 1.0);
@@ -214,9 +229,13 @@ fn leaf(
 mod tests {
     use super::*;
 
+    fn site(key: u32, count: u32) -> LeafSite {
+        LeafSite { key, position: [0.0, 2.0, 0.0], direction: [0.0, 1.0, 0.0], sway: 0.3, count }
+    }
+
     #[test]
     fn a_site_grows_its_leaves_and_thins_by_detail() {
-        let sites = vec![LeafSite { position: [0.0, 2.0, 0.0], direction: [0.0, 1.0, 0.0], sway: 0.3, count: 8 }];
+        let sites = vec![site(11, 8)];
         let r = LeafRecipe::default();
         let full = leaves(&sites, &r, 1.0, 3);
         assert_eq!(full.positions.len(), 8 * 5);
@@ -228,5 +247,28 @@ mod tests {
         // Wind: leaf alpha carries site sway + leaf sway.
         assert!((full.colors[0][3] - (1.0 - 0.55)).abs() < 1e-5);
         assert_eq!(leaves(&sites, &r, 1.0, 3).positions, full.positions, "same seed, same crown");
+    }
+
+    #[test]
+    fn thinning_keeps_the_leaves_it_keeps() {
+        // A coarser LOD drops leaves; it does not grow a different cluster.
+        let sites = vec![site(11, 8)];
+        let r = LeafRecipe::default();
+        let full = leaves(&sites, &r, 1.0, 3);
+        let half = leaves(&sites, &r, 0.5, 3);
+        assert_eq!(half.positions, full.positions[..half.positions.len()].to_vec());
+    }
+
+    #[test]
+    fn a_clusters_leaves_are_its_own() {
+        // Two clusters in the same place with different keys are different
+        // clusters; the same key anywhere in a list is the same cluster.
+        let r = LeafRecipe::default();
+        let a = leaves(&[site(11, 6)], &r, 1.0, 3);
+        let b = leaves(&[site(12, 6)], &r, 1.0, 3);
+        assert_ne!(a.positions, b.positions);
+        let pair = leaves(&[site(12, 6), site(11, 6)], &r, 1.0, 3);
+        assert_eq!(pair.positions[..b.positions.len()].to_vec(), b.positions);
+        assert_eq!(pair.positions[b.positions.len()..].to_vec(), a.positions);
     }
 }
