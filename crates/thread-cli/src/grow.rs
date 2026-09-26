@@ -233,9 +233,17 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
                     .ok()
                     .and_then(|v| v["design"].as_str().map(str::to_string))
                     .unwrap_or_default();
+                if design.is_empty() {
+                    // A reply without a design is a refusal, whatever its status line.
+                    eprintln!("✗ the Quarry refused it: {}", body.trim());
+                    return ExitCode::FAILURE;
+                }
                 println!("✓ published to the Quarry — {quarry}/models/{design}.glb");
             }
-            Err(e) => eprintln!("⚠ publish failed: {e}"),
+            Err(e) => {
+                eprintln!("✗ publish failed: {e}");
+                return ExitCode::FAILURE;
+            }
         }
     }
     ExitCode::SUCCESS
