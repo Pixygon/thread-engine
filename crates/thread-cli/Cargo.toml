@@ -16,7 +16,7 @@ image.workspace = true
 infinite-manifest.workspace = true
 chisel = { workspace = true }
 grove = { workspace = true }
-weft = { package = "weft-lang", path = "../weft", version = "0.2.2" }
+weft = { package = "weft-lang", path = "../weft", version = "0.6.0" }
 serde_json.workspace = true
 reqwest.workspace = true
 tokio.workspace = true

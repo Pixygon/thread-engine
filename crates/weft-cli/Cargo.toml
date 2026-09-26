@@ -12,5 +12,5 @@ name = "weft"
 path = "src/main.rs"
 
 [dependencies]
-weft = { package = "weft-lang", path = "../weft", version = "0.2.2" }
+weft = { package = "weft-lang", path = "../weft", version = "0.6.0" }
 serde_json.workspace = true
