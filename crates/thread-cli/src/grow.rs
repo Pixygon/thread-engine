@@ -30,6 +30,11 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
     let mut hang_recipe = HangRecipe { count: 9, min_level: 1, scale: 1.0, ..Default::default() };
     // Glow for the hung thing (a lantern fruit is a light source); None keeps what its glb says.
     let mut hang_glow: Option<f32> = None;
+    let mut publish = false;
+    let mut title: Option<&String> = None;
+    let mut kind: Option<&String> = None;
+    let mut style: Option<&String> = None;
+    let mut tags: Option<&String> = None;
     let mut it = args.iter();
     while let Some(a) = it.next() {
         match a.as_str() {
@@ -44,6 +49,11 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             "--hang-drop" => hang_recipe.drop = it.next().and_then(|v| v.parse().ok()).unwrap_or(0.15),
             "--hang-level" => hang_recipe.min_level = it.next().and_then(|v| v.parse().ok()).unwrap_or(1),
             "--hang-glow" => hang_glow = it.next().and_then(|v| v.parse().ok()),
+            "--publish" => publish = true,
+            "--title" => title = it.next(),
+            "--kind" => kind = it.next(),
+            "--style" => style = it.next(),
+            "--tags" => tags = it.next(),
             s if s.starts_with("--") => {}
             _ => file = Some(a),
         }
@@ -199,6 +209,33 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         match chisel::preview::write_png(&shown, opts, shot) {
             Ok(()) => println!("✓ preview → {shot} ({views}-view turntable)"),
             Err(e) => eprintln!("⚠ preview failed: {e}"),
+        }
+    }
+    // Same posture as `thread model`: --publish sends the RECIPE and the
+    // Quarry grows the tree itself, measuring its sockets. Nothing uploaded.
+    if publish {
+        let quarry = std::env::var("QUARRY_URL").unwrap_or_else(|_| "https://quarry.pixygon.io".to_string());
+        let submission = serde_json::json!({
+            "title": title.cloned().unwrap_or_else(|| recipe.name.replace('-', " ")),
+            "description": String::new(),
+            "kind": kind.cloned().unwrap_or_else(|| "tree".into()),
+            "style": style.cloned().unwrap_or_default(),
+            "tags": tags
+                .map(|t| t.split(',').map(|s| s.trim().to_string()).collect::<Vec<_>>())
+                .unwrap_or_else(|| vec!["tree".into(), "grown".into()]),
+            "package": "grove",
+            "recipe": serde_json::to_value(&recipe).unwrap_or_default(),
+            "origin": "grown",
+        });
+        match crate::post_json(&format!("{}/publish", quarry.trim_end_matches('/')), &submission) {
+            Ok(body) => {
+                let design = serde_json::from_str::<serde_json::Value>(&body)
+                    .ok()
+                    .and_then(|v| v["design"].as_str().map(str::to_string))
+                    .unwrap_or_default();
+                println!("✓ published to the Quarry — {quarry}/models/{design}.glb");
+            }
+            Err(e) => eprintln!("⚠ publish failed: {e}"),
         }
     }
     ExitCode::SUCCESS
