@@ -38,14 +38,28 @@ pub struct GrowRecipe {
     pub name: String,
     /// Determinism: same recipe + seed = same tree, everywhere.
     pub seed: u32,
-    /// Trunk height in metres, before any droop.
+    /// Trunk length in metres up to its first fork, before any droop.
     pub height: f32,
     /// Trunk radius at the ground.
     pub trunk_radius: f32,
     /// Generations of branching beyond the trunk (0 = a bare trunk).
     pub levels: u32,
-    /// Children per branch, per level (last value repeats).
+    /// Lateral children per branch, per level (last value repeats): they
+    /// sprout along the parent between `sprout_from` and its tip.
     pub branches: Vec<u32>,
+    /// Forks per branch, per level (last repeats): children that start AT the
+    /// parent's tip and carry it on. A real tree is mostly forks — the trunk
+    /// ends where it splits into limbs — so `height` is the trunk up to its
+    /// first fork, not the tree's height.
+    pub forks: Vec<u32>,
+    /// Smooth bend along a branch, degrees over its whole length, per level
+    /// (last repeats). Each branch picks its own bend plane from the seed, so
+    /// limbs arc instead of jitter. `wobble` is the noise on top.
+    pub curve: Vec<f32>,
+    /// Smooth bend of the trunk itself, degrees.
+    pub trunk_curve: f32,
+    /// Tilt of the trunk at the ground, degrees from vertical.
+    pub lean: f32,
     /// Branching angle from the parent, degrees, per level (last repeats).
     pub angle: Vec<f32>,
     /// Child length as a fraction of the parent, per level (last repeats).
@@ -88,7 +102,11 @@ impl Default for GrowRecipe {
             height: 6.0,
             trunk_radius: 0.3,
             levels: 3,
-            branches: vec![3, 3, 2],
+            branches: vec![2, 1, 1],
+            forks: vec![3, 2, 2],
+            curve: vec![15.0, 20.0, 25.0],
+            trunk_curve: 0.0,
+            lean: 0.0,
             angle: vec![35.0, 40.0, 45.0],
             length: vec![0.6, 0.55, 0.5],
             taper: 0.6,
@@ -198,6 +216,7 @@ fn grow_branch(
     level: u32,
     segments: u32,
     sway_from: f32,
+    curve_deg: f32,
 ) -> Branch {
     let segs = segments.max(2) as usize;
     let mut pts = Vec::with_capacity(segs + 1);
@@ -207,6 +226,10 @@ fn grow_branch(
     let mut d = norm(dir);
     let step = length / segs as f32;
     let sway_to = (sway_from + r.sway / (r.levels as f32 + 1.0)).min(r.sway);
+    // One bend plane per branch: a fixed perpendicular axis, a fixed sign, so
+    // the branch draws an arc. The magnitude eases in (stiff near the base).
+    let bend_axis = rotate(perp(d), d, rnd(rng) * std::f32::consts::TAU);
+    let bend_total = curve_deg.to_radians() * if rnd(rng) < 0.5 { -1.0 } else { 1.0 };
     for i in 0..=segs {
         let t = i as f32 / segs as f32;
         pts.push(p);
@@ -220,7 +243,11 @@ fn grow_branch(
         if i == segs {
             break;
         }
-        // Droop (or lift) a little each step, then a small random bend.
+        // The arc, then droop (or lift) a little each step, then a small random bend.
+        if bend_total != 0.0 {
+            let ease = 0.5 + t; // more bend towards the tip
+            d = norm(rotate(d, bend_axis, bend_total / segs as f32 * ease));
+        }
         d = norm(add(d, [0.0, -r.gravity * step, 0.0]));
         if r.wobble > 0.0 {
             let axis = perp(d);
@@ -237,37 +264,57 @@ fn grow_branch(
 fn graph(r: &GrowRecipe, segments: u32) -> Vec<Branch> {
     let mut rng = r.seed.wrapping_mul(2_654_435_761).wrapping_add(17);
     let mut out: Vec<Branch> = Vec::new();
-    let trunk = grow_branch(r, &mut rng, [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], r.height, r.trunk_radius, 0, segments, 0.0);
+    let lean = r.lean.to_radians();
+    let lean_dir = rnd(&mut rng) * std::f32::consts::TAU;
+    let up = norm([lean.sin() * lean_dir.cos(), lean.cos(), lean.sin() * lean_dir.sin()]);
+    let trunk = grow_branch(r, &mut rng, [0.0, 0.0, 0.0], up, r.height, r.trunk_radius, 0, segments, 0.0, r.trunk_curve);
     out.push(trunk);
     let mut frontier: Vec<usize> = vec![0];
     for level in 1..=r.levels {
         let li = (level - 1) as usize;
-        let n_children = pick(&r.branches, li, 2).max(1);
+        let n_lateral = pick(&r.branches, li, 0);
+        let n_forks = pick(&r.forks, li, 2);
         let angle = pick(&r.angle, li, 40.0).to_radians();
         let len_frac = pick(&r.length, li, 0.55);
+        let curve = pick(&r.curve, li, 15.0);
         let mut next: Vec<usize> = Vec::new();
         for &pi in &frontier {
             let parent_len: f32 = {
                 let b = &out[pi];
-                (1..b.pts.len()).map(|i| {
-                    let a = b.pts[i - 1];
-                    let c = b.pts[i];
-                    ((c[0] - a[0]).powi(2) + (c[1] - a[1]).powi(2) + (c[2] - a[2]).powi(2)).sqrt()
-                }).sum()
+                (1..b.pts.len()).map(|i| len(sub(b.pts[i], b.pts[i - 1]))).sum()
             };
             let phase = rnd(&mut rng) * std::f32::consts::TAU;
-            for c in 0..n_children {
+            // Forks: start at the tip, share its cross-section (da Vinci: the
+            // children's areas sum to the parent's), spread evenly around it.
+            for c in 0..n_forks {
                 let b = &out[pi];
-                // Where along the parent: spread from `sprout_from` to the tip.
-                let t = r.sprout_from + (1.0 - r.sprout_from) * (c as f32 + 0.5) / n_children as f32;
-                let (p, d, rad, sw) = sample(b, t);
-                // Around the parent: evenly spaced with a per-parent phase and a little jitter.
-                let around = phase + std::f32::consts::TAU * c as f32 / n_children as f32 + (rnd(&mut rng) - 0.5) * 0.6;
+                let (p, d, rad, sw) = sample(b, 1.0);
+                let spread = angle * (0.7 + 0.3 * rnd(&mut rng));
+                let around = phase + std::f32::consts::TAU * c as f32 / n_forks as f32 + (rnd(&mut rng) - 0.5) * 0.5;
                 let side = rotate(perp(d), d, around);
-                let cdir = norm(add(scale(d, angle.cos()), scale(side, angle.sin())));
-                let clen = parent_len * len_frac * (0.85 + 0.3 * rnd(&mut rng));
+                let cdir = norm(add(scale(d, spread.cos()), scale(side, spread.sin())));
+                let clen = parent_len * len_frac * (0.8 + 0.4 * rnd(&mut rng));
+                let crad = (rad * (1.0 / n_forks as f32).sqrt() * 1.08).min(rad * 0.98);
+                // Start a little inside the parent so the joint is buried.
+                let origin = sub(p, scale(d, crad * 0.8));
+                let segs = child_segments(r, segments, clen);
+                let child = grow_branch(r, &mut rng, origin, cdir, clen, crad, level, segs, sw, curve);
+                out.push(child);
+                next.push(out.len() - 1);
+            }
+            // Laterals: along the parent between `sprout_from` and just below the tip.
+            for c in 0..n_lateral {
+                let b = &out[pi];
+                let t = r.sprout_from + (0.9 - r.sprout_from) * (c as f32 + 0.5) / n_lateral as f32;
+                let (p, d, rad, sw) = sample(b, t);
+                let around = phase + 1.9 + std::f32::consts::TAU * c as f32 / n_lateral as f32 + (rnd(&mut rng) - 0.5) * 0.8;
+                let side = rotate(perp(d), d, around);
+                let spread = angle * (1.1 + 0.3 * rnd(&mut rng));
+                let cdir = norm(add(scale(d, spread.cos()), scale(side, spread.sin())));
+                let clen = parent_len * len_frac * (0.6 + 0.3 * rnd(&mut rng));
                 let crad = rad * r.child_radius;
-                let child = grow_branch(r, &mut rng, p, cdir, clen, crad, level, segments, sw);
+                let segs = child_segments(r, segments, clen);
+                let child = grow_branch(r, &mut rng, p, cdir, clen, crad, level, segs, sw, curve);
                 out.push(child);
                 next.push(out.len() - 1);
             }
@@ -275,6 +322,12 @@ fn graph(r: &GrowRecipe, segments: u32) -> Vec<Branch> {
         frontier = next;
     }
     out
+}
+
+/// Segments along a child scale with its length so twigs stay cheap.
+fn child_segments(r: &GrowRecipe, segments: u32, length: f32) -> u32 {
+    let f = (length / r.height.max(0.01)).clamp(0.3, 1.0);
+    ((segments as f32 * f).round() as u32).max(3)
 }
 
 /// Point, direction, radius and sway at parameter `t` (0..1) along a branch.
