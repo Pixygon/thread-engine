@@ -167,6 +167,8 @@ fn primitive_part(
         tangents: Vec::new(),
         colors: Vec::new(),
         uv2: Vec::new(),
+        uv3: Vec::new(),
+        uv4: Vec::new(),
         indices,
     };
     Some(BuiltPart {

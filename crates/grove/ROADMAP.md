@@ -69,7 +69,8 @@ in the Quarry — and always comes out the same.
    done (`thread grow --preview`).
 3. **Branch ids in the mesh, cut state, subtree derivation** for the fallen
    part. Joints only. ✅ *landed 2026-09-27 — see "Where it stands".*
-4. **Wind channels, the Unity shader, impostors.**
+4. **Wind channels, the Unity shader, impostors.** ✅ *landed 2026-09-27 —
+   see "Where it stands".*
 5. **Species from the Codex**: prose in the Codex → an agent drafts species
    rules → the turntable decides.
 
@@ -213,3 +214,45 @@ number, `0x…`, or a socket name. 48 tests in Grove.
 Still to do here: the stump's end is a flat cap, not a wound texture; `cut`
 sockets exist but nothing is hung at them yet (a sap bead, a fungus, a lantern
 hook would all be `--hang-kind cut`).
+
+### Step 4, 2026-09-27
+
+**Wind in four channels.** `TEXCOORD_2 = (trunk sway, branch sway)`,
+`TEXCOORD_3 = (leaf flutter, phase)`, on wood and leaves at every LOD, with
+the colour's alpha still rigidity for Infinite. The trunk's weight climbs like
+a cantilever (`t²`) to 1 at its top and every limb inherits where it left; a
+limb's own weight climbs one generation's share from where its parent had got
+to, so the outermost twigs reach 1; each branch's phase is one addressed draw
+on its key, so it is the same phase at every age and in every cut. Chisel's
+`MeshData` gained `uv3`/`uv4` beside `uv2`, and the exporter writes
+`TEXCOORD_n` only when every vertex has one. glTFast imports up to eight UV
+sets (checked against its 6.19 feature table), so the channels land in Unity
+as `uv2`..`uv4` untouched.
+
+**The shader lives in `com.pixygon.quarry` 0.2.0** (`Pixygon/Grove Wind`, a
+URP lit surface): one slow whole-tree lean, a limb's own swing at its own
+phase, a leaf's fast tremble, all in world space off one gust field sampled
+at the object's origin so a stand ripples instead of nodding together — in
+every pass, shadows and depth included. `GroveWindMaterials.Apply` swaps it
+onto every imported mesh that carries the channels, copying glTFast's maps;
+the world importer calls it. Written blind against URP 17 — it wants one
+compile in a project before it is trusted, and the vertex function is the part
+that matters. Normals are not bent with the wind yet (TERRA §6.4); for sways
+this size it does not show, and it is the first thing to add if it does.
+
+**Impostors** are in Chisel, not Grove, because any model can have one: the
+previewer gained transparent tiles from any yaw (`render_tile`, alpha as
+coverage), and `chisel::impostor` puts eight views 45° apart into a 3 × 3
+atlas and stands eight single-sided quads — four vertical planes, a face on
+each side — where the model stood, each showing the view from its own side.
+The quads are sized from the previewer's own framing, so a pixel lands where
+the surface was to within the shot's perspective. The exporter now marks any
+material whose base map has holes as a cutout, so the impostor is a plain
+model everywhere. `thread grow --impostor`.
+
+Still to do here: the impostor is lit as the previewer lit it (a warm key
+from the left), so it does not follow the scene's sun — an octahedral
+impostor with a normal atlas would; and nothing thins the real mesh's
+*instances* per plant yet (the "handful of individuals per species" the
+runtime-cost note asks for is a placement concern for the Quarry/Unity side,
+which has everything it needs: species, seed, clock, state, and cut ids).

@@ -29,6 +29,9 @@ pub struct PreviewOptions {
     /// spins. A wide sheet holding a row of models — a plant's whole life,
     /// side by side — has room to spare and wants more.
     pub fill: f32,
+    /// No studio backdrop: alpha is coverage, so the tile can be composited —
+    /// or become an impostor's atlas.
+    pub transparent: bool,
 }
 
 impl Default for PreviewOptions {
@@ -40,20 +43,45 @@ impl Default for PreviewOptions {
             pitch: 18.0,
             ss: 2,
             fill: 1.0,
+            transparent: false,
         }
     }
 }
 
 /// Render the model to an RGBA8 buffer `(pixels, width, height)`.
 pub fn render(built: &Built, opts: PreviewOptions) -> (Vec<u8>, u32, u32) {
-    let views = opts.views.clamp(1, 6);
+    let views = opts.views.clamp(1, 8);
     let vw = opts.width.max(64);
     let vh = opts.height.max(64);
-    let ss = opts.ss.clamp(1, 3);
-    let (sw, sh) = (vw * ss, vh * ss);
     let out_w = vw * views;
     let mut out = vec![0u8; (out_w * vh * 4) as usize];
+    for v in 0..views {
+        // Turntable: start three-quarter, sweep the rest of the way round.
+        let yaw = 35.0 + v as f32 * 360.0 / views as f32;
+        let tile = tile(built, yaw, opts.pitch, opts);
+        for y in 0..vh {
+            for x in 0..vw {
+                let i = ((y * vw + x) * 4) as usize;
+                let o = (((y * out_w) + v * vw + x) * 4) as usize;
+                out[o..o + 4].copy_from_slice(&tile[i..i + 4]);
+            }
+        }
+    }
+    (out, out_w, vh)
+}
 
+/// One view of the model from `yaw_deg` around it and `pitch_deg` above the
+/// horizon, at the sheet's tile size: RGBA8, `(pixels, width, height)`. With
+/// `opts.transparent` the backdrop is gone and alpha is coverage — the piece
+/// an impostor is cut from.
+pub fn render_tile(built: &Built, yaw_deg: f32, pitch_deg: f32, opts: PreviewOptions) -> (Vec<u8>, u32, u32) {
+    let (vw, vh) = (opts.width.max(64), opts.height.max(64));
+    (tile(built, yaw_deg, pitch_deg, opts), vw, vh)
+}
+
+/// The camera framing every view shares: the bounding sphere, and the
+/// distance that fits it at the sheet's `fill`.
+pub fn framing(built: &Built, opts: PreviewOptions) -> ([f32; 3], f32, f32) {
     let (bmin, bmax) = built.bounds();
     let center = [
         (bmin[0] + bmax[0]) / 2.0,
@@ -64,39 +92,49 @@ pub fn render(built: &Built, opts: PreviewOptions) -> (Vec<u8>, u32, u32) {
         let d = [bmax[0] - bmin[0], bmax[1] - bmin[1], bmax[2] - bmin[2]];
         (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt().max(0.05) / 2.0
     };
+    let dist = radius * 3.1 / opts.fill.clamp(0.2, 6.0);
+    (center, radius, dist)
+}
 
-    for v in 0..views {
-        // Turntable: start three-quarter, sweep the rest of the way round.
-        let yaw = (35.0 + v as f32 * 360.0 / views as f32).to_radians();
-        let pitch = opts.pitch.to_radians();
-        let dist = radius * 3.1 / opts.fill.clamp(0.2, 6.0);
-        let eye = [
-            center[0] + dist * yaw.cos() * pitch.cos(),
-            center[1] + dist * pitch.sin(),
-            center[2] + dist * yaw.sin() * pitch.cos(),
-        ];
-        let tile = render_view(built, eye, center, radius, sw, sh);
-        // Box-downsample the supersampled tile into the sheet.
-        for y in 0..vh {
-            for x in 0..vw {
-                let mut acc = [0f32; 4];
-                for sy in 0..ss {
-                    for sx in 0..ss {
-                        let i = (((y * ss + sy) * sw + (x * ss + sx)) * 4) as usize;
-                        for c in 0..4 {
-                            acc[c] += tile[i + c] as f32;
-                        }
+/// The vertical field of view every view uses, degrees.
+pub const FOV_DEG: f32 = 42.0;
+
+/// One supersampled, box-downsampled tile.
+fn tile(built: &Built, yaw_deg: f32, pitch_deg: f32, opts: PreviewOptions) -> Vec<u8> {
+    let vw = opts.width.max(64);
+    let vh = opts.height.max(64);
+    let ss = opts.ss.clamp(1, 3);
+    let (sw, sh) = (vw * ss, vh * ss);
+    let (center, radius, dist) = framing(built, opts);
+    let yaw = yaw_deg.to_radians();
+    let pitch = pitch_deg.to_radians();
+    let eye = [
+        center[0] + dist * yaw.cos() * pitch.cos(),
+        center[1] + dist * pitch.sin(),
+        center[2] + dist * yaw.sin() * pitch.cos(),
+    ];
+    let big = render_view(built, eye, center, radius, sw, sh, opts.transparent);
+    let mut out = vec![0u8; (vw * vh * 4) as usize];
+    // Box-downsample the supersampled tile.
+    for y in 0..vh {
+        for x in 0..vw {
+            let mut acc = [0f32; 4];
+            for sy in 0..ss {
+                for sx in 0..ss {
+                    let i = (((y * ss + sy) * sw + (x * ss + sx)) * 4) as usize;
+                    for c in 0..4 {
+                        acc[c] += big[i + c] as f32;
                     }
                 }
-                let n = (ss * ss) as f32;
-                let o = (((y * out_w) + v * vw + x) * 4) as usize;
-                for c in 0..4 {
-                    out[o + c] = (acc[c] / n).round().clamp(0.0, 255.0) as u8;
-                }
+            }
+            let n = (ss * ss) as f32;
+            let o = ((y * vw + x) * 4) as usize;
+            for c in 0..4 {
+                out[o + c] = (acc[c] / n).round().clamp(0.0, 255.0) as u8;
             }
         }
     }
-    (out, out_w, vh)
+    out
 }
 
 /// Render the model to a PNG file.
@@ -113,12 +151,14 @@ fn render_view(
     radius: f32,
     w: u32,
     h: u32,
+    transparent: bool,
 ) -> Vec<u8> {
     let mut color = vec![0f32; (w * h * 3) as usize];
     let mut depth = vec![f32::INFINITY; (w * h) as usize];
 
-    // Studio backdrop: a soft vertical gradient, darker at the edges.
-    for y in 0..h {
+    // Studio backdrop: a soft vertical gradient, darker at the edges — unless
+    // the tile is to be composited, in which case there is nothing behind it.
+    for y in 0..(if transparent { 0 } else { h }) {
         let t = y as f32 / h as f32;
         let g = 0.30 - 0.16 * t;
         for x in 0..w {
@@ -138,7 +178,7 @@ fn render_view(
     let right = norm(cross(fwd, [0.0, 1.0, 0.0]));
     let up = cross(right, fwd);
     let aspect = w as f32 / h as f32;
-    let fov = 42f32.to_radians();
+    let fov = FOV_DEG.to_radians();
     let tan_half = (fov / 2.0).tan();
     let (near, far) = (radius * 0.05, radius * 12.0);
 
@@ -272,6 +312,11 @@ fn render_view(
                         n_geo,
                     );
                     if let Some(b) = &part.baked {
+                        // A base map with holes is a cutout, here as in the
+                        // glb: nothing is drawn where it says nothing is.
+                        if sample_alpha(&b.albedo, b.size, uv) < 0.5 {
+                            continue;
+                        }
                         let a = sample(&b.albedo, b.size, uv);
                         albedo = [
                             a[0] * part.color[0] * vcol[0],
@@ -353,6 +398,14 @@ fn render_view(
     }
 
     let mut rgba = vec![255u8; (w * h * 4) as usize];
+    if transparent {
+        // Alpha is coverage: where nothing was drawn, nothing is there.
+        for i in 0..(w * h) as usize {
+            if depth[i].is_infinite() {
+                rgba[i * 4 + 3] = 0;
+            }
+        }
+    }
     for i in 0..(w * h) as usize {
         for c in 0..3 {
             rgba[i * 4 + c] = (color[i * 3 + c].clamp(0.0, 1.0) * 255.0 + 0.5) as u8;
@@ -372,6 +425,22 @@ fn world_point(m: &crate::MeshData, idx: [usize; 3], pw: [f32; 3]) -> [f32; 3] {
         a[1] * pw[0] + b[1] * pw[1] + c[1] * pw[2],
         a[2] * pw[0] + b[2] * pw[1] + c[2] * pw[2],
     ]
+}
+
+/// Bilinear, wrapping sample of an RGBA8 map's alpha → 0..1.
+fn sample_alpha(buf: &[u8], size: u32, uv: [f32; 2]) -> f32 {
+    let s = size as f32;
+    let (u, v) = (uv[0] * s - 0.5, uv[1] * s - 0.5);
+    let (x0, y0) = (u.floor(), v.floor());
+    let (fx, fy) = (u - x0, v - y0);
+    let at = |xi: f32, yi: f32| -> f32 {
+        let x = ((xi as i64).rem_euclid(size as i64)) as usize;
+        let y = ((yi as i64).rem_euclid(size as i64)) as usize;
+        buf[(y * size as usize + x) * 4 + 3] as f32 / 255.0
+    };
+    let top = at(x0, y0) + (at(x0 + 1.0, y0) - at(x0, y0)) * fx;
+    let bottom = at(x0, y0 + 1.0) + (at(x0 + 1.0, y0 + 1.0) - at(x0, y0 + 1.0)) * fx;
+    top + (bottom - top) * fy
 }
 
 /// Bilinear, wrapping sample of an RGBA8 map → 0..1 RGB.

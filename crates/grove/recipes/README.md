@@ -26,6 +26,7 @@ thread grow lantern-tree.grow.json --withered              # the same tree, dead
 thread grow oak.grow.json --cut 0x1a2b3c4d                 # one limb chopped at its joint…
 thread grow oak.grow.json --fallen 0x1a2b3c4d -o oak.glb   # …and the part that fell, on its own base
 thread grow oak.grow.json --take fruit-0000beef-0@20       # one acorn picked, back at age 20
+thread grow oak.grow.json --impostor                       # the last LOD: eight views on eight quads
 thread grow lantern-tree.grow.json --hang fruit.glb --hang-kind fruit
 thread grow oak.grow.json --publish                        # the Quarry regrows it
 ```
@@ -66,6 +67,23 @@ hit into a joint, and `cut` records it. The tree then grows a stump with a
 `cut` socket at the joint, everything beyond it is gone, and `--fallen <id>`
 grows exactly what fell — same seed, same clock, same leaves and fruit — on
 its own base, so it lines up with the wound.
+
+**Wind** rides in four vertex channels, because the wood knows its own
+hierarchy: `TEXCOORD_2 = (trunk sway, branch sway)` — 0 at the ground and 1 at
+the top of the trunk, inherited out along every limb; 0 along the trunk and
+climbing each generation to 1 at the outermost twigs — and `TEXCOORD_3 =
+(leaf flutter, phase)` — the tremble only a leaf has, and a per-branch phase
+so no two limbs march in step. The colour's alpha stays rigidity (`1 − sway`,
+TERRA §6.3) for Infinite. Unity reads the four with `Pixygon/Grove Wind` in
+`com.pixygon.quarry`, which the world importer puts on every mesh that
+carries them; a mesh without them stands still.
+
+**`--impostor`** is the last LOD: the previewer renders eight views 45° apart
+into one atlas (`<stem>.atlas.png`), and `<stem>.impostor.glb` is eight
+single-sided quads — four vertical planes, a face each side — each showing the
+view taken from its own side, with the atlas as a cutout. Studio light is
+baked in, which is what a billboard at that distance wants. It is a plain
+model like any other; nothing downstream needs a special case.
 
 The life curve is three fields, and the defaults suit a tree:
 `seasons_to_grown` (12) is how many seasons it takes to reach full size,

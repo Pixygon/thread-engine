@@ -4,6 +4,23 @@ All notable changes to **Thread Engine**. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this file is
 materialized from the Pixygon Changelog API — edit there, not here.
 
+## [0.9.0] — 2026-09-27
+
+### Added
+- Wind! Every plant now ships with its wind baked into the mesh — a slow whole-tree lean, each limb swinging on its own beat, and leaves trembling at the tips. Because the wood knows its own hierarchy, a stand of trees ripples instead of nodding in unison, and the same branch keeps its phase at every age and after every cut. Unity picks it up automatically through the Grove Wind shader; a mesh without the channels simply stands still.
+- `thread grow --impostor` makes the last LOD for any model: eight views 45° apart rendered into a single atlas, standing on eight quads so the camera always sees the view taken from its own side. You get `<stem>.impostor.glb` plus `<stem>.atlas.png` to look at. It's an ordinary model with an ordinary cutout texture, so nothing downstream needs a special case.
+- The previewer can now render a single view from any angle with a transparent backdrop, so tiles can be composited instead of always arriving on the studio gradient.
+
+### Changed
+- Exported models can now carry up to four UV sets (TEXCOORD_0 through TEXCOORD_3) rather than two, with each set written only when every vertex has one.
+
+### Improved
+- Turntable previews can now spin up to eight views instead of six.
+
+### Fixed
+- Textures with holes in them — leaf cards, impostor atlases — are now exported as proper cutouts and drawn as cutouts in the previewer, so engines no longer fill in the empty space with solid colour.
+
+
 ## [0.8.0] — 2026-09-27
 
 ### Added

@@ -53,7 +53,14 @@
 //! - **every vertex names its branch** in `TEXCOORD_1` (low 16 bits in `u`,
 //!   high 16 in `v`), so a game can hit-test a swing against the wood — and
 //!   the leaves on it — without asking anyone. **Cuts are at joints only**: a
-//!   cut names a branch, and takes it from where it sprouts.
+//!   cut names a branch, and takes it from where it sprouts;
+//! - **wind in four channels**, because the wood knows its hierarchy:
+//!   `TEXCOORD_2 = (trunk sway, branch sway)` — how much of a whole-tree lean
+//!   and how much of a limb's own swing reach this vertex — and
+//!   `TEXCOORD_3 = (leaf flutter, phase)` — the tremble only a leaf has, and a
+//!   per-branch phase so no two limbs march in step. The colour's alpha stays
+//!   rigidity (`1 − sway`, TERRA §6.3) for everything that already reads it;
+//!   Unity reads the four (`com.pixygon.quarry`'s Grove Wind shader).
 use std::collections::HashSet;
 
 use infinite_manifest::texture::TextureRecipe;
@@ -95,6 +102,8 @@ const WANDER_CONTROLS: u32 = 8;
 /// separate questions asked of the same tip.
 const SLOT_BLOOM_SHARE: u32 = 8;
 const SLOT_FRUIT_SHARE: u32 = 9;
+/// Where in its swing a branch is when the wind starts.
+const SLOT_WIND_PHASE: u32 = 10;
 
 /// A seedling is a stem, not a point: the least of its trunk a plant ever shows.
 const SPROUT_EXTENSION: f32 = 0.06;
@@ -564,12 +573,21 @@ struct Branch {
     emerge: f32,
     /// What is left of a cut branch: a stub at the joint, and no tip.
     stump: bool,
+    /// Where in its swing this branch is, 0..1 — its own, from the seed.
+    phase: f32,
     /// Polyline of centre points.
     pts: Vec<[f32; 3]>,
     /// Radius at each point.
     radii: Vec<f32>,
-    /// Sway at each point (0 rigid → species.sway at the outermost tips).
+    /// Sway at each point (0 rigid → species.sway at the outermost tips):
+    /// the one number Infinite reads, in the colour's alpha.
     sway: Vec<f32>,
+    /// Trunk sway weight at each point: 0 at the ground, 1 at the top of the
+    /// trunk, and then whatever the limb left the trunk with, all the way out.
+    trunk_w: Vec<f32>,
+    /// Branch sway weight: 0 all along the trunk, then climbing each
+    /// generation towards 1 at the outermost tips.
+    branch_w: Vec<f32>,
 }
 
 fn pick<T: Copy>(v: &[T], i: usize, fallback: T) -> T {
@@ -634,11 +652,18 @@ fn grow_branch(
     segments: u32,
     sway_from: f32,
     curve_deg: f32,
-) -> (Vec<[f32; 3]>, Vec<f32>, Vec<f32>) {
+    wind_from: [f32; 2],
+) -> Grew {
     let segs = segments.max(2) as usize;
     let mut pts = Vec::with_capacity(segs + 1);
     let mut radii = Vec::with_capacity(segs + 1);
     let mut sway = Vec::with_capacity(segs + 1);
+    let mut trunk_w = Vec::with_capacity(segs + 1);
+    let mut branch_w = Vec::with_capacity(segs + 1);
+    // The trunk's own weight climbs to 1 at its top and every limb inherits
+    // where it left; a limb's own weight climbs one generation's share from
+    // where its parent had got to.
+    let branch_to = if level == 0 { 0.0 } else { (wind_from[1] + 1.0 / s.levels.max(1) as f32).min(1.0) };
     let mut p = origin;
     let mut d = norm(dir);
     let step = length / segs as f32;
@@ -663,6 +688,9 @@ fn grow_branch(
         }
         radii.push(rad);
         sway.push(sway_from + (sway_to - sway_from) * t);
+        // A trunk bends like a cantilever: little at the base, most at the top.
+        trunk_w.push(if level == 0 { t * t } else { wind_from[0] });
+        branch_w.push(wind_from[1] + (branch_to - wind_from[1]) * t);
         if i == segs {
             break;
         }
@@ -680,7 +708,16 @@ fn grow_branch(
         }
         p = add(p, scale(d, step));
     }
-    (pts, radii, sway)
+    Grew { pts, radii, sway, trunk_w, branch_w }
+}
+
+/// What growing one branch yields: the per-point columns of a [`Branch`].
+struct Grew {
+    pts: Vec<[f32; 3]>,
+    radii: Vec<f32>,
+    sway: Vec<f32>,
+    trunk_w: Vec<f32>,
+    branch_w: Vec<f32>,
 }
 
 /// The whole potential plant the seed decided: every branch it could ever
@@ -694,10 +731,23 @@ fn potential(s: &Species, seed: u32, withered: bool, segments: u32) -> Vec<Branc
     let lean = s.lean.to_radians();
     let lean_dir = trunk_rnd.at(SLOT_LEAN_DIR) * std::f32::consts::TAU;
     let up = norm([lean.sin() * lean_dir.cos(), lean.cos(), lean.sin() * lean_dir.sin()]);
-    let (pts, radii, sway) =
-        grow_branch(s, withered, &trunk_rnd, [0.0, 0.0, 0.0], up, s.height, s.trunk_radius, 0, segments, 0.0, s.trunk_curve);
-    let mut out: Vec<Branch> =
-        vec![Branch { key: TRUNK, parent: 0, level: 0, attach: 0.0, emerge: 0.0, stump: false, pts, radii, sway }];
+    let g = grow_branch(
+        s, withered, &trunk_rnd, [0.0, 0.0, 0.0], up, s.height, s.trunk_radius, 0, segments, 0.0, s.trunk_curve, [0.0, 0.0],
+    );
+    let mut out: Vec<Branch> = vec![Branch {
+        key: TRUNK,
+        parent: 0,
+        level: 0,
+        attach: 0.0,
+        emerge: 0.0,
+        stump: false,
+        phase: trunk_rnd.at(SLOT_WIND_PHASE),
+        pts: g.pts,
+        radii: g.radii,
+        sway: g.sway,
+        trunk_w: g.trunk_w,
+        branch_w: g.branch_w,
+    }];
     let mut frontier: Vec<usize> = vec![0];
     for level in 1..=s.levels {
         let li = (level - 1) as usize;
@@ -723,6 +773,7 @@ fn potential(s: &Species, seed: u32, withered: bool, segments: u32) -> Vec<Branc
                 let rnd = Rnd::new(seed, key);
                 let b = &out[pi];
                 let (p, d, rad, sw) = sample(b, 1.0);
+                let wind = sample_wind(b, 1.0);
                 let spread = angle * (0.7 + 0.3 * rnd.at(SLOT_SPREAD));
                 let around =
                     phase + std::f32::consts::TAU * c as f32 / n_forks as f32 + rnd.signed(SLOT_AROUND) * 0.25;
@@ -733,8 +784,21 @@ fn potential(s: &Species, seed: u32, withered: bool, segments: u32) -> Vec<Branc
                 // Start a little inside the parent so the joint is buried.
                 let origin = sub(p, scale(d, crad * 0.8));
                 let segs = child_segments(s, segments, clen);
-                let (pts, radii, sway) = grow_branch(s, withered, &rnd, origin, cdir, clen, crad, level, segs, sw, curve);
-                out.push(Branch { key, parent: pkey, level, attach: 1.0, emerge: pemerge + span, stump: false, pts, radii, sway });
+                let g = grow_branch(s, withered, &rnd, origin, cdir, clen, crad, level, segs, sw, curve, wind);
+                out.push(Branch {
+                    key,
+                    parent: pkey,
+                    level,
+                    attach: 1.0,
+                    emerge: pemerge + span,
+                    stump: false,
+                    phase: rnd.at(SLOT_WIND_PHASE),
+                    pts: g.pts,
+                    radii: g.radii,
+                    sway: g.sway,
+                    trunk_w: g.trunk_w,
+                    branch_w: g.branch_w,
+                });
                 next.push(out.len() - 1);
             }
             // Laterals: along the parent between `sprout_from` and just below
@@ -745,6 +809,7 @@ fn potential(s: &Species, seed: u32, withered: bool, segments: u32) -> Vec<Branc
                 let b = &out[pi];
                 let t = s.sprout_from + (0.9 - s.sprout_from) * (c as f32 + 0.5) / n_lateral as f32;
                 let (p, d, rad, sw) = sample(b, t);
+                let wind = sample_wind(b, t);
                 let around = phase
                     + 1.9
                     + std::f32::consts::TAU * c as f32 / n_lateral as f32
@@ -755,8 +820,21 @@ fn potential(s: &Species, seed: u32, withered: bool, segments: u32) -> Vec<Branc
                 let clen = parent_len * len_frac * (0.6 + 0.3 * rnd.at(SLOT_LENGTH));
                 let crad = rad * s.child_radius;
                 let segs = child_segments(s, segments, clen);
-                let (pts, radii, sway) = grow_branch(s, withered, &rnd, p, cdir, clen, crad, level, segs, sw, curve);
-                out.push(Branch { key, parent: pkey, level, attach: t, emerge: pemerge + span * t, stump: false, pts, radii, sway });
+                let g = grow_branch(s, withered, &rnd, p, cdir, clen, crad, level, segs, sw, curve, wind);
+                out.push(Branch {
+                    key,
+                    parent: pkey,
+                    level,
+                    attach: t,
+                    emerge: pemerge + span * t,
+                    stump: false,
+                    phase: rnd.at(SLOT_WIND_PHASE),
+                    pts: g.pts,
+                    radii: g.radii,
+                    sway: g.sway,
+                    trunk_w: g.trunk_w,
+                    branch_w: g.branch_w,
+                });
                 next.push(out.len() - 1);
             }
         }
@@ -808,33 +886,44 @@ fn at_clock(s: &Species, all: &[Branch], m: f32) -> Vec<Branch> {
 /// scaled to its age. A branch that has just emerged is also thinner than its
 /// grown self — girth arrives with the branch, not before it.
 fn grown_to(b: &Branch, e: f32, length_scale: f32, girth_scale: f32) -> Branch {
-    let (pts, radii, sway) = prefix(b, e);
+    let p = prefix(b, e);
     let girth = girth_scale * (0.35 + 0.65 * e);
     Branch {
-        pts: pts.iter().map(|p| scale(*p, length_scale)).collect(),
-        radii: radii.iter().map(|r| r * girth).collect(),
-        sway,
-        ..b.clone()
+        pts: p.pts.iter().map(|p| scale(*p, length_scale)).collect(),
+        radii: p.radii.iter().map(|r| r * girth).collect(),
+        ..p
     }
 }
 
-/// The first `e` of a branch's polyline — at least two points, the last one
-/// interpolated so the end lands exactly where it should.
-fn prefix(b: &Branch, e: f32) -> (Vec<[f32; 3]>, Vec<f32>, Vec<f32>) {
+/// The first `e` of a branch — at least two points, the last one interpolated
+/// so the end lands exactly where it should — every per-point column cut the
+/// same way.
+fn prefix(b: &Branch, e: f32) -> Branch {
     let n = b.pts.len();
     let f = e.clamp(0.0, 1.0) * (n - 1) as f32;
     let whole = (f.floor() as usize).min(n - 1);
     let u = f - whole as f32;
+    let extend = whole + 1 < n && (u > 1e-4 || whole == 0);
+    let u = u.max(1e-3);
+    let cut = |v: &[f32]| -> Vec<f32> {
+        let mut o = v[..=whole].to_vec();
+        if extend {
+            o.push(v[whole] + (v[whole + 1] - v[whole]) * u);
+        }
+        o
+    };
     let mut pts: Vec<[f32; 3]> = b.pts[..=whole].to_vec();
-    let mut radii: Vec<f32> = b.radii[..=whole].to_vec();
-    let mut sway: Vec<f32> = b.sway[..=whole].to_vec();
-    if whole + 1 < n && (u > 1e-4 || pts.len() < 2) {
-        let u = u.max(1e-3);
+    if extend {
         pts.push(lerp3(b.pts[whole], b.pts[whole + 1], u));
-        radii.push(b.radii[whole] + (b.radii[whole + 1] - b.radii[whole]) * u);
-        sway.push(b.sway[whole] + (b.sway[whole + 1] - b.sway[whole]) * u);
     }
-    (pts, radii, sway)
+    Branch {
+        pts,
+        radii: cut(&b.radii),
+        sway: cut(&b.sway),
+        trunk_w: cut(&b.trunk_w),
+        branch_w: cut(&b.branch_w),
+        ..b.clone()
+    }
 }
 
 /// How much of a cut branch stays on the tree: enough for the wound to show
@@ -894,10 +983,7 @@ fn at_state(present: Vec<Branch>, cut: &[u32], part: Part) -> Vec<Branch> {
         match part {
             Part::Standing => match first_cut {
                 None => out.push(b),
-                Some(k) if k == b.key => {
-                    let (pts, radii, sway) = prefix(&b, STUMP);
-                    out.push(Branch { stump: true, pts, radii, sway, ..b });
-                }
+                Some(k) if k == b.key => out.push(Branch { stump: true, ..prefix(&b, STUMP) }),
                 Some(_) => {}
             },
             Part::Fallen(root) => {
@@ -907,10 +993,7 @@ fn at_state(present: Vec<Branch>, cut: &[u32], part: Part) -> Vec<Branch> {
                 // A cut inside the fallen part is still a cut — unless it is
                 // the root itself, which is the whole point of the part.
                 match first_cut {
-                    Some(k) if k != root && k == b.key => {
-                        let (pts, radii, sway) = prefix(&b, STUMP);
-                        out.push(Branch { stump: true, pts, radii, sway, ..b });
-                    }
+                    Some(k) if k != root && k == b.key => out.push(Branch { stump: true, ..prefix(&b, STUMP) }),
                     Some(k) if k != root => {}
                     _ => out.push(b),
                 }
@@ -1022,15 +1105,30 @@ fn sample(b: &Branch, t: f32) -> ([f32; 3], [f32; 3], f32, f32) {
     (p, d, rad, sw)
 }
 
+/// The wind weights at parameter `t` along a branch: `(trunk, branch)`.
+fn sample_wind(b: &Branch, t: f32) -> [f32; 2] {
+    let n = b.pts.len();
+    let f = (t.clamp(0.0, 1.0) * (n - 1) as f32).min((n - 1) as f32 - 1e-4);
+    let i = f.floor() as usize;
+    let u = f - i as f32;
+    let j = (i + 1).min(n - 1);
+    [b.trunk_w[i] + (b.trunk_w[j] - b.trunk_w[i]) * u, b.branch_w[i] + (b.branch_w[j] - b.branch_w[i]) * u]
+}
+
 // ── Meshing ─────────────────────────────────────────────────────────────────
 
-fn push_vertex(m: &mut MeshData, p: [f32; 3], n: [f32; 3], uv: [f32; 2], sway: f32, branch: u32) {
+#[allow(clippy::too_many_arguments)]
+fn push_vertex(m: &mut MeshData, p: [f32; 3], n: [f32; 3], uv: [f32; 2], sway: f32, branch: u32, wind: [f32; 2], phase: f32) {
     m.positions.push(p);
     m.normals.push(n);
     m.uvs.push(uv);
     // Every vertex names its branch, so a swing can be hit-tested in a game
     // without asking anyone which branch it struck.
     m.uv2.push(branch_uv(branch));
+    // …and carries its wind: how much of the trunk's lean and of its own
+    // limb's swing reach it, and the limb's phase. Wood does not flutter.
+    m.uv3.push(wind);
+    m.uv4.push([0.0, phase]);
     let alt = if n[0].abs() > 0.9 { [0.0, 0.0, 1.0] } else { [1.0, 0.0, 0.0] };
     let d = dot(alt, n);
     let t = norm([alt[0] - n[0] * d, alt[1] - n[1] * d, alt[2] - n[2] * d]);
@@ -1065,7 +1163,16 @@ fn tube(m: &mut MeshData, b: &Branch, sides: u32, uv_scale: f32) {
             let (sa, ca) = a.sin_cos();
             let nrm = norm(add(scale(frame, ca), scale(side2, sa)));
             let p = add(b.pts[i], scale(nrm, rad));
-            push_vertex(m, p, nrm, [s as f32 / sides as f32 * (rad * 6.0).max(0.5), v_along], b.sway[i], b.key);
+            push_vertex(
+                m,
+                p,
+                nrm,
+                [s as f32 / sides as f32 * (rad * 6.0).max(0.5), v_along],
+                b.sway[i],
+                b.key,
+                [b.trunk_w[i], b.branch_w[i]],
+                b.phase,
+            );
         }
     }
     let ring = (sides + 1) as u32;
@@ -1082,7 +1189,7 @@ fn tube(m: &mut MeshData, b: &Branch, sides: u32, uv_scale: f32) {
     let tip_i = n - 1;
     let tip_centre = m.positions.len() as u32;
     let d = norm(sub(b.pts[tip_i], b.pts[tip_i - 1]));
-    push_vertex(m, b.pts[tip_i], d, [0.5, v_along], b.sway[tip_i], b.key);
+    push_vertex(m, b.pts[tip_i], d, [0.5, v_along], b.sway[tip_i], b.key, [b.trunk_w[tip_i], b.branch_w[tip_i]], b.phase);
     let last_ring = base + (n as u32 - 1) * ring;
     for s in 0..sides as u32 {
         m.indices.extend_from_slice(&[last_ring + s, last_ring + s + 1, tip_centre]);
@@ -1139,6 +1246,8 @@ fn mesh_for(at: &Moment, detail: f32) -> (MeshData, Vec<Branch>, Option<MeshData
                 sites.push(LeafSite {
                     key: child_key(b.key, KIND_LEAF_TIP, 0),
                     branch: b.key,
+                    wind: [b.trunk_w[n - 1], b.branch_w[n - 1]],
+                    phase: b.phase,
                     position: b.pts[n - 1],
                     direction: norm(sub(b.pts[n - 1], b.pts[n - 2])),
                     sway: b.sway[n - 1],
@@ -1154,6 +1263,8 @@ fn mesh_for(at: &Moment, detail: f32) -> (MeshData, Vec<Branch>, Option<MeshData
                     sites.push(LeafSite {
                         key: child_key(b.key, KIND_LEAF_ALONG, k),
                         branch: b.key,
+                        wind: sample_wind(b, t),
+                        phase: b.phase,
                         position: p,
                         direction: d,
                         sway: sw,
@@ -1666,6 +1777,53 @@ mod tests {
         for lod in &g.lods {
             assert_eq!(lod.parts[0].mesh.uv2.len(), lod.parts[0].mesh.positions.len());
         }
+    }
+
+    #[test]
+    fn the_wind_rides_in_four_channels() {
+        let s = leafy();
+        let g = grown(&s, 5);
+        let wood = &g.built.parts[0].mesh;
+        assert_eq!(wood.uv3.len(), wood.positions.len());
+        assert_eq!(wood.uv4.len(), wood.positions.len());
+        // Alpha is still rigidity for everything that reads it.
+        assert!(wood.colors[0][3] > 0.999);
+        // Wood does not flutter; every phase is a fraction of a swing.
+        assert!(wood.uv4.iter().all(|w| w[0] == 0.0));
+        assert!(wood.uv4.iter().all(|w| (0.0..=1.0).contains(&w[1])));
+        // The trunk: its own weight climbs from the ground, its branch weight is nil.
+        let trunk: Vec<usize> = (0..wood.positions.len()).filter(|i| branch_from_uv(wood.uv2[*i]) == TRUNK).collect();
+        let lowest = trunk.iter().copied().min_by(|a, b| wood.positions[*a][1].total_cmp(&wood.positions[*b][1])).unwrap();
+        let highest = trunk.iter().copied().max_by(|a, b| wood.positions[*a][1].total_cmp(&wood.positions[*b][1])).unwrap();
+        assert!(wood.uv3[lowest][0] < 0.05, "rigid at the ground");
+        assert!(wood.uv3[highest][0] > 0.9, "leaning at the top");
+        assert!(trunk.iter().all(|i| wood.uv3[*i][1] == 0.0), "a trunk has no limb to swing");
+        // The tips: they carry the trunk's lean and the most limb swing.
+        let tips: Vec<usize> = (0..wood.positions.len())
+            .filter(|i| g.sockets.iter().any(|k| k.kind == SocketKind::Tip && k.branch == branch_from_uv(wood.uv2[*i])))
+            .collect();
+        let max_branch = tips.iter().map(|i| wood.uv3[*i][1]).fold(0.0f32, f32::max);
+        assert!(max_branch > 0.9, "the outermost twigs swing most ({max_branch})");
+        assert!(tips.iter().all(|i| wood.uv3[*i][0] > 0.0), "and every limb leans with the trunk");
+        // Two limbs, two phases.
+        let phases: HashSet<u32> = wood.uv4.iter().map(|w| (w[1] * 1000.0) as u32).collect();
+        assert!(phases.len() > 4);
+        // Leaves flutter, and carry their twig's wind and phase.
+        let leaves = &g.built.parts[1].mesh;
+        assert_eq!(leaves.uv3.len(), leaves.positions.len());
+        assert!(leaves.uv4.iter().all(|w| w[0] > 0.0), "a leaf flutters");
+        // Ageing and cutting keep every column the same length.
+        for age in [1.0f32, 4.0] {
+            let y = grow(&s, 5, Clock::at(age), &State::thriving()).unwrap();
+            let m = &y.built.parts[0].mesh;
+            assert_eq!(m.uv3.len(), m.positions.len());
+            assert_eq!(m.uv4.len(), m.positions.len());
+        }
+        let limb = a_limb(&s);
+        let c = grow(&s, 5, Clock::grown(), &State::thriving().cut(limb)).unwrap();
+        assert_eq!(c.built.parts[0].mesh.uv3.len(), c.built.parts[0].mesh.positions.len());
+        // Same seed, same wind.
+        assert_eq!(grown(&s, 5).built.parts[0].mesh.uv4, wood.uv4);
     }
 
     #[test]

@@ -37,6 +37,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
     let mut cuts: Vec<u32> = Vec::new();
     let mut takes: Vec<(String, Option<f32>)> = Vec::new();
     let mut fallen_of: Option<u32> = None;
+    let mut impostor = false;
     let mut sockets_out: Option<&String> = None;
     let mut views: u32 = 3;
     let mut seed: Option<u32> = None;
@@ -75,6 +76,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
                 }
             }
             "--fallen" => fallen_of = it.next().and_then(|v| branch_id(v)),
+            "--impostor" => impostor = true,
             "--sockets" => sockets_out = it.next(),
             "--seed" => seed = it.next().and_then(|v| v.parse().ok()),
             "--age" => age = it.next().and_then(|v| v.parse().ok()),
@@ -104,7 +106,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         }
     }
     let Some(file) = file else {
-        eprintln!("usage: thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json] [--seed n] [--age seasons] [--season 0..1] [--withered] [--cut <branch>]… [--take <socket>[@age]]… [--fallen <branch>] [--life life.png] [--year year.png] [--views n] [--hang thing.glb --hang-kind tip|bloom|fruit --hang-count n --hang-scale s --hang-drop m --hang-level l]");
+        eprintln!("usage: thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json] [--seed n] [--age seasons] [--season 0..1] [--withered] [--cut <branch>]… [--take <socket>[@age]]… [--fallen <branch>] [--impostor] [--life life.png] [--year year.png] [--views n] [--hang thing.glb --hang-kind tip|bloom|fruit --hang-count n --hang-scale s --hang-drop m --hang-level l]");
         return ExitCode::from(2);
     };
     let text = match std::fs::read_to_string(file) {
@@ -221,6 +223,41 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             }
         }
         Err(e) => eprintln!("⚠ sockets: {e}"),
+    }
+
+    // The last LOD: eight views of the plant as a cross-quad billboard, with
+    // its atlas beside it for looking at.
+    if impostor {
+        match chisel::impostor::impostor(&grown.built, 512) {
+            Ok(imp) => {
+                let ip = format!("{base}.impostor.glb");
+                match chisel::model::export_glb(&imp) {
+                    Ok(glb) if std::fs::write(&ip, &glb).is_ok() => {
+                        println!("✓ impostor → {ip} — {} quads, {} px atlas", imp.parts[0].mesh.indices.len() / 6, imp.parts[0].baked.as_ref().map(|b| b.size).unwrap_or(0));
+                    }
+                    Ok(_) => eprintln!("⚠ cannot write {ip}"),
+                    Err(e) => eprintln!("⚠ impostor export failed: {e}"),
+                }
+                if let Ok(png) = chisel::impostor::atlas_png(&imp) {
+                    // `.atlas.png`, so it never collides with the impostor's own turntable.
+                    let ap = format!("{base}.atlas.png");
+                    if std::fs::write(&ap, png).is_ok() {
+                        println!("  atlas → {ap}");
+                    }
+                }
+                if let Some(shot) = preview {
+                    // The impostor on the same turntable as the model, so the
+                    // two can be held side by side.
+                    let ishot = format!("{}.impostor.png", shot.trim_end_matches(".png"));
+                    let opts = chisel::preview::PreviewOptions { views, ..Default::default() };
+                    match chisel::preview::write_png(&imp, opts, &ishot) {
+                        Ok(()) => println!("✓ preview → {ishot}"),
+                        Err(e) => eprintln!("⚠ impostor preview failed: {e}"),
+                    }
+                }
+            }
+            Err(e) => eprintln!("✗ impostor: {e}"),
+        }
     }
 
     // The part a cut would drop: the subtree on its own base, beside the tree.

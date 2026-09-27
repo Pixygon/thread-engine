@@ -15,6 +15,7 @@
 
 pub mod builtin;
 pub mod gltf;
+pub mod impostor;
 pub mod model;
 pub mod preview;
 pub mod terrain;
@@ -46,6 +47,12 @@ pub struct MeshData {
     /// can hit-test a swing against the wood without asking anyone. Either
     /// empty or one entry per vertex; the exporter writes it only when full.
     pub uv2: Vec<[f32; 2]>,
+    /// `TEXCOORD_2` and `TEXCOORD_3`: the wind, as Grove writes it —
+    /// `(trunk sway, branch sway)` and `(leaf flutter, phase)`; the colour's
+    /// alpha stays rigidity for everything that already reads it. Same rule as
+    /// `uv2`: empty, or one entry per vertex.
+    pub uv3: Vec<[f32; 2]>,
+    pub uv4: Vec<[f32; 2]>,
     pub indices: Vec<u32>,
 }
 
