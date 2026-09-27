@@ -13,7 +13,7 @@
 //! That is what makes picking and regrowth state instead of a re-roll.
 use serde::{Deserialize, Serialize};
 
-use crate::grow::Socket;
+use crate::grow::{Socket, SocketKind};
 use crate::rand::unit;
 
 /// Slots on a tip's branch id: whether it is chosen, and how the thing sits.
@@ -24,6 +24,9 @@ const SLOT_YAW: u32 = 2;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct HangRecipe {
+    /// Which sockets to hang at. A lantern hangs at `fruit`, a garland at
+    /// `tip` — and out of season there are no fruit sockets, so nothing hangs.
+    pub kind: SocketKind,
     /// How many sockets get one (0 = every eligible socket).
     pub count: u32,
     /// Only tips at this branching generation or deeper.
@@ -41,7 +44,7 @@ pub struct HangRecipe {
 
 impl Default for HangRecipe {
     fn default() -> Self {
-        Self { count: 0, min_level: 0, scale: 1.0, scale_jitter: 0.15, drop: 0.15, spin: true, seed: 1 }
+        Self { kind: SocketKind::Tip, count: 0, min_level: 0, scale: 1.0, scale_jitter: 0.15, drop: 0.15, spin: true, seed: 1 }
     }
 }
 
@@ -60,7 +63,7 @@ pub struct Placement {
 pub fn hang(sockets: &[Socket], top_y: f32, r: &HangRecipe) -> Vec<Placement> {
     let mut pool: Vec<(f32, &Socket)> = sockets
         .iter()
-        .filter(|s| s.level >= r.min_level)
+        .filter(|s| s.kind == r.kind && s.level >= r.min_level)
         .map(|s| (unit(r.seed, s.branch, SLOT_CHOSEN), s))
         .collect();
     // Lowest score first; the name breaks ties so the order is never the
@@ -94,6 +97,7 @@ mod tests {
                 let branch = 0x1000 + i as u32 * 7;
                 Socket {
                     name: format!("tip-{branch:08x}"),
+                    kind: SocketKind::Tip,
                     position: [i as f32, 3.0, 0.0],
                     direction: [0.0, 1.0, 0.0],
                     radius: 0.01,

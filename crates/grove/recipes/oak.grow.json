@@ -118,5 +118,25 @@
   ],
   "sway": 0.3,
   "depth": 2
+ },
+ "blooms": {
+  "per_tip": 2,
+  "share": 0.45,
+  "depth": 1,
+  "window": [
+   0.22,
+   0.38
+  ],
+  "along": 0.3
+ },
+ "fruit": {
+  "per_tip": 2,
+  "share": 0.4,
+  "depth": 1,
+  "window": [
+   0.45,
+   0.8
+  ],
+  "along": 0.3
  }
 }

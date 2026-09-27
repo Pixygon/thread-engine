@@ -64,8 +64,9 @@ in the Quarry — and always comes out the same.
    species (it already hashes only non-default fields — keep it that way,
    never let a schema default reach the hash).
 2. **Life stages and the year**, typed sockets for bloom and fruit, and the
-   lantern tree's `withered` event state as the test. Turntable next to the
-   concept before it is called done (`thread grow --preview`).
+   lantern tree's `withered` event state as the test. ✅ *landed 2026-09-27 —
+   see "Where it stands".* Turntable next to the concept before it is called
+   done (`thread grow --preview`).
 3. **Branch ids in the mesh, cut state, subtree derivation** for the fallen
    part. Joints only.
 4. **Wind channels, the Unity shader, impostors.**
@@ -132,3 +133,45 @@ and `canonical_recipe` should strip against `grove::Planting::default().to_value
 instead of `GrowRecipe::default()`. That keeps `seed` (and now `age`) inside the
 design id, so nothing that is already published forks. `GrowRecipe` still names
 the species, so the type in that file keeps resolving.
+
+### Step 2, 2026-09-27
+
+The clock reads two things off itself now. `Stage` is the long arc — sapling,
+mature, old, dying — and `Phase` is the year going round: bud, leaf, bloom,
+fruit, seed drop, bare. Both only ever filter and scale, so the wood of a
+mature tree and an old one is the same wood, branch for branch; what age past
+full size takes is crown, not branches.
+
+`State` is the fourth input the roadmap asked for, and `grow(species, seed,
+clock, state)` is the call. It carries one health event today — `withered` —
+and step 3's taken sockets and cut branches belong in the same small value.
+
+**The Lantern Desert reads true.** `withered-tree.grow.json` is now the lantern
+species with the lantern's own seed and one flag; the two recipe files differ
+by a name and `"withered": true`. Death is a filter and a deformation, never a
+re-roll: the same branches in the same order with the same ids, bent further
+along the arc each was already drawing (`wither.gnarl`), pulled down
+(`wither.sag`), the colour drained out of them and then dimmed. One thing the
+mock taught us that the plan did not: darkening alone cannot kill a crystal
+tree — a dimmer blue is a blue tree at night. The colour has to leave first,
+and it has to leave the *baked bark texels*, not just the material factor, so
+`wither` gained `drain` and the bark bake gets a death pass of its own. The
+normal and ORM maps are untouched: dead wood keeps its grain.
+
+**Sockets are typed** — `tip`, `bloom`, `fruit`, and `cut` reserved for step 3
+— and a crop is sockets, not geometry: what hangs at them comes from Trellis,
+a carve or a recipe, which is the three-suppliers-one-pipeline the roadmap
+wants. Which tips bear is each tip's own answer, addressed on its branch id,
+so the same tips bear every year, a picked fruit says nothing about its
+neighbours, and `hang` filters by kind. Out of season there are no fruit
+sockets, so nothing hangs — proved with 28 lanterns in the crown at
+`--season 0.5` and none at `--season 0.1`.
+
+`thread grow --year sheet.png` is the year's proof sheet, the way `--life` is
+age's: the same individual six times at one scale, bud through bare, with the
+crown turning gold before it drops. `--withered` and `--hang-kind` are the
+other two new flags.
+
+Still to do here: blooms and fruit have no *geometry* supplier wired yet (the
+sockets are there and `--hang` fills them from a glb); an evergreen species
+opts out of the year with one flag but nothing yet models needles differently.

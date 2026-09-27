@@ -62,6 +62,9 @@ pub struct LeafRecipe {
     /// vertex colour so it costs no texture.
     pub color: [f32; 4],
     pub color_tip: [f32; 4],
+    /// What the leaves turn before they drop. The year mixes towards it, so
+    /// autumn costs no texture either.
+    pub color_autumn: [f32; 4],
     /// Optional surface recipe (veins, speckle); absent = flat colour.
     pub texture: Option<TextureRecipe>,
     pub emissive: f32,
@@ -84,9 +87,31 @@ impl Default for LeafRecipe {
             jitter: 0.3,
             color: [0.16, 0.36, 0.12, 1.0],
             color_tip: [0.42, 0.62, 0.2, 1.0],
+            color_autumn: [0.72, 0.44, 0.11, 1.0],
             texture: None,
             emissive: 0.0,
             sway: 0.25,
+        }
+    }
+}
+
+impl LeafRecipe {
+    /// The same recipe with the leaves `t` of the way turned — 0 is green, 1
+    /// is the autumn colour. The tip turns a shade brighter than the base, so
+    /// a turned crown keeps the gradient a green one has.
+    pub fn turned(&self, t: f32) -> LeafRecipe {
+        let t = t.clamp(0.0, 1.0);
+        if t <= 0.0 {
+            return self.clone();
+        }
+        let mix = |a: [f32; 4], b: [f32; 4], lift: f32| -> [f32; 4] {
+            let m = |x: f32, y: f32| x + ((y * lift).min(1.0) - x) * t;
+            [m(a[0], b[0]), m(a[1], b[1]), m(a[2], b[2]), a[3]]
+        };
+        LeafRecipe {
+            color: mix(self.color, self.color_autumn, 1.0),
+            color_tip: mix(self.color_tip, self.color_autumn, 1.18),
+            ..self.clone()
         }
     }
 }
@@ -100,7 +125,8 @@ pub struct LeafSite {
     pub position: [f32; 3],
     pub direction: [f32; 3],
     pub sway: f32,
-    /// How many leaves this site carries (tips carry `per_tip`, along-sites fewer).
+    /// How many leaves this site carries (tips carry `per_tip`, along-sites
+    /// fewer). Zero is a real answer — a bare twig in winter.
     pub count: u32,
 }
 
@@ -143,6 +169,11 @@ pub fn leaves(sites: &[LeafSite], r: &LeafRecipe, detail: f32, seed: u32) -> Mes
     let spread = r.spread.to_radians();
     for site in sites {
         let rnd = Rnd::new(seed, site.key);
+        // A site the caller asked for nothing at grows nothing; one it asked
+        // for leaves at keeps at least one however coarse the LOD.
+        if site.count == 0 {
+            continue;
+        }
         let n = ((site.count as f32 * detail).round() as u32).max(1);
         let d = norm(site.direction);
         let side0 = perp(d);
@@ -257,6 +288,29 @@ mod tests {
         let full = leaves(&sites, &r, 1.0, 3);
         let half = leaves(&sites, &r, 0.5, 3);
         assert_eq!(half.positions, full.positions[..half.positions.len()].to_vec());
+    }
+
+    #[test]
+    fn a_bare_twig_grows_nothing() {
+        let r = LeafRecipe::default();
+        assert!(leaves(&[site(11, 0)], &r, 1.0, 3).positions.is_empty());
+        assert_eq!(leaves(&[site(11, 0), site(12, 3)], &r, 1.0, 3).positions.len(), 15);
+    }
+
+    #[test]
+    fn leaves_turn_towards_autumn_and_keep_their_gradient() {
+        let r = LeafRecipe::default();
+        assert_eq!(r.turned(0.0).color, r.color);
+        let gold = r.turned(1.0);
+        assert!(gold.color[0] > r.color[0] && gold.color[1] > r.color[1], "autumn is warmer");
+        assert!(gold.color_tip[0] >= gold.color[0], "the tip stays the brighter end");
+        let half = r.turned(0.5);
+        assert!(half.color[0] > r.color[0] && half.color[0] < gold.color[0]);
+        // The turn is colour only: the same leaves, in the same places.
+        let a = leaves(&[site(11, 6)], &r, 1.0, 3);
+        let b = leaves(&[site(11, 6)], &gold, 1.0, 3);
+        assert_eq!(a.positions, b.positions);
+        assert_ne!(a.colors, b.colors);
     }
 
     #[test]

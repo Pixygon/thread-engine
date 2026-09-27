@@ -24,7 +24,7 @@ use std::process::ExitCode;
 use chisel::gltf::{write_glb_scene, SceneMesh, SceneNode};
 use chisel::model::{Built, BuiltPart};
 use chisel::MeshData;
-use grove::grow::{grow_planting, Planting};
+use grove::grow::{grow_planting, Planting, SocketKind};
 use grove::hang::{hang, HangRecipe, Placement};
 
 pub fn cmd_grow(args: &[String]) -> ExitCode {
@@ -32,6 +32,8 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
     let mut out: Option<&String> = None;
     let mut preview: Option<&String> = None;
     let mut life: Option<&String> = None;
+    let mut year: Option<&String> = None;
+    let mut withered = false;
     let mut sockets_out: Option<&String> = None;
     let mut views: u32 = 3;
     let mut seed: Option<u32> = None;
@@ -52,6 +54,8 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             "-o" | "--out" => out = it.next(),
             "--preview" | "-p" => preview = it.next(),
             "--life" => life = it.next(),
+            "--year" => year = it.next(),
+            "--withered" => withered = true,
             "--sockets" => sockets_out = it.next(),
             "--seed" => seed = it.next().and_then(|v| v.parse().ok()),
             "--age" => age = it.next().and_then(|v| v.parse().ok()),
@@ -62,6 +66,14 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             "--hang-scale" => hang_recipe.scale = it.next().and_then(|v| v.parse().ok()).unwrap_or(1.0),
             "--hang-drop" => hang_recipe.drop = it.next().and_then(|v| v.parse().ok()).unwrap_or(0.15),
             "--hang-level" => hang_recipe.min_level = it.next().and_then(|v| v.parse().ok()).unwrap_or(1),
+            "--hang-kind" => {
+                hang_recipe.kind = match it.next().map(|v| v.as_str()) {
+                    Some("bloom") => SocketKind::Bloom,
+                    Some("fruit") => SocketKind::Fruit,
+                    Some("cut") => SocketKind::Cut,
+                    _ => SocketKind::Tip,
+                }
+            }
             "--hang-glow" => hang_glow = it.next().and_then(|v| v.parse().ok()),
             "--publish" => publish = true,
             "--title" => title = it.next(),
@@ -73,7 +85,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         }
     }
     let Some(file) = file else {
-        eprintln!("usage: thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json] [--seed n] [--age seasons] [--season 0..1] [--life life.png] [--views n] [--hang thing.glb --hang-count n --hang-scale s --hang-drop m --hang-level l]");
+        eprintln!("usage: thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json] [--seed n] [--age seasons] [--season 0..1] [--withered] [--life life.png] [--year year.png] [--views n] [--hang thing.glb --hang-kind tip|bloom|fruit --hang-count n --hang-scale s --hang-drop m --hang-level l]");
         return ExitCode::from(2);
     };
     let text = match std::fs::read_to_string(file) {
@@ -99,6 +111,9 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
     if let Some(s) = season {
         planting.clock.season = s;
     }
+    if withered {
+        planting.state.withered = true;
+    }
     hang_recipe.seed = planting.seed;
     let grown = match grow_planting(&planting) {
         Ok(g) => g,
@@ -113,9 +128,14 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
     let base = out_path.trim_end_matches(".glb").to_string();
     // The clock, as the line should read it: a plant is an individual at a moment.
     let when = match planting.clock.age {
-        Some(a) => format!("age {a} of {} season(s), maturity {:.2}", planting.species.seasons_to_grown, grown.maturity),
-        None => "grown".to_string(),
+        Some(a) => format!("age {a}, {:?} (maturity {:.2})", grown.stage, grown.maturity).to_lowercase(),
+        None => format!("{:?}", grown.stage).to_lowercase(),
     };
+    let when = format!(
+        "{when}, {} of the year{}",
+        format!("{:?}", grown.phase).to_lowercase(),
+        if planting.state.withered { ", withered" } else { "" }
+    );
 
     // The bare wood: `-o` when nothing hangs, `<stem>.wood.glb` otherwise.
     let wood_path = if hang_path.is_some() { format!("{base}.wood.glb") } else { out_path.clone() };
@@ -238,6 +258,12 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             Err(e) => eprintln!("⚠ life sheet failed: {e}"),
         }
     }
+    if let Some(sheet) = year {
+        match year_sheet(&planting, sheet) {
+            Ok(n) => println!("✓ year → {sheet} ({n} seasons, one scale)"),
+            Err(e) => eprintln!("⚠ year sheet failed: {e}"),
+        }
+    }
     // Same posture as `thread model`: --publish sends the PLANTING — species,
     // seed and clock — and the Quarry grows the plant itself, measuring its
     // sockets. Nothing uploaded.
@@ -288,18 +314,49 @@ fn life_sheet(planting: &Planting, path: &str) -> Result<usize, String> {
     // Six moments across the life curve: a sprout, a sapling, a young plant,
     // one filling out, one nearly there, and the grown plant.
     const MOMENTS: [f32; 6] = [0.12, 0.25, 0.4, 0.58, 0.78, 1.0];
+    let shots: Vec<Planting> = MOMENTS
+        .iter()
+        .map(|m| {
+            let mut at = planting.clone();
+            at.clock.age = Some(m * planting.species.seasons_to_grown);
+            at
+        })
+        .collect();
+    row_sheet(&shots, path)
+}
+
+/// One plant, one year: bud, leaf, bloom, fruit, seed drop, bare — the same
+/// individual six times, at one scale, in the order the year runs.
+///
+/// The wood does not move: what the year changes is what the plant is wearing
+/// and what is hanging in it.
+fn year_sheet(planting: &Planting, path: &str) -> Result<usize, String> {
+    const SEASONS: [f32; 6] = [0.04, 0.18, 0.35, 0.55, 0.76, 0.92];
+    let shots: Vec<Planting> = SEASONS
+        .iter()
+        .map(|season| {
+            let mut at = planting.clone();
+            at.clock.season = *season;
+            at
+        })
+        .collect();
+    row_sheet(&shots, path)
+}
+
+/// Grow each planting and stand them in a row under one camera, so the sheet
+/// compares them instead of framing each one on its own terms.
+fn row_sheet(shots: &[Planting], path: &str) -> Result<usize, String> {
     // The previewer's single view looks in from 35°, so the row is laid
-    // broadside to it: six plants in a line, none behind another.
+    // broadside to it: six plants in a line, none behind another. Negated, so
+    // the row reads left to right.
     let yaw = 35f32.to_radians();
-    // Negated, so the row reads youngest on the left, grown on the right.
     let (ax, az) = (yaw.sin(), -yaw.cos());
-    let mut row = Built { name: format!("{}-life", planting.species.name), parts: Vec::new() };
+    let name = shots.first().map(|p| p.species.name.clone()).unwrap_or_default();
+    let mut row = Built { name: format!("{name}-row"), parts: Vec::new() };
     let mut x = 0.0f32;
     let mut prev_half = 0.0f32;
-    for m in MOMENTS {
-        let mut at = planting.clone();
-        at.clock.age = Some(m * planting.species.seasons_to_grown);
-        let g = grow_planting(&at)?;
+    for (i, shot) in shots.iter().enumerate() {
+        let g = grow_planting(shot)?;
         let (min, max) = g.bounds;
         let half = ((max[0] - min[0]).max(max[2] - min[2]) / 2.0).max(0.05);
         // Stand them a clear gap apart, each on its own centre line.
@@ -313,7 +370,7 @@ fn life_sheet(planting: &Planting, path: &str) -> Result<usize, String> {
                 v[2] += dz;
             }
             row.parts.push(BuiltPart {
-                name: format!("{}-{:.2}", p.name, m),
+                name: format!("{}-{i}", p.name),
                 mesh,
                 baked: p.baked.clone(),
                 color: p.color,
@@ -325,7 +382,7 @@ fn life_sheet(planting: &Planting, path: &str) -> Result<usize, String> {
     let opts =
         chisel::preview::PreviewOptions { width: 1600, height: 460, views: 1, pitch: 8.0, fill: 2.6, ..Default::default() };
     chisel::preview::write_png(&row, opts, path)?;
-    Ok(MOMENTS.len())
+    Ok(shots.len())
 }
 
 /// Apply a placement (scale, then rotate, then translate) to a mesh copy.

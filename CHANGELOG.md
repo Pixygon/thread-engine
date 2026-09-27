@@ -4,6 +4,24 @@ All notable changes to **Thread Engine**. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this file is
 materialized from the Pixygon Changelog API — edit there, not here.
 
+## [0.7.0] — 2026-09-27
+
+### Added
+- Plants now move through the year. A `season` from 0 to 1 wraps through bud, leaf, bloom, fruit, seed drop and bare: the crown fills and empties smoothly, and leaves turn gold before they drop. Evergreen species opt out with one flag.
+- A plant now has a whole life, not just a growing-up. Past full size it goes mature, then old, then dying, each thinner in the crown than the last — same tree, same branches, just less of them. `seasons_of_life` (default 160) sets the arc.
+- Blooms and fruit are declared per species as a crop — how many per tip, what share of tips bear, and the window in the year they're on the plant. Which tips bear is each tip's own answer, so the same tips bear every year and picking one says nothing about its neighbours. Out of season the sockets simply aren't there, so nothing hangs.
+- A plant can now be dead standing. `"withered": true` is a state, not a second species: the same seed, the same branches in the same order with the same ids, bent further along the arc each was already drawing, pulled down, and with the colour drained out of the wood before it dims — because a dimmer blue is still a blue tree at night. Normal and ORM maps are untouched: dead wood keeps its grain.
+- `thread grow --year sheet.png` is the year's proof sheet, the way `--life` is age's: the same individual six times at one scale, bud through bare, with the crown turning gold before it drops. `--season`, `--withered` and `--hang-kind` are the other new flags.
+
+### Changed
+- Sockets are now typed — `tip`, `bloom`, `fruit`, and `cut` reserved — and named `<kind>-<branch id>`. `--hang` takes `--hang-kind` to fill a particular kind, so lanterns hang at fruit sockets rather than anywhere a branch ends. **(BREAKING)**
+- The withered tree recipe is now the lantern tree's own species and seed with one flag flipped, instead of a separately tuned species. Both halves of the Lantern Desert hold the same tree. The old hand-tuned silhouette is in git history if it's ever wanted back. **(BREAKING)**
+- The recipe README now documents the year, the life curve's third field, crops-as-sockets, and what `wither` does — including why colour has to leave before light does.
+
+### Fixed
+- A twig asked to carry no leaves now grows none, instead of always forcing at least one — that's what makes a bare winter crown actually bare.
+
+
 ## [0.6.0] — 2026-09-26
 
 ### Added

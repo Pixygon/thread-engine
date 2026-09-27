@@ -99,5 +99,21 @@
   28
  ],
  "trunk_curve": 6,
- "lean": 3
+ "lean": 3,
+ "fruit": {
+  "per_tip": 1,
+  "share": 0.35,
+  "depth": 2,
+  "window": [
+   0.2,
+   0.95
+  ],
+  "along": 0.0
+ },
+ "wither": {
+  "gnarl": 14.0,
+  "sag": 0.11,
+  "darken": 0.72,
+  "drain": 0.88
+ }
 }

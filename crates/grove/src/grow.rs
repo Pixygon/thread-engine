@@ -22,10 +22,15 @@
 //!   stands. Age does exactly two things: it **filters** — which branches have
 //!   emerged — and it **scales** — how far each has grown, and how thick.
 //!
-//! So `grow(species, seed, clock)`: one individual at one moment, and the same
-//! one in Unity, in Thread and in the Quarry. A plant's whole state is
-//! `{ species, seed, age, season }` — small enough to sync in a game and to
-//! sit in a World Manifest placement.
+//! - **[`State`]** is what has *happened* to it. The Lantern Desert is the
+//!   proof case: the withered lantern tree is not a second species but the
+//!   lantern in a `withered` state — leaves off, fruit dropped, gnarl up, bark
+//!   darkened — the same seed and the same branches on both halves of the map.
+//!
+//! So `grow(species, seed, clock, state)`: one individual at one moment, and
+//! the same one in Unity, in Thread and in the Quarry. A plant's whole state is
+//! `{ species, seed, age, season, state }` — small enough to sync in a game and
+//! to sit in a World Manifest placement.
 //!
 //! What comes out:
 //! - a tube mesh per LOD (fewer sides and levels as detail drops), with UVs
@@ -37,7 +42,10 @@
 //!   branch it ends — so a fruit, a lantern, a leaf cluster or a Trellis-made
 //!   hero prop can hang exactly where the plant ends, in a manifest or the
 //!   Quarry's `facts`. A tip is a branch with no children *yet*: a sapling's
-//!   sockets are at the ends it actually has.
+//!   sockets are at the ends it actually has. Sockets are **typed** — `tip`,
+//!   `bloom`, `fruit`, and `cut` when step 3 lands — and the year decides which
+//!   of them exist: a species in bloom carries bloom sockets, the same species
+//!   in autumn carries fruit at the very same tips.
 use std::collections::HashSet;
 
 use infinite_manifest::texture::TextureRecipe;
@@ -46,9 +54,9 @@ use serde::{Deserialize, Serialize};
 use chisel::model::{Built, BuiltPart};
 use chisel::MeshData;
 
-use crate::clock::Clock;
+use crate::clock::{Clock, Phase, Stage};
 use crate::foliage::{leaves, LeafRecipe, LeafSite};
-use crate::rand::{child_key, Rnd};
+use crate::rand::{child_key, unit, Rnd};
 
 // ── Addresses ───────────────────────────────────────────────────────────────
 // A branch's numbers live at named slots on its own key, so adding a rule
@@ -74,6 +82,11 @@ const SLOT_BEND_SIGN: u32 = 7;
 const SLOT_WANDER_A: u32 = 16;
 const SLOT_WANDER_B: u32 = 32;
 const WANDER_CONTROLS: u32 = 8;
+
+/// Whether a tip carries blooms, and whether it carries fruit, are two
+/// separate questions asked of the same tip.
+const SLOT_BLOOM_SHARE: u32 = 8;
+const SLOT_FRUIT_SHARE: u32 = 9;
 
 /// A seedling is a stem, not a point: the least of its trunk a plant ever shows.
 const SPROUT_EXTENSION: f32 = 0.06;
@@ -142,6 +155,22 @@ pub struct Species {
     pub seasons_to_grown: f32,
     /// Size at sprouting as a fraction of the grown plant.
     pub sprout_size: f32,
+    /// Seasons from sprouting to the end of the arc. Growing up is a small
+    /// slice of it: a plant is grown for far longer than it spends getting
+    /// there, and the last stretch is where the crown thins.
+    pub seasons_of_life: f32,
+    /// An evergreen keeps its crown all year; a deciduous one comes and goes
+    /// with the season. A species with no leaves does not care either way.
+    pub evergreen: bool,
+    /// What this species looks like when it dies standing.
+    pub wither: WitherRecipe,
+    /// Blooms: where they sit and when in the year. Absent = a species that
+    /// never flowers.
+    pub blooms: Option<CropRecipe>,
+    /// Fruit: the same, later in the year. A lantern tree's lanterns are
+    /// fruit — they hang at fruit sockets and come from Trellis, a carve or a
+    /// recipe, whichever supplier the world uses.
+    pub fruit: Option<CropRecipe>,
     /// Bark recipe. Absent = the flat `color`.
     pub bark: Option<TextureRecipe>,
     /// Flat colour when there is no bark recipe (RGBA).
@@ -185,6 +214,11 @@ impl Default for Species {
             sway: 0.6,
             seasons_to_grown: 12.0,
             sprout_size: 0.06,
+            seasons_of_life: 160.0,
+            evergreen: false,
+            wither: WitherRecipe::default(),
+            blooms: None,
+            fruit: None,
             bark: None,
             color: [0.4, 0.3, 0.2, 1.0],
             emissive: 0.0,
@@ -206,11 +240,13 @@ pub struct Planting {
     /// potential plant.
     pub seed: u32,
     pub clock: Clock,
+    /// What has happened to it.
+    pub state: State,
 }
 
 impl Default for Planting {
     fn default() -> Self {
-        Self { species: Species::default(), seed: 1, clock: Clock::default() }
+        Self { species: Species::default(), seed: 1, clock: Clock::default(), state: State::default() }
     }
 }
 
@@ -224,12 +260,15 @@ struct Planted {
     season: f32,
     /// `{"clock": {...}}` also works, for callers that hold a [`Clock`].
     clock: Option<Clock>,
+    /// `"withered": true` is the whole of a state today.
+    withered: bool,
+    state: Option<State>,
 }
 
 impl Default for Planted {
     fn default() -> Self {
         let c = Clock::default();
-        Self { seed: 1, age: c.age, season: c.season, clock: None }
+        Self { seed: 1, age: c.age, season: c.season, clock: None, withered: false, state: None }
     }
 }
 
@@ -248,7 +287,8 @@ impl Planting {
         let planted: Planted = serde_json::from_value(value.clone())
             .map_err(|e| format!("not a planting: {e}"))?;
         let clock = planted.clock.unwrap_or(Clock { age: planted.age, season: planted.season });
-        Ok(Self { species, seed: planted.seed, clock })
+        let state = planted.state.unwrap_or(State { withered: planted.withered });
+        Ok(Self { species, seed: planted.seed, clock, state })
     }
 
     /// Back to one flat object — the shape a recipe file and a Quarry
@@ -262,17 +302,128 @@ impl Planting {
             if let Some(age) = self.clock.age {
                 obj.insert("age".into(), serde_json::json!(age));
             }
+            if self.state.withered {
+                obj.insert("withered".into(), serde_json::json!(true));
+            }
         }
         v
+    }
+}
+
+/// What a species looks like when it dies standing.
+///
+/// Every field here bends or dims the plant the seed already decided — none of
+/// them re-rolls it. A withered tree has the same branches in the same order
+/// with the same ids as the living one; they have simply gone further along
+/// their own arc and stopped catching the light.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct WitherRecipe {
+    /// Extra arc along every branch, degrees, bent the way that branch was
+    /// already bending — the gnarl.
+    pub gnarl: f32,
+    /// Extra droop along every branch.
+    pub sag: f32,
+    /// How far the wood darkens, 0 = unchanged, 1 = black. Any glow goes with
+    /// it: a crystal tree's light goes out.
+    pub darken: f32,
+    /// How far the colour drains towards grey, 0 = unchanged, 1 = colourless.
+    /// Darkening alone cannot kill a crystal tree — a dimmer blue is a blue
+    /// tree at night. What reads as dead is the colour leaving first.
+    pub drain: f32,
+}
+
+impl Default for WitherRecipe {
+    fn default() -> Self {
+        Self { gnarl: 22.0, sag: 0.16, darken: 0.55, drain: 0.7 }
+    }
+}
+
+/// Where a species carries blooms or fruit, and when in the year.
+///
+/// A crop is not geometry: it is **sockets**, and what hangs at them comes from
+/// Trellis, a carve or a recipe. Picking one is then a note against a socket's
+/// name, not a new mesh.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct CropRecipe {
+    /// How many at each carrying tip.
+    pub per_tip: u32,
+    /// What share of eligible tips carry any, 0..1. Addressed per tip, so the
+    /// same tips carry it every year and a tip's answer does not depend on
+    /// what its neighbours are doing.
+    pub share: f32,
+    /// Generations back from the outermost that carry it (1 = the twigs only).
+    pub depth: u32,
+    /// The window in the year it is on the plant, `[start, end]` in 0..1. It
+    /// may wrap: `[0.9, 0.1]` is midwinter.
+    pub window: [f32; 2],
+    /// How far back along the twig a cluster of more than one spreads.
+    pub along: f32,
+}
+
+impl Default for CropRecipe {
+    fn default() -> Self {
+        Self { per_tip: 1, share: 0.5, depth: 1, window: [0.4, 0.7], along: 0.25 }
+    }
+}
+
+/// What has happened to a plant, beyond its age and the year.
+///
+/// The roadmap's third input. Today it carries the one health event the
+/// Lantern Desert needs; taken sockets and cut branches land here next, and
+/// the whole of it is meant to stay small enough to sync in a game.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct State {
+    /// Dead but standing: no leaves, no crop, gnarled, darkened.
+    pub withered: bool,
+}
+
+impl State {
+    /// A plant that nothing has happened to.
+    pub fn thriving() -> Self {
+        Self { withered: false }
+    }
+    /// Dead standing.
+    pub fn withered() -> Self {
+        Self { withered: true }
+    }
+}
+
+/// What a socket is for. `Cut` is reserved for step 3, where a chopped branch
+/// leaves one behind at the joint.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum SocketKind {
+    /// The end of a branch: foliage, a lantern, a prop.
+    Tip,
+    Bloom,
+    Fruit,
+    /// Where a branch was cut off.
+    Cut,
+}
+
+impl SocketKind {
+    fn prefix(self) -> &'static str {
+        match self {
+            SocketKind::Tip => "tip",
+            SocketKind::Bloom => "bloom",
+            SocketKind::Fruit => "fruit",
+            SocketKind::Cut => "cut",
+        }
     }
 }
 
 /// An attachment point where a branch ends.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Socket {
-    /// `tip-<branch id>` — the same name for the same tip at every age and
-    /// every level of detail, so state can name it and Unity can find it.
+    /// `<kind>-<branch id>` (and an index when a tip carries more than one) —
+    /// the same name for the same socket at every age and every level of
+    /// detail, so state can name it and Unity can find it.
     pub name: String,
+    /// What it is for.
+    pub kind: SocketKind,
     pub position: [f32; 3],
     /// Unit vector the branch points along at its tip.
     pub direction: [f32; 3],
@@ -295,6 +446,10 @@ pub struct Grown {
     /// How far through its growing life this individual is, 0..1. At 1 it is
     /// the whole potential plant the seed decided.
     pub maturity: f32,
+    /// Where in the long arc it is.
+    pub stage: Stage,
+    /// Where the year stands.
+    pub phase: Phase,
 }
 
 // ── The potential plant ─────────────────────────────────────────────────────
@@ -369,6 +524,7 @@ fn perp(d: [f32; 3]) -> [f32; 3] {
 #[allow(clippy::too_many_arguments)]
 fn grow_branch(
     s: &Species,
+    state: State,
     rnd: &Rnd,
     origin: [f32; 3],
     dir: [f32; 3],
@@ -387,10 +543,13 @@ fn grow_branch(
     let mut d = norm(dir);
     let step = length / segs as f32;
     let sway_to = (sway_from + s.sway / (s.levels as f32 + 1.0)).min(s.sway);
+    // Death bends a branch further along the arc it was already drawing and
+    // pulls it down: the same branch, gone further and stopped.
+    let (gnarl, sag) = if state.withered { (s.wither.gnarl, s.wither.sag) } else { (0.0, 0.0) };
     // One bend plane per branch: a fixed perpendicular axis, a fixed sign, so
     // the branch draws an arc. The magnitude eases in (stiff near the base).
     let bend_axis = rotate(perp(d), d, rnd.at(SLOT_BEND_AXIS) * std::f32::consts::TAU);
-    let bend_total = curve_deg.to_radians() * if rnd.at(SLOT_BEND_SIGN) < 0.5 { -1.0 } else { 1.0 };
+    let bend_total = (curve_deg + gnarl).to_radians() * if rnd.at(SLOT_BEND_SIGN) < 0.5 { -1.0 } else { 1.0 };
     // The wander is spread over the whole branch, so the same branch meshed
     // with six segments or with sixty wanders the same amount.
     let wander = s.wobble * 1.2 / segs as f32;
@@ -412,7 +571,7 @@ fn grow_branch(
             let ease = 0.5 + t; // more bend towards the tip
             d = norm(rotate(d, bend_axis, bend_total / segs as f32 * ease));
         }
-        d = norm(add(d, [0.0, -s.gravity * step, 0.0]));
+        d = norm(add(d, [0.0, -(s.gravity + sag) * step, 0.0]));
         if s.wobble > 0.0 {
             let axis = perp(d);
             let a = rnd.noise(SLOT_WANDER_A, WANDER_CONTROLS, t) * wander;
@@ -427,7 +586,7 @@ fn grow_branch(
 /// The whole potential plant the seed decided: every branch it could ever
 /// have, at full size, trunk first, breadth-first by level. The clock is not
 /// here — nothing in this function knows what age anything is.
-fn potential(s: &Species, seed: u32, segments: u32) -> Vec<Branch> {
+fn potential(s: &Species, seed: u32, state: State, segments: u32) -> Vec<Branch> {
     // One generation's growing window: the trunk fills its own, then each
     // generation fills the next, so the last is complete exactly at full size.
     let span = 1.0 / (s.levels as f32 + 1.0);
@@ -436,7 +595,7 @@ fn potential(s: &Species, seed: u32, segments: u32) -> Vec<Branch> {
     let lean_dir = trunk_rnd.at(SLOT_LEAN_DIR) * std::f32::consts::TAU;
     let up = norm([lean.sin() * lean_dir.cos(), lean.cos(), lean.sin() * lean_dir.sin()]);
     let (pts, radii, sway) =
-        grow_branch(s, &trunk_rnd, [0.0, 0.0, 0.0], up, s.height, s.trunk_radius, 0, segments, 0.0, s.trunk_curve);
+        grow_branch(s, state, &trunk_rnd, [0.0, 0.0, 0.0], up, s.height, s.trunk_radius, 0, segments, 0.0, s.trunk_curve);
     let mut out: Vec<Branch> =
         vec![Branch { key: TRUNK, parent: 0, level: 0, attach: 0.0, emerge: 0.0, pts, radii, sway }];
     let mut frontier: Vec<usize> = vec![0];
@@ -474,7 +633,7 @@ fn potential(s: &Species, seed: u32, segments: u32) -> Vec<Branch> {
                 // Start a little inside the parent so the joint is buried.
                 let origin = sub(p, scale(d, crad * 0.8));
                 let segs = child_segments(s, segments, clen);
-                let (pts, radii, sway) = grow_branch(s, &rnd, origin, cdir, clen, crad, level, segs, sw, curve);
+                let (pts, radii, sway) = grow_branch(s, state, &rnd, origin, cdir, clen, crad, level, segs, sw, curve);
                 out.push(Branch { key, parent: pkey, level, attach: 1.0, emerge: pemerge + span, pts, radii, sway });
                 next.push(out.len() - 1);
             }
@@ -496,7 +655,7 @@ fn potential(s: &Species, seed: u32, segments: u32) -> Vec<Branch> {
                 let clen = parent_len * len_frac * (0.6 + 0.3 * rnd.at(SLOT_LENGTH));
                 let crad = rad * s.child_radius;
                 let segs = child_segments(s, segments, clen);
-                let (pts, radii, sway) = grow_branch(s, &rnd, p, cdir, clen, crad, level, segs, sw, curve);
+                let (pts, radii, sway) = grow_branch(s, state, &rnd, p, cdir, clen, crad, level, segs, sw, curve);
                 out.push(Branch { key, parent: pkey, level, attach: t, emerge: pemerge + span * t, pts, radii, sway });
                 next.push(out.len() - 1);
             }
@@ -572,6 +731,78 @@ fn grown_to(b: &Branch, e: f32, length_scale: f32, girth_scale: f32) -> Branch {
         pts: pts.iter().map(|p| scale(*p, length_scale)).collect(),
         radii: radii.iter().map(|r| r * girth).collect(),
         sway,
+    }
+}
+
+/// One plant at one moment: the four inputs, and the readings the clock takes
+/// off them. Everything that meshes takes this rather than five loose values.
+#[derive(Clone, Copy)]
+struct Moment<'a> {
+    s: &'a Species,
+    seed: u32,
+    clock: Clock,
+    state: State,
+    maturity: f32,
+    stage: Stage,
+}
+
+impl<'a> Moment<'a> {
+    fn new(s: &'a Species, seed: u32, clock: Clock, state: State) -> Self {
+        Self {
+            s,
+            seed,
+            clock,
+            state,
+            maturity: clock.maturity(s.seasons_to_grown),
+            stage: clock.stage(s.seasons_to_grown, s.seasons_of_life),
+        }
+    }
+
+    /// How much crown the plant is wearing, 0..1 — the year, the long arc and
+    /// death, in that order. It scales the leaf count at every site, and
+    /// because a cluster's leaves are addressed, thinning drops leaves rather
+    /// than growing a different crown.
+    fn leafiness(&self) -> f32 {
+        if self.state.withered {
+            return 0.0;
+        }
+        let year = if self.s.evergreen { 1.0 } else { self.clock.leaf_fullness() };
+        year * match self.stage {
+            Stage::Sapling | Stage::Mature => 1.0,
+            // An old tree thins from the outside in; a dying one is mostly bare.
+            Stage::Old => 0.6,
+            Stage::Dying => 0.2,
+        }
+    }
+
+    /// Is the plant carrying a crop at all — old enough, alive, in a season
+    /// for it?
+    fn bears(&self) -> bool {
+        !self.state.withered && self.clock.bears(self.s.seasons_to_grown) && self.stage != Stage::Dying
+    }
+
+    /// The wood's colour and glow. Death drains the colour, then darkens what
+    /// is left, and takes any glow with it.
+    fn wood(&self) -> ([f32; 4], f32) {
+        let c = self.s.color;
+        if !self.state.withered {
+            return (c, self.s.emissive);
+        }
+        let w = &self.s.wither;
+        let k = 1.0 - w.darken.clamp(0.0, 1.0);
+        let drain = w.drain.clamp(0.0, 1.0);
+        // Towards the colour's own brightness, so draining does not also dim.
+        // A species with a bark recipe has had this done to its texels too;
+        // this is the flat colour's share of the same death.
+        let grey = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+        let pull = |x: f32| (x + (grey - x) * drain) * k;
+        // The factor multiplies the map, so doing the full dimming in both
+        // places would square it. The bark keeps the darkening; the factor
+        // only carries it when there is no bark to carry it.
+        if self.s.bark.is_some() {
+            return ([1.0, 1.0, 1.0, c[3]], self.s.emissive * k);
+        }
+        ([pull(c[0]), pull(c[1]), pull(c[2]), c[3]], self.s.emissive * k)
     }
 }
 
@@ -669,10 +900,11 @@ fn tips(drawn: &[&Branch]) -> Vec<u32> {
 
 /// The wood mesh, the branches this LOD drew, and the leaf mesh (when the
 /// species has leaves) at one level of detail.
-fn mesh_for(s: &Species, seed: u32, m: f32, detail: f32) -> (MeshData, Vec<Branch>, Option<MeshData>) {
+fn mesh_for(at: &Moment, detail: f32) -> (MeshData, Vec<Branch>, Option<MeshData>) {
+    let s = at.s;
     let sides = ((s.sides as f32 * detail).round() as u32).max(3);
     let segments = ((s.segments as f32 * detail).round() as u32).max(2);
-    let present = at_clock(s, &potential(s, seed, segments), m);
+    let present = at_clock(s, &potential(s, at.seed, at.state, segments), at.maturity);
     let outer = present.iter().map(|b| b.level).max().unwrap_or(0);
     // Coarser LODs drop the outermost generation(s) — the silhouette keeps.
     let max_level = if detail < 0.35 { outer.saturating_sub(1) } else { outer };
@@ -683,10 +915,23 @@ fn mesh_for(s: &Species, seed: u32, m: f32, detail: f32) -> (MeshData, Vec<Branc
         tube(&mut mesh, b, sides, uv_scale);
     }
     // Leaves gather where the drawn wood ends: at every real tip, and back
-    // along the last generations the species carries them on.
-    let leaf_mesh = s.leaves.as_ref().map(|lr| {
+    // along the last generations the species carries them on. How many is the
+    // year's business — and a crown thinned to nothing is no crown at all.
+    let leafiness = at.leafiness();
+    let leaf_mesh = s.leaves.as_ref().and_then(|lr| {
+        if leafiness <= 0.0 {
+            return None;
+        }
+        let turned = lr.turned(at.clock.autumn());
         let ends: HashSet<u32> = tips(&drawn).into_iter().collect();
         let first_level = (max_level + 1).saturating_sub(lr.depth.max(1)).min(max_level);
+        let thin = |n: u32| -> u32 {
+            if n == 0 {
+                0
+            } else {
+                (n as f32 * leafiness).round() as u32
+            }
+        };
         let mut sites: Vec<LeafSite> = Vec::new();
         for b in drawn.iter().filter(|b| b.level >= first_level) {
             let n = b.pts.len();
@@ -696,7 +941,7 @@ fn mesh_for(s: &Species, seed: u32, m: f32, detail: f32) -> (MeshData, Vec<Branc
                     position: b.pts[n - 1],
                     direction: norm(sub(b.pts[n - 1], b.pts[n - 2])),
                     sway: b.sway[n - 1],
-                    count: lr.per_tip,
+                    count: thin(lr.per_tip),
                 });
             }
             if lr.along > 0.0 && lr.along_count > 0 {
@@ -710,12 +955,13 @@ fn mesh_for(s: &Species, seed: u32, m: f32, detail: f32) -> (MeshData, Vec<Branc
                         position: p,
                         direction: d,
                         sway: sw,
-                        count: per,
+                        count: thin(per),
                     });
                 }
             }
         }
-        leaves(&sites, lr, detail, seed)
+        let mesh = leaves(&sites, &turned, detail, at.seed);
+        (!mesh.positions.is_empty()).then_some(mesh)
     });
     let drawn: Vec<Branch> = drawn.into_iter().cloned().collect();
     (mesh, drawn, leaf_mesh)
@@ -723,21 +969,22 @@ fn mesh_for(s: &Species, seed: u32, m: f32, detail: f32) -> (MeshData, Vec<Branc
 
 /// The parts of one LOD: the wood, then the leaves when there are any.
 fn parts_for(
-    s: &Species,
+    at: &Moment,
     wood: MeshData,
     leaf_mesh: Option<MeshData>,
     bark: &Option<chisel::texture::Baked>,
     leaf_baked: &Option<chisel::texture::Baked>,
 ) -> Vec<BuiltPart> {
+    let (color, emissive) = at.wood();
     let mut parts = vec![BuiltPart {
         name: "wood".into(),
         mesh: wood,
         baked: bark.clone(),
-        color: s.color,
-        emissive: s.emissive,
+        color,
+        emissive,
         double_sided: false,
     }];
-    if let (Some(lm), Some(lr)) = (leaf_mesh, s.leaves.as_ref()) {
+    if let (Some(lm), Some(lr)) = (leaf_mesh, at.s.leaves.as_ref()) {
         // Vertex colour carries the base→tip gradient, so the material is white.
         parts.push(BuiltPart {
             name: "leaves".into(),
@@ -751,34 +998,115 @@ fn parts_for(
     parts
 }
 
-/// Grow one individual of a species at one moment: LOD0 as a [`Built`] for
-/// preview/export, every LOD, and the sockets at its real tips.
-pub fn grow(species: &Species, seed: u32, clock: Clock) -> Result<Grown, String> {
+/// The bark of a plant that died standing.
+///
+/// The colour factor cannot do this on its own: a grey factor over a blue
+/// bark map is a darker blue, which reads as a crystal tree at night rather
+/// than a dead one. So death reaches the texels — the albedo drains towards
+/// its own brightness and then dims. The normal and ORM maps are left alone:
+/// dead wood keeps its grain, and it is the light that has gone, not the
+/// relief.
+fn withered_bark(mut baked: chisel::texture::Baked, w: &WitherRecipe) -> chisel::texture::Baked {
+    let k = 1.0 - w.darken.clamp(0.0, 1.0);
+    let drain = w.drain.clamp(0.0, 1.0);
+    for px in baked.albedo.chunks_exact_mut(4) {
+        let (r, g, b) = (px[0] as f32, px[1] as f32, px[2] as f32);
+        let grey = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        for (i, c) in [r, g, b].into_iter().enumerate() {
+            px[i] = ((c + (grey - c) * drain) * k).clamp(0.0, 255.0) as u8;
+        }
+    }
+    baked
+}
+
+/// Is `season` inside a window that may wrap the turn of the year?
+fn in_window(season: f32, w: [f32; 2]) -> bool {
+    let (s, a, b) = (Clock { age: None, season }.year(), w[0], w[1]);
+    if a <= b {
+        s >= a && s < b
+    } else {
+        s >= a || s < b
+    }
+}
+
+/// The crop sockets a species carries at this moment.
+///
+/// None out of season, none on a plant too young to bear, none on a dying or
+/// a withered one — the fruit has dropped. Which tips carry a crop is each
+/// tip's own answer, addressed on its branch id, so the same tips bear every
+/// year and picking one says nothing about the others.
+fn crop_sockets(at: &Moment, branches: &[Branch], ends: &HashSet<u32>, kind: SocketKind) -> Vec<Socket> {
+    let crop = match kind {
+        SocketKind::Bloom => at.s.blooms.as_ref(),
+        SocketKind::Fruit => at.s.fruit.as_ref(),
+        _ => None,
+    };
+    let Some(crop) = crop else { return Vec::new() };
+    if !at.bears() || !in_window(at.clock.season, crop.window) {
+        return Vec::new();
+    }
+    let slot = if kind == SocketKind::Bloom { SLOT_BLOOM_SHARE } else { SLOT_FRUIT_SHARE };
+    let share = crop.share.clamp(0.0, 1.0);
+    let per = crop.per_tip.max(1);
+    let outer = branches.iter().map(|b| b.level).max().unwrap_or(0);
+    let first_level = (outer + 1).saturating_sub(crop.depth.max(1)).min(outer);
+    let mut out = Vec::new();
+    for b in branches.iter().filter(|b| ends.contains(&b.key) && b.level >= first_level) {
+        if unit(at.seed, b.key, slot) >= share {
+            continue;
+        }
+        for i in 0..per {
+            let t = (1.0 - crop.along * i as f32 / per as f32).clamp(0.0, 1.0);
+            let (p, d, rad, _) = sample(b, t);
+            out.push(Socket {
+                name: format!("{}-{:08x}-{i}", kind.prefix(), b.key),
+                kind,
+                position: p,
+                direction: d,
+                radius: rad,
+                level: b.level,
+                branch: b.key,
+            });
+        }
+    }
+    out
+}
+
+/// Grow one individual of a species at one moment, in whatever state it is in:
+/// LOD0 as a [`Built`] for preview/export, every LOD, and the sockets — the
+/// tips it actually has, plus whatever the year has put on them.
+pub fn grow(species: &Species, seed: u32, clock: Clock, state: State) -> Result<Grown, String> {
     if species.height <= 0.0 || species.trunk_radius <= 0.0 {
         return Err("height and trunk_radius must be positive".into());
     }
-    let maturity = clock.maturity(species.seasons_to_grown);
-    let bark = species.bark.as_ref().map(chisel::texture::bake);
+    let at = Moment::new(species, seed, clock, state);
+    let bark = species
+        .bark
+        .as_ref()
+        .map(chisel::texture::bake)
+        .map(|b| if state.withered { withered_bark(b, &species.wither) } else { b });
     let leaf_baked = species.leaves.as_ref().and_then(|l| l.texture.as_ref()).map(chisel::texture::bake);
-    let (lod0, branches, leaf0) = mesh_for(species, seed, maturity, 1.0);
+    let (lod0, branches, leaf0) = mesh_for(&at, 1.0);
     let mut lods: Vec<Built> = Vec::new();
     for &f in &species.lods {
         if f > 0.0 && f < 1.0 {
-            let (wood, _, lm) = mesh_for(species, seed, maturity, f);
+            let (wood, _, lm) = mesh_for(&at, f);
             lods.push(Built {
                 name: format!("{}-lod{}", species.name, lods.len() + 1),
-                parts: parts_for(species, wood, lm, &bark, &leaf_baked),
+                parts: parts_for(&at, wood, lm, &bark, &leaf_baked),
             });
         }
     }
     // Sockets: every branch that has no children yet — the plant's real ends
-    // at this age, named by the branch so state can name them back.
+    // at this age, named by the branch so state can name them back — and then
+    // what the year hangs on them.
     let ends: HashSet<u32> = tips(&branches.iter().collect::<Vec<_>>()).into_iter().collect();
     let mut sockets = Vec::new();
     for b in branches.iter().filter(|b| ends.contains(&b.key)) {
         let n = b.pts.len();
         sockets.push(Socket {
             name: format!("tip-{:08x}", b.key),
+            kind: SocketKind::Tip,
             position: b.pts[n - 1],
             direction: norm(sub(b.pts[n - 1], b.pts[n - 2])),
             radius: b.radii[n - 1],
@@ -786,16 +1114,18 @@ pub fn grow(species: &Species, seed: u32, clock: Clock) -> Result<Grown, String>
             branch: b.key,
         });
     }
+    sockets.extend(crop_sockets(&at, &branches, &ends, SocketKind::Bloom));
+    sockets.extend(crop_sockets(&at, &branches, &ends, SocketKind::Fruit));
     sockets.sort_by(|a, b| a.name.cmp(&b.name));
-    let built = Built { name: species.name.clone(), parts: parts_for(species, lod0, leaf0, &bark, &leaf_baked) };
+    let built = Built { name: species.name.clone(), parts: parts_for(&at, lod0, leaf0, &bark, &leaf_baked) };
     let bounds = built.bounds();
-    Ok(Grown { built, lods, sockets, bounds, maturity })
+    Ok(Grown { built, lods, sockets, bounds, maturity: at.maturity, stage: at.stage, phase: clock.phase() })
 }
 
 /// Grow what a recipe file or a Quarry submission holds: species, seed, clock
-/// in one value.
+/// and state in one value.
 pub fn grow_planting(p: &Planting) -> Result<Grown, String> {
-    grow(&p.species, p.seed, p.clock)
+    grow(&p.species, p.seed, p.clock, p.state)
 }
 
 #[cfg(test)]
@@ -803,7 +1133,11 @@ mod tests {
     use super::*;
 
     fn grown(species: &Species, seed: u32) -> Grown {
-        grow(species, seed, Clock::grown()).unwrap()
+        grow(species, seed, Clock::grown(), State::thriving()).unwrap()
+    }
+
+    fn leafy() -> Species {
+        Species { leaves: Some(LeafRecipe::default()), ..Default::default() }
     }
 
     #[test]
@@ -839,8 +1173,8 @@ mod tests {
         let c = grown(&s, 99);
         assert_ne!(a.built.parts[0].mesh.positions, c.built.parts[0].mesh.positions);
         // …and at a young age too, which is where a consumed stream used to drift.
-        let y1 = grow(&s, 1, Clock::at(3.0)).unwrap();
-        let y2 = grow(&s, 1, Clock::at(3.0)).unwrap();
+        let y1 = grow(&s, 1, Clock::at(3.0), State::thriving()).unwrap();
+        let y2 = grow(&s, 1, Clock::at(3.0), State::thriving()).unwrap();
         assert_eq!(y1.built.parts[0].mesh.positions, y2.built.parts[0].mesh.positions);
     }
 
@@ -849,7 +1183,7 @@ mod tests {
         // Every branch a young plant has is the branch the grown plant has —
         // the same identity, pointing the same way, only shorter and thinner.
         let s = Species::default();
-        let all = potential(&s, 7, s.segments);
+        let all = potential(&s, 7, State::thriving(), s.segments);
         for age in [1.0f32, 3.0, 6.0, 9.0, 11.5] {
             let m = Clock::at(age).maturity(s.seasons_to_grown);
             let now = at_clock(&s, &all, m);
@@ -875,7 +1209,7 @@ mod tests {
     #[test]
     fn age_only_ever_adds_branches() {
         let s = Species::default();
-        let all = potential(&s, 12, s.segments);
+        let all = potential(&s, 12, State::thriving(), s.segments);
         let keys = |age: f32| -> HashSet<u32> {
             at_clock(&s, &all, Clock::at(age).maturity(s.seasons_to_grown)).iter().map(|b| b.key).collect()
         };
@@ -892,7 +1226,7 @@ mod tests {
     #[test]
     fn a_sapling_is_smaller_and_simpler() {
         let s = Species::default();
-        let young = grow(&s, 4, Clock::at(2.0)).unwrap();
+        let young = grow(&s, 4, Clock::at(2.0), State::thriving()).unwrap();
         let old = grown(&s, 4);
         assert!(young.built.triangles() < old.built.triangles(), "a sapling has less wood");
         let h = |g: &Grown| g.bounds.1[1] - g.bounds.0[1];
@@ -902,25 +1236,161 @@ mod tests {
         // Growing up never shrinks the plant.
         let mut last = 0.0;
         for age in [0.5f32, 1.0, 2.0, 4.0, 8.0, 12.0, 40.0] {
-            let g = grow(&s, 4, Clock::at(age)).unwrap();
+            let g = grow(&s, 4, Clock::at(age), State::thriving()).unwrap();
             let now = h(&g);
             assert!(now >= last - 1e-4, "age {age} shrank: {now} < {last}");
             last = now;
         }
         // Past its life curve a plant is simply grown, not bigger.
-        let ancient = grow(&s, 4, Clock::at(400.0)).unwrap();
+        let ancient = grow(&s, 4, Clock::at(400.0), State::thriving()).unwrap();
         assert_eq!(ancient.built.parts[0].mesh.positions, old.built.parts[0].mesh.positions);
     }
 
     #[test]
     fn a_sapling_still_has_tips_to_hang_things_on() {
-        let s = Species { leaves: Some(LeafRecipe::default()), ..Default::default() };
+        let s = leafy();
         for age in [0.5f32, 2.0, 5.0, 12.0] {
-            let g = grow(&s, 3, Clock::at(age)).unwrap();
+            let g = grow(&s, 3, Clock::at(age), State::thriving()).unwrap();
             assert!(!g.sockets.is_empty(), "age {age} has no sockets");
             assert_eq!(g.built.parts.len(), 2, "age {age} lost its leaves");
             assert!(g.built.parts[1].mesh.positions.len() >= 5, "age {age} has no leaves");
         }
+    }
+
+    #[test]
+    fn withered_is_the_same_tree_gone_further() {
+        let s = leafy();
+        let alive = potential(&s, 7, State::thriving(), s.segments);
+        let dead = potential(&s, 7, State::withered(), s.segments);
+        assert_eq!(alive.len(), dead.len(), "death takes no branches away");
+        let length = |b: &Branch| -> f32 { (1..b.pts.len()).map(|i| len(sub(b.pts[i], b.pts[i - 1]))).sum() };
+        for (a, d) in alive.iter().zip(dead.iter()) {
+            assert_eq!(a.key, d.key, "the same branches in the same order");
+            assert_eq!(a.parent, d.parent);
+            assert_eq!(a.level, d.level);
+            assert!((length(a) - length(d)).abs() < 1e-3, "death bends a branch, it does not shorten it");
+        }
+        // It bends: the crown is not where it was.
+        assert_ne!(alive[1].pts.last().unwrap()[1], dead[1].pts.last().unwrap()[1]);
+
+        let g = grow(&s, 7, Clock::grown(), State::withered()).unwrap();
+        assert_eq!(g.built.parts.len(), 1, "no leaves on a withered tree");
+        assert!(!g.sockets.is_empty(), "a bare tree still has ends");
+        assert!(g.sockets.iter().all(|k| k.kind == SocketKind::Tip), "no crop on a withered tree");
+        // Darker wood, and any glow goes out with it.
+        let lit = Species { emissive: 0.8, ..s.clone() };
+        let alive_wood = grown(&lit, 7).built.parts[0].color;
+        let dead_built = grow(&lit, 7, Clock::grown(), State::withered()).unwrap();
+        assert!(dead_built.built.parts[0].color[0] < alive_wood[0]);
+        assert!(dead_built.built.parts[0].emissive < 0.8);
+    }
+
+    #[test]
+    fn death_reaches_the_bark_itself() {
+        // A blue crystal bark, the Lantern Desert's own.
+        let bark: infinite_manifest::texture::TextureRecipe = serde_json::from_str(
+            r#"{"kind":"veins","size":64,"colors":[[0.2,0.44,0.74],[0.78,0.92,1.0],[0.32,0.62,0.88]]}"#,
+        )
+        .unwrap();
+        let baked = chisel::texture::bake(&bark);
+        let dead = withered_bark(baked.clone(), &WitherRecipe::default());
+        assert_eq!(dead.normal, baked.normal, "dead wood keeps its grain");
+        assert_eq!(dead.orm, baked.orm);
+        let spread = |b: &chisel::texture::Baked| -> f32 {
+            // Mean distance from grey: how much colour the map is carrying.
+            let mut sum = 0.0;
+            for px in b.albedo.chunks_exact(4) {
+                let (r, g, bl) = (px[0] as f32, px[1] as f32, px[2] as f32);
+                let m = (r + g + bl) / 3.0;
+                sum += ((r - m).abs() + (g - m).abs() + (bl - m).abs()) / 3.0;
+            }
+            sum / (b.albedo.len() / 4) as f32
+        };
+        let brightness = |b: &chisel::texture::Baked| -> f32 {
+            b.albedo.chunks_exact(4).map(|p| (p[0] as f32 + p[1] as f32 + p[2] as f32) / 3.0).sum::<f32>()
+                / (b.albedo.len() / 4) as f32
+        };
+        assert!(spread(&dead) < spread(&baked) * 0.5, "the colour drains");
+        assert!(brightness(&dead) < brightness(&baked) * 0.6, "and what is left dims");
+    }
+
+    #[test]
+    fn a_crop_is_in_season_or_it_is_not() {
+        let s = Species { fruit: Some(CropRecipe { share: 0.6, ..Default::default() }), ..leafy() };
+        let fruit = |clock: Clock, state: State| -> Vec<String> {
+            grow(&s, 5, clock, state)
+                .unwrap()
+                .sockets
+                .into_iter()
+                .filter(|k| k.kind == SocketKind::Fruit)
+                .map(|k| k.name)
+                .collect()
+        };
+        let in_season = fruit(Clock::grown().in_season(0.5), State::thriving());
+        assert!(!in_season.is_empty(), "a grown tree fruits in the fruit window");
+        assert!(fruit(Clock::grown().in_season(0.2), State::thriving()).is_empty(), "not in spring");
+        assert!(fruit(Clock::grown().in_season(0.95), State::thriving()).is_empty(), "not in winter");
+        assert!(fruit(Clock::at(3.0).in_season(0.5), State::thriving()).is_empty(), "a sapling bears nothing");
+        assert!(fruit(Clock::at(1e5).in_season(0.5), State::thriving()).is_empty(), "a dying tree bears nothing");
+        assert!(fruit(Clock::grown().in_season(0.5), State::withered()).is_empty(), "the fruit has dropped");
+        // The same tips bear, this year and next — and only some of them.
+        assert_eq!(in_season, fruit(Clock::grown().in_season(1.5), State::thriving()), "next year is this year");
+        let tips = grown(&s, 5).sockets.iter().filter(|k| k.kind == SocketKind::Tip).count();
+        assert!(in_season.len() < tips, "only a share of the tips bear ({} of {tips})", in_season.len());
+        // A crop is sockets, not geometry: the wood and the crown are untouched.
+        let bare_season = grow(&s, 5, Clock::grown().in_season(0.5), State::thriving()).unwrap();
+        let no_fruit = grow(&Species { fruit: None, ..s.clone() }, 5, Clock::grown().in_season(0.5), State::thriving()).unwrap();
+        assert_eq!(bare_season.built.parts[0].mesh.positions, no_fruit.built.parts[0].mesh.positions);
+    }
+
+    #[test]
+    fn the_year_dresses_the_crown() {
+        let s = leafy();
+        let crown = |season: f32| -> usize {
+            grow(&s, 9, Clock::grown().in_season(season), State::thriving())
+                .unwrap()
+                .built
+                .parts
+                .get(1)
+                .map(|p| p.mesh.positions.len())
+                .unwrap_or(0)
+        };
+        assert_eq!(crown(0.92), 0, "bare in winter");
+        assert!(crown(0.05) > 0 && crown(0.05) < crown(0.35), "budding");
+        assert_eq!(crown(0.35), crown(0.6), "full through bloom and fruit");
+        assert!(crown(0.78) > 0 && crown(0.78) < crown(0.6), "falling");
+        // Turning is colour, not geometry: the leaves that remain are the same leaves.
+        let summer = grow(&s, 9, Clock::grown().in_season(0.5), State::thriving()).unwrap();
+        let turning = grow(&s, 9, Clock::grown().in_season(0.72), State::thriving()).unwrap();
+        // Every leaf still on the tree is one the full crown had, in the same
+        // place: the year sheds leaves, it does not grow a different crown.
+        let bits = |p: &[f32; 3]| (p[0].to_bits(), p[1].to_bits(), p[2].to_bits());
+        let full: HashSet<_> = summer.built.parts[1].mesh.positions.iter().map(bits).collect();
+        assert!(turning.built.parts[1].mesh.positions.iter().all(|p| full.contains(&bits(p))));
+        assert_ne!(turning.built.parts[1].mesh.colors[0], summer.built.parts[1].mesh.colors[0], "and they have turned");
+        // An evergreen ignores the year.
+        let ever = Species { evergreen: true, ..s.clone() };
+        let ever_crown = |season: f32| {
+            grow(&ever, 9, Clock::grown().in_season(season), State::thriving()).unwrap().built.parts[1].mesh.positions.len()
+        };
+        assert_eq!(ever_crown(0.92), ever_crown(0.35));
+    }
+
+    #[test]
+    fn an_old_tree_is_the_same_tree_with_less_crown() {
+        let s = leafy();
+        let at = |age: f32| grow(&s, 6, Clock::at(age), State::thriving()).unwrap();
+        let (mature, old, dying) = (at(40.0), at(130.0), at(158.0));
+        assert_eq!(mature.stage, Stage::Mature);
+        assert_eq!(old.stage, Stage::Old);
+        assert_eq!(dying.stage, Stage::Dying);
+        // The wood is untouched — age past full size takes leaves, not branches.
+        assert_eq!(mature.built.parts[0].mesh.positions, old.built.parts[0].mesh.positions);
+        assert_eq!(mature.sockets.len(), dying.sockets.len());
+        let crown = |g: &Grown| g.built.parts[1].mesh.positions.len();
+        assert!(crown(&old) < crown(&mature), "an old tree thins");
+        assert!(crown(&dying) < crown(&old), "a dying one is mostly bare");
+        assert!(crown(&dying) > 0);
     }
 
     #[test]
@@ -945,11 +1415,17 @@ mod tests {
         let d = Planting::default().to_value();
         assert_eq!(d["seed"], 1);
         assert!(d.get("age").is_none());
+        assert!(d.get("withered").is_none(), "a thriving plant must not carry a state");
+        // A state is one flat key, and it survives the round trip.
+        let dead = Planting::from_json(r#"{"name":"lantern-tree","seed":7,"withered":true}"#).unwrap();
+        assert!(dead.state.withered);
+        assert_eq!(dead.to_value()["withered"], true);
+        assert!(Planting::from_value(&dead.to_value()).unwrap().state.withered);
     }
 
     #[test]
     fn lods_are_the_same_plant() {
-        let s = Species { leaves: Some(LeafRecipe::default()), ..Default::default() };
+        let s = leafy();
         let g = grown(&s, 8);
         let (min, max) = g.bounds;
         for (i, lod) in g.lods.iter().enumerate() {

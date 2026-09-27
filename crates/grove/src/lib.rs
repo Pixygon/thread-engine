@@ -12,10 +12,12 @@
 //! - a **seed** — one number, which decides the *whole potential plant*: every
 //!   branch it could ever have, already shaped;
 //! - a **[clock](clock::Clock)** — `age` in seasons since sprouting and where
-//!   the year stands, in ticks the game controls.
+//!   the year stands, in ticks the game controls;
+//! - a **[state](grow::State)** — what has happened to it. A withered lantern
+//!   tree is not a second species: it is the lantern in a `withered` state.
 //!
-//! [`grow(species, seed, clock)`](grow::grow) derives the mesh from those
-//! three, and age only ever *filters* (which branches have emerged) and
+//! [`grow(species, seed, clock, state)`](grow::grow) derives the mesh from
+//! those four, and age only ever *filters* (which branches have emerged) and
 //! *scales* (how far they have grown). Nothing is consumed as the plant grows,
 //! because randomness is [addressed](rand), not streamed — so `{ species,
 //! seed, age, season }` is the whole plant, small enough to sync in a game and
@@ -49,7 +51,10 @@ pub mod grow;
 pub mod hang;
 pub mod rand;
 
-pub use clock::Clock;
+pub use clock::{Clock, Phase, Stage};
 pub use foliage::{leaves, LeafRecipe, LeafSite};
-pub use grow::{grow, grow_planting, GrowRecipe, Grown, Planting, Socket, Species};
+pub use grow::{
+    grow, grow_planting, CropRecipe, GrowRecipe, Grown, Planting, Socket, SocketKind, Species, State,
+    WitherRecipe,
+};
 pub use hang::{hang, HangRecipe, Placement};
