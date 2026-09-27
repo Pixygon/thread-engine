@@ -122,6 +122,9 @@ pub struct LeafSite {
     /// The cluster's identity — hashed from the twig it grows on, so this
     /// cluster's leaves are the same leaves at every age and every LOD.
     pub key: u32,
+    /// The twig itself, which every leaf vertex names in `TEXCOORD_1`: a
+    /// swing through the crown hits the branch the leaves belong to.
+    pub branch: u32,
     pub position: [f32; 3],
     pub direction: [f32; 3],
     pub sway: f32,
@@ -195,7 +198,7 @@ pub fn leaves(sites: &[LeafSite], r: &LeafRecipe, detail: f32, seed: u32) -> Mes
             let flat = rotate(perp(axis), axis, roll);
             let up = norm(cross(axis, flat));
             let sway = (site.sway + r.sway).clamp(0.0, 1.0);
-            leaf(&mut m, site.position, axis, flat, up, len, wid, r.fold * s, r.color, r.color_tip, sway);
+            leaf(&mut m, site.position, axis, flat, up, len, wid, r.fold * s, r.color, r.color_tip, sway, site.branch);
         }
     }
     m
@@ -215,6 +218,7 @@ fn leaf(
     c0: [f32; 4],
     c1: [f32; 4],
     sway: f32,
+    branch: u32,
 ) {
     let mid = add(base, scale(axis, len * 0.45));
     let pts = [
@@ -238,6 +242,7 @@ fn leaf(
         m.positions.push(pts[k]);
         m.normals.push(n);
         m.uvs.push(uvs[k]);
+        m.uv2.push(crate::grow::branch_uv(branch));
         m.tangents.push(tangent);
         let t = tints[k];
         m.colors.push([
@@ -261,7 +266,7 @@ mod tests {
     use super::*;
 
     fn site(key: u32, count: u32) -> LeafSite {
-        LeafSite { key, position: [0.0, 2.0, 0.0], direction: [0.0, 1.0, 0.0], sway: 0.3, count }
+        LeafSite { key, branch: 0xB0B, position: [0.0, 2.0, 0.0], direction: [0.0, 1.0, 0.0], sway: 0.3, count }
     }
 
     #[test]

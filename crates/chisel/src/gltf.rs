@@ -114,6 +114,11 @@ pub fn write_glb_scene(meshes: &[SceneMesh], nodes: &[SceneNode]) -> Result<Vec<
             &mut bin,
             &f32s(&mesh.colors.iter().flatten().copied().collect::<Vec<_>>()),
         );
+        // TEXCOORD_1 only when the mesh has one per vertex; otherwise the
+        // attribute is simply absent, as it always was.
+        let uv2 = (!mesh.uv2.is_empty() && mesh.uv2.len() == mesh.positions.len()).then(|| {
+            push_view(&mut bin, &f32s(&mesh.uv2.iter().flatten().copied().collect::<Vec<_>>()))
+        });
 
         // Position bounds (required by the spec for POSITION accessors).
         let mut pmin = [f32::INFINITY; 3];
@@ -132,6 +137,12 @@ pub fn write_glb_scene(meshes: &[SceneMesh], nodes: &[SceneNode]) -> Result<Vec<
         accessors.push(serde_json::json!({ "bufferView": uv, "componentType": 5126, "count": vcount, "type": "VEC2" }));
         accessors.push(serde_json::json!({ "bufferView": tv, "componentType": 5126, "count": vcount, "type": "VEC4" }));
         accessors.push(serde_json::json!({ "bufferView": cv, "componentType": 5126, "count": vcount, "type": "VEC4" }));
+        let mut attributes = serde_json::json!({ "POSITION": a0 + 1, "NORMAL": a0 + 2, "TEXCOORD_0": a0 + 3,
+                                                 "TANGENT": a0 + 4, "COLOR_0": a0 + 5 });
+        if let Some(view) = uv2 {
+            accessors.push(serde_json::json!({ "bufferView": view, "componentType": 5126, "count": vcount, "type": "VEC2" }));
+            attributes["TEXCOORD_1"] = serde_json::json!(accessors.len() - 1);
+        }
 
         // The complete PBR set, glTF-canonical: base color, the ORM texture
         // read twice (metallicRoughness takes G/B, occlusion takes R — the
@@ -196,8 +207,7 @@ pub fn write_glb_scene(meshes: &[SceneMesh], nodes: &[SceneNode]) -> Result<Vec<
         gltf_meshes.push(serde_json::json!({
             "name": sm.name,
             "primitives": [{
-                "attributes": { "POSITION": a0 + 1, "NORMAL": a0 + 2, "TEXCOORD_0": a0 + 3,
-                                 "TANGENT": a0 + 4, "COLOR_0": a0 + 5 },
+                "attributes": attributes,
                 "indices": a0,
                 "material": materials.len() - 1,
             }],
@@ -254,4 +264,25 @@ pub fn write_glb_scene(meshes: &[SceneMesh], nodes: &[SceneNode]) -> Result<Vec<
     out.extend_from_slice(b"BIN\0");
     out.extend_from_slice(&bin);
     Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn texcoord_1_is_written_only_when_every_vertex_has_one() {
+        use crate::model::{Built, BuiltPart};
+        let mut m = crate::builtin::cube();
+        let plain = Built { name: "plain".into(), parts: vec![BuiltPart { name: "p".into(), mesh: m.clone(), baked: None, color: [1.0; 4], emissive: 0.0, double_sided: false }] };
+        let glb = crate::model::export_glb(&plain).unwrap();
+        assert!(!String::from_utf8_lossy(&glb).contains("TEXCOORD_1"), "no second UV set unless asked");
+        m.uv2 = m.positions.iter().map(|_| [3.0, 7.0]).collect();
+        let named = Built { name: "named".into(), parts: vec![BuiltPart { name: "p".into(), mesh: m.clone(), baked: None, color: [1.0; 4], emissive: 0.0, double_sided: false }] };
+        let glb = crate::model::export_glb(&named).unwrap();
+        assert!(String::from_utf8_lossy(&glb).contains("TEXCOORD_1"));
+        // Half-filled is not filled: the attribute stays out rather than lying.
+        m.uv2.truncate(m.positions.len() / 2);
+        let half = Built { name: "half".into(), parts: vec![BuiltPart { name: "p".into(), mesh: m, baked: None, color: [1.0; 4], emissive: 0.0, double_sided: false }] };
+        let glb = crate::model::export_glb(&half).unwrap();
+        assert!(!String::from_utf8_lossy(&glb).contains("TEXCOORD_1"));
+    }
 }

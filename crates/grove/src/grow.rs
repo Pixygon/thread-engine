@@ -22,10 +22,12 @@
 //!   stands. Age does exactly two things: it **filters** — which branches have
 //!   emerged — and it **scales** — how far each has grown, and how thick.
 //!
-//! - **[`State`]** is what has *happened* to it. The Lantern Desert is the
-//!   proof case: the withered lantern tree is not a second species but the
-//!   lantern in a `withered` state — leaves off, fruit dropped, gnarl up, bark
-//!   darkened — the same seed and the same branches on both halves of the map.
+//! - **[`State`]** is what has *happened* to it: a short list — branches cut,
+//!   sockets taken, health events — small enough to sync in a game. The
+//!   Lantern Desert is the proof case: the withered lantern tree is not a
+//!   second species but the lantern in a `withered` state — leaves off, fruit
+//!   dropped, gnarl up, bark darkened — the same seed and the same branches on
+//!   both halves of the map. Harvest, pick and chop are state, not meshes.
 //!
 //! So `grow(species, seed, clock, state)`: one individual at one moment, and
 //! the same one in Unity, in Thread and in the Quarry. A plant's whole state is
@@ -45,7 +47,13 @@
 //!   sockets are at the ends it actually has. Sockets are **typed** — `tip`,
 //!   `bloom`, `fruit`, and `cut` when step 3 lands — and the year decides which
 //!   of them exist: a species in bloom carries bloom sockets, the same species
-//!   in autumn carries fruit at the very same tips.
+//!   in autumn carries fruit at the very same tips. Chopping leaves a `cut`
+//!   socket at the joint, and the fallen part is [`fallen`] — the subtree
+//!   grown on its own;
+//! - **every vertex names its branch** in `TEXCOORD_1` (low 16 bits in `u`,
+//!   high 16 in `v`), so a game can hit-test a swing against the wood — and
+//!   the leaves on it — without asking anyone. **Cuts are at joints only**: a
+//!   cut names a branch, and takes it from where it sprouts.
 use std::collections::HashSet;
 
 use infinite_manifest::texture::TextureRecipe;
@@ -260,15 +268,17 @@ struct Planted {
     season: f32,
     /// `{"clock": {...}}` also works, for callers that hold a [`Clock`].
     clock: Option<Clock>,
-    /// `"withered": true` is the whole of a state today.
+    /// The state, flat: `"withered": true`, `"cut": [..]`, `"taken": [..]`.
     withered: bool,
+    cut: Vec<u32>,
+    taken: Vec<Pick>,
     state: Option<State>,
 }
 
 impl Default for Planted {
     fn default() -> Self {
         let c = Clock::default();
-        Self { seed: 1, age: c.age, season: c.season, clock: None, withered: false, state: None }
+        Self { seed: 1, age: c.age, season: c.season, clock: None, withered: false, cut: Vec::new(), taken: Vec::new(), state: None }
     }
 }
 
@@ -287,7 +297,7 @@ impl Planting {
         let planted: Planted = serde_json::from_value(value.clone())
             .map_err(|e| format!("not a planting: {e}"))?;
         let clock = planted.clock.unwrap_or(Clock { age: planted.age, season: planted.season });
-        let state = planted.state.unwrap_or(State { withered: planted.withered });
+        let state = planted.state.unwrap_or(State { withered: planted.withered, cut: planted.cut, taken: planted.taken });
         Ok(Self { species, seed: planted.seed, clock, state })
     }
 
@@ -304,6 +314,12 @@ impl Planting {
             }
             if self.state.withered {
                 obj.insert("withered".into(), serde_json::json!(true));
+            }
+            if !self.state.cut.is_empty() {
+                obj.insert("cut".into(), serde_json::json!(self.state.cut));
+            }
+            if !self.state.taken.is_empty() {
+                obj.insert("taken".into(), serde_json::to_value(&self.state.taken).unwrap_or_default());
             }
         }
         v
@@ -368,26 +384,71 @@ impl Default for CropRecipe {
     }
 }
 
+/// A socket that has been picked, and when it grows back.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Pick {
+    /// The socket's name — `fruit-<branch id>-<i>`, as the plant reported it.
+    pub socket: String,
+    /// The age, in seasons, at which the socket is back. `None` never regrows
+    /// on its own: the game strikes the entry when it decides to.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub until: Option<f32>,
+}
+
 /// What has happened to a plant, beyond its age and the year.
 ///
-/// The roadmap's third input. Today it carries the one health event the
-/// Lantern Desert needs; taken sockets and cut branches land here next, and
-/// the whole of it is meant to stay small enough to sync in a game.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Serialize, Deserialize)]
+/// The roadmap's third input, and the whole of a plant's mutable state: a
+/// short list, small enough to sync in a game and to sit in a World Manifest
+/// placement. Everything here is a *filter* on the plant the seed decided —
+/// none of it grows anything new.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct State {
     /// Dead but standing: no leaves, no crop, gnarled, darkened.
     pub withered: bool,
+    /// Branches cut off, by id — each taken at the joint it sprouts from,
+    /// with everything that grew from it. The trunk cannot be cut here; felling
+    /// is a different verb. A cut leaves a `cut` socket at the joint, and the
+    /// part that fell is [`fallen`].
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub cut: Vec<u32>,
+    /// Sockets picked: the only mesh change is one instance not being there.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub taken: Vec<Pick>,
 }
 
 impl State {
     /// A plant that nothing has happened to.
     pub fn thriving() -> Self {
-        Self { withered: false }
+        Self::default()
     }
     /// Dead standing.
     pub fn withered() -> Self {
-        Self { withered: true }
+        Self { withered: true, ..Self::default() }
+    }
+    /// The same state with one more branch cut.
+    pub fn cut(mut self, branch: u32) -> Self {
+        if !self.cut.contains(&branch) {
+            self.cut.push(branch);
+        }
+        self
+    }
+    /// The same state with one more socket picked.
+    pub fn take(mut self, socket: &str, until: Option<f32>) -> Self {
+        self.taken.push(Pick { socket: socket.to_string(), until });
+        self
+    }
+    /// Is this socket picked at this moment? A pick with no regrow time
+    /// holds until the game strikes it; one with a time holds until the plant
+    /// is that old — and a plant with no age cannot have grown it back.
+    pub fn is_taken(&self, socket: &str, clock: Clock) -> bool {
+        self.taken.iter().any(|p| {
+            p.socket == socket
+                && match (p.until, clock.age) {
+                    (Some(until), Some(age)) => age < until,
+                    _ => true,
+                }
+        })
     }
 }
 
@@ -402,6 +463,17 @@ pub enum SocketKind {
     Fruit,
     /// Where a branch was cut off.
     Cut,
+}
+
+/// A branch id as `TEXCOORD_1` carries it: low 16 bits in `u`, high 16 in
+/// `v`, both exact in f32. Unity: `id = (uint)uv2.x | ((uint)uv2.y << 16)`.
+pub fn branch_uv(key: u32) -> [f32; 2] {
+    [(key & 0xffff) as f32, (key >> 16) as f32]
+}
+
+/// The id back out of the channel.
+pub fn branch_from_uv(uv: [f32; 2]) -> u32 {
+    (uv[0].round() as u32 & 0xffff) | ((uv[1].round() as u32 & 0xffff) << 16)
 }
 
 impl SocketKind {
@@ -435,6 +507,29 @@ pub struct Socket {
     pub branch: u32,
 }
 
+/// One branch as the rest of the world sees it: what a vertex's id refers to.
+///
+/// The mesh names branches; this says what the names mean — where each one
+/// sprouts, where it ends, how it hangs together — so a game can turn a hit
+/// on the wood into a cut at the right joint, and a wind shader can find the
+/// branch's parent, without walking any geometry.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BranchInfo {
+    /// The id every vertex of this branch carries.
+    pub id: u32,
+    /// The branch it sprouts from (the trunk names itself).
+    pub parent: u32,
+    pub level: u32,
+    /// Where it sprouts — the joint a cut is made at.
+    pub base: [f32; 3],
+    /// Where it ends at this moment.
+    pub tip: [f32; 3],
+    /// Radius at the base.
+    pub radius: f32,
+    /// What is left of a cut branch.
+    pub stump: bool,
+}
+
 /// One grown plant: the LOD0 model (wood, and leaves when the species has
 /// them), the coarser LODs as whole models (nearest first), and the sockets.
 pub struct Grown {
@@ -442,6 +537,9 @@ pub struct Grown {
     /// LOD1, LOD2… — each a complete model (same parts, fewer triangles).
     pub lods: Vec<Built>,
     pub sockets: Vec<Socket>,
+    /// Every branch the plant has at this moment, in the order they were
+    /// grown (parents before children).
+    pub branches: Vec<BranchInfo>,
     pub bounds: ([f32; 3], [f32; 3]),
     /// How far through its growing life this individual is, 0..1. At 1 it is
     /// the whole potential plant the seed decided.
@@ -464,6 +562,8 @@ struct Branch {
     attach: f32,
     /// Maturity at which this branch starts to extend, 0..1.
     emerge: f32,
+    /// What is left of a cut branch: a stub at the joint, and no tip.
+    stump: bool,
     /// Polyline of centre points.
     pts: Vec<[f32; 3]>,
     /// Radius at each point.
@@ -524,7 +624,7 @@ fn perp(d: [f32; 3]) -> [f32; 3] {
 #[allow(clippy::too_many_arguments)]
 fn grow_branch(
     s: &Species,
-    state: State,
+    withered: bool,
     rnd: &Rnd,
     origin: [f32; 3],
     dir: [f32; 3],
@@ -545,7 +645,7 @@ fn grow_branch(
     let sway_to = (sway_from + s.sway / (s.levels as f32 + 1.0)).min(s.sway);
     // Death bends a branch further along the arc it was already drawing and
     // pulls it down: the same branch, gone further and stopped.
-    let (gnarl, sag) = if state.withered { (s.wither.gnarl, s.wither.sag) } else { (0.0, 0.0) };
+    let (gnarl, sag) = if withered { (s.wither.gnarl, s.wither.sag) } else { (0.0, 0.0) };
     // One bend plane per branch: a fixed perpendicular axis, a fixed sign, so
     // the branch draws an arc. The magnitude eases in (stiff near the base).
     let bend_axis = rotate(perp(d), d, rnd.at(SLOT_BEND_AXIS) * std::f32::consts::TAU);
@@ -586,7 +686,7 @@ fn grow_branch(
 /// The whole potential plant the seed decided: every branch it could ever
 /// have, at full size, trunk first, breadth-first by level. The clock is not
 /// here — nothing in this function knows what age anything is.
-fn potential(s: &Species, seed: u32, state: State, segments: u32) -> Vec<Branch> {
+fn potential(s: &Species, seed: u32, withered: bool, segments: u32) -> Vec<Branch> {
     // One generation's growing window: the trunk fills its own, then each
     // generation fills the next, so the last is complete exactly at full size.
     let span = 1.0 / (s.levels as f32 + 1.0);
@@ -595,9 +695,9 @@ fn potential(s: &Species, seed: u32, state: State, segments: u32) -> Vec<Branch>
     let lean_dir = trunk_rnd.at(SLOT_LEAN_DIR) * std::f32::consts::TAU;
     let up = norm([lean.sin() * lean_dir.cos(), lean.cos(), lean.sin() * lean_dir.sin()]);
     let (pts, radii, sway) =
-        grow_branch(s, state, &trunk_rnd, [0.0, 0.0, 0.0], up, s.height, s.trunk_radius, 0, segments, 0.0, s.trunk_curve);
+        grow_branch(s, withered, &trunk_rnd, [0.0, 0.0, 0.0], up, s.height, s.trunk_radius, 0, segments, 0.0, s.trunk_curve);
     let mut out: Vec<Branch> =
-        vec![Branch { key: TRUNK, parent: 0, level: 0, attach: 0.0, emerge: 0.0, pts, radii, sway }];
+        vec![Branch { key: TRUNK, parent: 0, level: 0, attach: 0.0, emerge: 0.0, stump: false, pts, radii, sway }];
     let mut frontier: Vec<usize> = vec![0];
     for level in 1..=s.levels {
         let li = (level - 1) as usize;
@@ -633,8 +733,8 @@ fn potential(s: &Species, seed: u32, state: State, segments: u32) -> Vec<Branch>
                 // Start a little inside the parent so the joint is buried.
                 let origin = sub(p, scale(d, crad * 0.8));
                 let segs = child_segments(s, segments, clen);
-                let (pts, radii, sway) = grow_branch(s, state, &rnd, origin, cdir, clen, crad, level, segs, sw, curve);
-                out.push(Branch { key, parent: pkey, level, attach: 1.0, emerge: pemerge + span, pts, radii, sway });
+                let (pts, radii, sway) = grow_branch(s, withered, &rnd, origin, cdir, clen, crad, level, segs, sw, curve);
+                out.push(Branch { key, parent: pkey, level, attach: 1.0, emerge: pemerge + span, stump: false, pts, radii, sway });
                 next.push(out.len() - 1);
             }
             // Laterals: along the parent between `sprout_from` and just below
@@ -655,8 +755,8 @@ fn potential(s: &Species, seed: u32, state: State, segments: u32) -> Vec<Branch>
                 let clen = parent_len * len_frac * (0.6 + 0.3 * rnd.at(SLOT_LENGTH));
                 let crad = rad * s.child_radius;
                 let segs = child_segments(s, segments, clen);
-                let (pts, radii, sway) = grow_branch(s, state, &rnd, p, cdir, clen, crad, level, segs, sw, curve);
-                out.push(Branch { key, parent: pkey, level, attach: t, emerge: pemerge + span * t, pts, radii, sway });
+                let (pts, radii, sway) = grow_branch(s, withered, &rnd, p, cdir, clen, crad, level, segs, sw, curve);
+                out.push(Branch { key, parent: pkey, level, attach: t, emerge: pemerge + span * t, stump: false, pts, radii, sway });
                 next.push(out.len() - 1);
             }
         }
@@ -708,6 +808,19 @@ fn at_clock(s: &Species, all: &[Branch], m: f32) -> Vec<Branch> {
 /// scaled to its age. A branch that has just emerged is also thinner than its
 /// grown self — girth arrives with the branch, not before it.
 fn grown_to(b: &Branch, e: f32, length_scale: f32, girth_scale: f32) -> Branch {
+    let (pts, radii, sway) = prefix(b, e);
+    let girth = girth_scale * (0.35 + 0.65 * e);
+    Branch {
+        pts: pts.iter().map(|p| scale(*p, length_scale)).collect(),
+        radii: radii.iter().map(|r| r * girth).collect(),
+        sway,
+        ..b.clone()
+    }
+}
+
+/// The first `e` of a branch's polyline — at least two points, the last one
+/// interpolated so the end lands exactly where it should.
+fn prefix(b: &Branch, e: f32) -> (Vec<[f32; 3]>, Vec<f32>, Vec<f32>) {
     let n = b.pts.len();
     let f = e.clamp(0.0, 1.0) * (n - 1) as f32;
     let whole = (f.floor() as usize).min(n - 1);
@@ -721,17 +834,97 @@ fn grown_to(b: &Branch, e: f32, length_scale: f32, girth_scale: f32) -> Branch {
         radii.push(b.radii[whole] + (b.radii[whole + 1] - b.radii[whole]) * u);
         sway.push(b.sway[whole] + (b.sway[whole + 1] - b.sway[whole]) * u);
     }
-    let girth = girth_scale * (0.35 + 0.65 * e);
-    Branch {
-        key: b.key,
-        parent: b.parent,
-        level: b.level,
-        attach: b.attach,
-        emerge: b.emerge,
-        pts: pts.iter().map(|p| scale(*p, length_scale)).collect(),
-        radii: radii.iter().map(|r| r * girth).collect(),
-        sway,
+    (pts, radii, sway)
+}
+
+/// How much of a cut branch stays on the tree: enough for the wound to show
+/// and the `cut` socket to sit on, and no more.
+const STUMP: f32 = 0.05;
+
+/// Which of the plant is being asked for.
+#[derive(Clone, Copy, PartialEq)]
+enum Part {
+    /// The standing plant: everything present, minus what has been cut.
+    Standing,
+    /// One cut branch and everything that grew from it, brought to the origin.
+    Fallen(u32),
+}
+
+/// The state's whole job, after the clock has done its own: take away what
+/// has been cut — a stump where each cut branch sprouted, nothing beyond it —
+/// or, for the fallen part, keep only that and stand it on its own base.
+///
+/// Like the clock, this only ever filters. A branch below a cut is the branch
+/// it always was; a branch above one is simply not there.
+fn at_state(present: Vec<Branch>, cut: &[u32], part: Part) -> Vec<Branch> {
+    let parent_of: std::collections::HashMap<u32, u32> = present.iter().map(|b| (b.key, b.parent)).collect();
+    // The trunk has no joint to cut at.
+    let cut: Vec<u32> = cut.iter().copied().filter(|k| *k != TRUNK).collect();
+    // Walk up from a branch: the first cut ancestor (or itself), if any, and
+    // whether it descends from `root`.
+    let lineage = |mut key: u32| -> (Option<u32>, bool) {
+        let mut first_cut = None;
+        let mut under_root = matches!(part, Part::Fallen(r) if r == key);
+        loop {
+            if first_cut.is_none() && cut.contains(&key) {
+                first_cut = Some(key);
+            }
+            if key == TRUNK {
+                break;
+            }
+            match parent_of.get(&key) {
+                Some(&p) => {
+                    key = p;
+                    if matches!(part, Part::Fallen(r) if r == key) {
+                        under_root = true;
+                    }
+                }
+                None => break,
+            }
+        }
+        (first_cut, under_root)
+    };
+    let base = match part {
+        Part::Fallen(root) => present.iter().find(|b| b.key == root).map(|b| b.pts[0]),
+        Part::Standing => None,
+    };
+    let mut out = Vec::with_capacity(present.len());
+    for b in present {
+        let (first_cut, under_root) = lineage(b.key);
+        match part {
+            Part::Standing => match first_cut {
+                None => out.push(b),
+                Some(k) if k == b.key => {
+                    let (pts, radii, sway) = prefix(&b, STUMP);
+                    out.push(Branch { stump: true, pts, radii, sway, ..b });
+                }
+                Some(_) => {}
+            },
+            Part::Fallen(root) => {
+                if !under_root {
+                    continue;
+                }
+                // A cut inside the fallen part is still a cut — unless it is
+                // the root itself, which is the whole point of the part.
+                match first_cut {
+                    Some(k) if k != root && k == b.key => {
+                        let (pts, radii, sway) = prefix(&b, STUMP);
+                        out.push(Branch { stump: true, pts, radii, sway, ..b });
+                    }
+                    Some(k) if k != root => {}
+                    _ => out.push(b),
+                }
+            }
+        }
     }
+    if let Some(base) = base {
+        for b in out.iter_mut() {
+            for p in b.pts.iter_mut() {
+                *p = sub(*p, base);
+            }
+        }
+    }
+    out
 }
 
 /// One plant at one moment: the four inputs, and the readings the clock takes
@@ -741,18 +934,20 @@ struct Moment<'a> {
     s: &'a Species,
     seed: u32,
     clock: Clock,
-    state: State,
+    state: &'a State,
+    part: Part,
     maturity: f32,
     stage: Stage,
 }
 
 impl<'a> Moment<'a> {
-    fn new(s: &'a Species, seed: u32, clock: Clock, state: State) -> Self {
+    fn new(s: &'a Species, seed: u32, clock: Clock, state: &'a State, part: Part) -> Self {
         Self {
             s,
             seed,
             clock,
             state,
+            part,
             maturity: clock.maturity(s.seasons_to_grown),
             stage: clock.stage(s.seasons_to_grown, s.seasons_of_life),
         }
@@ -829,10 +1024,13 @@ fn sample(b: &Branch, t: f32) -> ([f32; 3], [f32; 3], f32, f32) {
 
 // ── Meshing ─────────────────────────────────────────────────────────────────
 
-fn push_vertex(m: &mut MeshData, p: [f32; 3], n: [f32; 3], uv: [f32; 2], sway: f32) {
+fn push_vertex(m: &mut MeshData, p: [f32; 3], n: [f32; 3], uv: [f32; 2], sway: f32, branch: u32) {
     m.positions.push(p);
     m.normals.push(n);
     m.uvs.push(uv);
+    // Every vertex names its branch, so a swing can be hit-tested in a game
+    // without asking anyone which branch it struck.
+    m.uv2.push(branch_uv(branch));
     let alt = if n[0].abs() > 0.9 { [0.0, 0.0, 1.0] } else { [1.0, 0.0, 0.0] };
     let d = dot(alt, n);
     let t = norm([alt[0] - n[0] * d, alt[1] - n[1] * d, alt[2] - n[2] * d]);
@@ -867,7 +1065,7 @@ fn tube(m: &mut MeshData, b: &Branch, sides: u32, uv_scale: f32) {
             let (sa, ca) = a.sin_cos();
             let nrm = norm(add(scale(frame, ca), scale(side2, sa)));
             let p = add(b.pts[i], scale(nrm, rad));
-            push_vertex(m, p, nrm, [s as f32 / sides as f32 * (rad * 6.0).max(0.5), v_along], b.sway[i]);
+            push_vertex(m, p, nrm, [s as f32 / sides as f32 * (rad * 6.0).max(0.5), v_along], b.sway[i], b.key);
         }
     }
     let ring = (sides + 1) as u32;
@@ -884,7 +1082,7 @@ fn tube(m: &mut MeshData, b: &Branch, sides: u32, uv_scale: f32) {
     let tip_i = n - 1;
     let tip_centre = m.positions.len() as u32;
     let d = norm(sub(b.pts[tip_i], b.pts[tip_i - 1]));
-    push_vertex(m, b.pts[tip_i], d, [0.5, v_along], b.sway[tip_i]);
+    push_vertex(m, b.pts[tip_i], d, [0.5, v_along], b.sway[tip_i], b.key);
     let last_ring = base + (n as u32 - 1) * ring;
     for s in 0..sides as u32 {
         m.indices.extend_from_slice(&[last_ring + s, last_ring + s + 1, tip_centre]);
@@ -892,10 +1090,11 @@ fn tube(m: &mut MeshData, b: &Branch, sides: u32, uv_scale: f32) {
 }
 
 /// The branches with no children among those drawn — the plant's real ends,
-/// whatever its age and whatever this LOD keeps.
+/// whatever its age and whatever this LOD keeps. A stump is not an end: it is
+/// where an end used to be.
 fn tips(drawn: &[&Branch]) -> Vec<u32> {
     let parents: HashSet<u32> = drawn.iter().map(|b| b.parent).collect();
-    drawn.iter().filter(|b| !parents.contains(&b.key)).map(|b| b.key).collect()
+    drawn.iter().filter(|b| !b.stump && !parents.contains(&b.key)).map(|b| b.key).collect()
 }
 
 /// The wood mesh, the branches this LOD drew, and the leaf mesh (when the
@@ -904,7 +1103,8 @@ fn mesh_for(at: &Moment, detail: f32) -> (MeshData, Vec<Branch>, Option<MeshData
     let s = at.s;
     let sides = ((s.sides as f32 * detail).round() as u32).max(3);
     let segments = ((s.segments as f32 * detail).round() as u32).max(2);
-    let present = at_clock(s, &potential(s, at.seed, at.state, segments), at.maturity);
+    let present = at_clock(s, &potential(s, at.seed, at.state.withered, segments), at.maturity);
+    let present = at_state(present, &at.state.cut, at.part);
     let outer = present.iter().map(|b| b.level).max().unwrap_or(0);
     // Coarser LODs drop the outermost generation(s) — the silhouette keeps.
     let max_level = if detail < 0.35 { outer.saturating_sub(1) } else { outer };
@@ -933,11 +1133,12 @@ fn mesh_for(at: &Moment, detail: f32) -> (MeshData, Vec<Branch>, Option<MeshData
             }
         };
         let mut sites: Vec<LeafSite> = Vec::new();
-        for b in drawn.iter().filter(|b| b.level >= first_level) {
+        for b in drawn.iter().filter(|b| b.level >= first_level && !b.stump) {
             let n = b.pts.len();
             if ends.contains(&b.key) {
                 sites.push(LeafSite {
                     key: child_key(b.key, KIND_LEAF_TIP, 0),
+                    branch: b.key,
                     position: b.pts[n - 1],
                     direction: norm(sub(b.pts[n - 1], b.pts[n - 2])),
                     sway: b.sway[n - 1],
@@ -952,6 +1153,7 @@ fn mesh_for(at: &Moment, detail: f32) -> (MeshData, Vec<Branch>, Option<MeshData
                     let (p, d, _, sw) = sample(b, t);
                     sites.push(LeafSite {
                         key: child_key(b.key, KIND_LEAF_ALONG, k),
+                        branch: b.key,
                         position: p,
                         direction: d,
                         sway: sw,
@@ -1075,11 +1277,34 @@ fn crop_sockets(at: &Moment, branches: &[Branch], ends: &HashSet<u32>, kind: Soc
 /// Grow one individual of a species at one moment, in whatever state it is in:
 /// LOD0 as a [`Built`] for preview/export, every LOD, and the sockets — the
 /// tips it actually has, plus whatever the year has put on them.
-pub fn grow(species: &Species, seed: u32, clock: Clock, state: State) -> Result<Grown, String> {
+pub fn grow(species: &Species, seed: u32, clock: Clock, state: &State) -> Result<Grown, String> {
+    grow_part(species, seed, clock, state, Part::Standing)
+}
+
+/// The part that fell when `branch` was cut: that branch and everything that
+/// grew from it, grown exactly as it stands on the tree — same seed, same
+/// clock, same state, the same leaves and fruit — and brought to its own base,
+/// so a game spawns it at the `cut` socket's position with no rotation and it
+/// lines up with the wound.
+///
+/// The branch must be one the plant has at this moment. It need not be in
+/// `state.cut` yet — this is what a cut *would* drop.
+pub fn fallen(species: &Species, seed: u32, clock: Clock, state: &State, branch: u32) -> Result<Grown, String> {
+    if branch == TRUNK {
+        return Err("the trunk cannot be cut at a joint — felling is a different verb".into());
+    }
+    let g = grow_part(species, seed, clock, state, Part::Fallen(branch))?;
+    if g.built.parts[0].mesh.positions.is_empty() {
+        return Err(format!("branch {branch:08x} is not on this plant at this moment"));
+    }
+    Ok(g)
+}
+
+fn grow_part(species: &Species, seed: u32, clock: Clock, state: &State, part: Part) -> Result<Grown, String> {
     if species.height <= 0.0 || species.trunk_radius <= 0.0 {
         return Err("height and trunk_radius must be positive".into());
     }
-    let at = Moment::new(species, seed, clock, state);
+    let at = Moment::new(species, seed, clock, state, part);
     let bark = species
         .bark
         .as_ref()
@@ -1102,11 +1327,14 @@ pub fn grow(species: &Species, seed: u32, clock: Clock, state: State) -> Result<
     // what the year hangs on them.
     let ends: HashSet<u32> = tips(&branches.iter().collect::<Vec<_>>()).into_iter().collect();
     let mut sockets = Vec::new();
-    for b in branches.iter().filter(|b| ends.contains(&b.key)) {
+    for b in branches.iter().filter(|b| b.stump || ends.contains(&b.key)) {
         let n = b.pts.len();
+        // A stump's end is the wound: the `cut` socket sits there, facing the
+        // way the branch went, so the fallen part lines up with it.
+        let kind = if b.stump { SocketKind::Cut } else { SocketKind::Tip };
         sockets.push(Socket {
-            name: format!("tip-{:08x}", b.key),
-            kind: SocketKind::Tip,
+            name: format!("{}-{:08x}", kind.prefix(), b.key),
+            kind,
             position: b.pts[n - 1],
             direction: norm(sub(b.pts[n - 1], b.pts[n - 2])),
             radius: b.radii[n - 1],
@@ -1116,16 +1344,30 @@ pub fn grow(species: &Species, seed: u32, clock: Clock, state: State) -> Result<
     }
     sockets.extend(crop_sockets(&at, &branches, &ends, SocketKind::Bloom));
     sockets.extend(crop_sockets(&at, &branches, &ends, SocketKind::Fruit));
+    // Picked is picked: the socket is simply not there.
+    sockets.retain(|k| !state.is_taken(&k.name, clock));
     sockets.sort_by(|a, b| a.name.cmp(&b.name));
+    let info: Vec<BranchInfo> = branches
+        .iter()
+        .map(|b| BranchInfo {
+            id: b.key,
+            parent: if b.key == TRUNK { TRUNK } else { b.parent },
+            level: b.level,
+            base: b.pts[0],
+            tip: *b.pts.last().unwrap(),
+            radius: b.radii[0],
+            stump: b.stump,
+        })
+        .collect();
     let built = Built { name: species.name.clone(), parts: parts_for(&at, lod0, leaf0, &bark, &leaf_baked) };
     let bounds = built.bounds();
-    Ok(Grown { built, lods, sockets, bounds, maturity: at.maturity, stage: at.stage, phase: clock.phase() })
+    Ok(Grown { built, lods, sockets, branches: info, bounds, maturity: at.maturity, stage: at.stage, phase: clock.phase() })
 }
 
 /// Grow what a recipe file or a Quarry submission holds: species, seed, clock
 /// and state in one value.
 pub fn grow_planting(p: &Planting) -> Result<Grown, String> {
-    grow(&p.species, p.seed, p.clock, p.state)
+    grow(&p.species, p.seed, p.clock, &p.state)
 }
 
 #[cfg(test)]
@@ -1133,7 +1375,7 @@ mod tests {
     use super::*;
 
     fn grown(species: &Species, seed: u32) -> Grown {
-        grow(species, seed, Clock::grown(), State::thriving()).unwrap()
+        grow(species, seed, Clock::grown(), &State::thriving()).unwrap()
     }
 
     fn leafy() -> Species {
@@ -1173,8 +1415,8 @@ mod tests {
         let c = grown(&s, 99);
         assert_ne!(a.built.parts[0].mesh.positions, c.built.parts[0].mesh.positions);
         // …and at a young age too, which is where a consumed stream used to drift.
-        let y1 = grow(&s, 1, Clock::at(3.0), State::thriving()).unwrap();
-        let y2 = grow(&s, 1, Clock::at(3.0), State::thriving()).unwrap();
+        let y1 = grow(&s, 1, Clock::at(3.0), &State::thriving()).unwrap();
+        let y2 = grow(&s, 1, Clock::at(3.0), &State::thriving()).unwrap();
         assert_eq!(y1.built.parts[0].mesh.positions, y2.built.parts[0].mesh.positions);
     }
 
@@ -1183,7 +1425,7 @@ mod tests {
         // Every branch a young plant has is the branch the grown plant has —
         // the same identity, pointing the same way, only shorter and thinner.
         let s = Species::default();
-        let all = potential(&s, 7, State::thriving(), s.segments);
+        let all = potential(&s, 7, false, s.segments);
         for age in [1.0f32, 3.0, 6.0, 9.0, 11.5] {
             let m = Clock::at(age).maturity(s.seasons_to_grown);
             let now = at_clock(&s, &all, m);
@@ -1209,7 +1451,7 @@ mod tests {
     #[test]
     fn age_only_ever_adds_branches() {
         let s = Species::default();
-        let all = potential(&s, 12, State::thriving(), s.segments);
+        let all = potential(&s, 12, false, s.segments);
         let keys = |age: f32| -> HashSet<u32> {
             at_clock(&s, &all, Clock::at(age).maturity(s.seasons_to_grown)).iter().map(|b| b.key).collect()
         };
@@ -1226,7 +1468,7 @@ mod tests {
     #[test]
     fn a_sapling_is_smaller_and_simpler() {
         let s = Species::default();
-        let young = grow(&s, 4, Clock::at(2.0), State::thriving()).unwrap();
+        let young = grow(&s, 4, Clock::at(2.0), &State::thriving()).unwrap();
         let old = grown(&s, 4);
         assert!(young.built.triangles() < old.built.triangles(), "a sapling has less wood");
         let h = |g: &Grown| g.bounds.1[1] - g.bounds.0[1];
@@ -1236,13 +1478,13 @@ mod tests {
         // Growing up never shrinks the plant.
         let mut last = 0.0;
         for age in [0.5f32, 1.0, 2.0, 4.0, 8.0, 12.0, 40.0] {
-            let g = grow(&s, 4, Clock::at(age), State::thriving()).unwrap();
+            let g = grow(&s, 4, Clock::at(age), &State::thriving()).unwrap();
             let now = h(&g);
             assert!(now >= last - 1e-4, "age {age} shrank: {now} < {last}");
             last = now;
         }
         // Past its life curve a plant is simply grown, not bigger.
-        let ancient = grow(&s, 4, Clock::at(400.0), State::thriving()).unwrap();
+        let ancient = grow(&s, 4, Clock::at(400.0), &State::thriving()).unwrap();
         assert_eq!(ancient.built.parts[0].mesh.positions, old.built.parts[0].mesh.positions);
     }
 
@@ -1250,7 +1492,7 @@ mod tests {
     fn a_sapling_still_has_tips_to_hang_things_on() {
         let s = leafy();
         for age in [0.5f32, 2.0, 5.0, 12.0] {
-            let g = grow(&s, 3, Clock::at(age), State::thriving()).unwrap();
+            let g = grow(&s, 3, Clock::at(age), &State::thriving()).unwrap();
             assert!(!g.sockets.is_empty(), "age {age} has no sockets");
             assert_eq!(g.built.parts.len(), 2, "age {age} lost its leaves");
             assert!(g.built.parts[1].mesh.positions.len() >= 5, "age {age} has no leaves");
@@ -1260,8 +1502,8 @@ mod tests {
     #[test]
     fn withered_is_the_same_tree_gone_further() {
         let s = leafy();
-        let alive = potential(&s, 7, State::thriving(), s.segments);
-        let dead = potential(&s, 7, State::withered(), s.segments);
+        let alive = potential(&s, 7, false, s.segments);
+        let dead = potential(&s, 7, true, s.segments);
         assert_eq!(alive.len(), dead.len(), "death takes no branches away");
         let length = |b: &Branch| -> f32 { (1..b.pts.len()).map(|i| len(sub(b.pts[i], b.pts[i - 1]))).sum() };
         for (a, d) in alive.iter().zip(dead.iter()) {
@@ -1273,14 +1515,14 @@ mod tests {
         // It bends: the crown is not where it was.
         assert_ne!(alive[1].pts.last().unwrap()[1], dead[1].pts.last().unwrap()[1]);
 
-        let g = grow(&s, 7, Clock::grown(), State::withered()).unwrap();
+        let g = grow(&s, 7, Clock::grown(), &State::withered()).unwrap();
         assert_eq!(g.built.parts.len(), 1, "no leaves on a withered tree");
         assert!(!g.sockets.is_empty(), "a bare tree still has ends");
         assert!(g.sockets.iter().all(|k| k.kind == SocketKind::Tip), "no crop on a withered tree");
         // Darker wood, and any glow goes out with it.
         let lit = Species { emissive: 0.8, ..s.clone() };
         let alive_wood = grown(&lit, 7).built.parts[0].color;
-        let dead_built = grow(&lit, 7, Clock::grown(), State::withered()).unwrap();
+        let dead_built = grow(&lit, 7, Clock::grown(), &State::withered()).unwrap();
         assert!(dead_built.built.parts[0].color[0] < alive_wood[0]);
         assert!(dead_built.built.parts[0].emissive < 0.8);
     }
@@ -1318,7 +1560,7 @@ mod tests {
     fn a_crop_is_in_season_or_it_is_not() {
         let s = Species { fruit: Some(CropRecipe { share: 0.6, ..Default::default() }), ..leafy() };
         let fruit = |clock: Clock, state: State| -> Vec<String> {
-            grow(&s, 5, clock, state)
+            grow(&s, 5, clock, &state)
                 .unwrap()
                 .sockets
                 .into_iter()
@@ -1338,8 +1580,8 @@ mod tests {
         let tips = grown(&s, 5).sockets.iter().filter(|k| k.kind == SocketKind::Tip).count();
         assert!(in_season.len() < tips, "only a share of the tips bear ({} of {tips})", in_season.len());
         // A crop is sockets, not geometry: the wood and the crown are untouched.
-        let bare_season = grow(&s, 5, Clock::grown().in_season(0.5), State::thriving()).unwrap();
-        let no_fruit = grow(&Species { fruit: None, ..s.clone() }, 5, Clock::grown().in_season(0.5), State::thriving()).unwrap();
+        let bare_season = grow(&s, 5, Clock::grown().in_season(0.5), &State::thriving()).unwrap();
+        let no_fruit = grow(&Species { fruit: None, ..s.clone() }, 5, Clock::grown().in_season(0.5), &State::thriving()).unwrap();
         assert_eq!(bare_season.built.parts[0].mesh.positions, no_fruit.built.parts[0].mesh.positions);
     }
 
@@ -1347,7 +1589,7 @@ mod tests {
     fn the_year_dresses_the_crown() {
         let s = leafy();
         let crown = |season: f32| -> usize {
-            grow(&s, 9, Clock::grown().in_season(season), State::thriving())
+            grow(&s, 9, Clock::grown().in_season(season), &State::thriving())
                 .unwrap()
                 .built
                 .parts
@@ -1360,8 +1602,8 @@ mod tests {
         assert_eq!(crown(0.35), crown(0.6), "full through bloom and fruit");
         assert!(crown(0.78) > 0 && crown(0.78) < crown(0.6), "falling");
         // Turning is colour, not geometry: the leaves that remain are the same leaves.
-        let summer = grow(&s, 9, Clock::grown().in_season(0.5), State::thriving()).unwrap();
-        let turning = grow(&s, 9, Clock::grown().in_season(0.72), State::thriving()).unwrap();
+        let summer = grow(&s, 9, Clock::grown().in_season(0.5), &State::thriving()).unwrap();
+        let turning = grow(&s, 9, Clock::grown().in_season(0.72), &State::thriving()).unwrap();
         // Every leaf still on the tree is one the full crown had, in the same
         // place: the year sheds leaves, it does not grow a different crown.
         let bits = |p: &[f32; 3]| (p[0].to_bits(), p[1].to_bits(), p[2].to_bits());
@@ -1371,7 +1613,7 @@ mod tests {
         // An evergreen ignores the year.
         let ever = Species { evergreen: true, ..s.clone() };
         let ever_crown = |season: f32| {
-            grow(&ever, 9, Clock::grown().in_season(season), State::thriving()).unwrap().built.parts[1].mesh.positions.len()
+            grow(&ever, 9, Clock::grown().in_season(season), &State::thriving()).unwrap().built.parts[1].mesh.positions.len()
         };
         assert_eq!(ever_crown(0.92), ever_crown(0.35));
     }
@@ -1379,7 +1621,7 @@ mod tests {
     #[test]
     fn an_old_tree_is_the_same_tree_with_less_crown() {
         let s = leafy();
-        let at = |age: f32| grow(&s, 6, Clock::at(age), State::thriving()).unwrap();
+        let at = |age: f32| grow(&s, 6, Clock::at(age), &State::thriving()).unwrap();
         let (mature, old, dying) = (at(40.0), at(130.0), at(158.0));
         assert_eq!(mature.stage, Stage::Mature);
         assert_eq!(old.stage, Stage::Old);
@@ -1391,6 +1633,162 @@ mod tests {
         assert!(crown(&old) < crown(&mature), "an old tree thins");
         assert!(crown(&dying) < crown(&old), "a dying one is mostly bare");
         assert!(crown(&dying) > 0);
+    }
+
+    /// The branch ids a mesh's vertices name.
+    fn named(m: &MeshData) -> HashSet<u32> {
+        m.uv2.iter().map(|uv| branch_from_uv(*uv)).collect()
+    }
+
+    /// A level-1 fork of the default tree at seed 5: a limb worth chopping.
+    fn a_limb(s: &Species) -> u32 {
+        potential(s, 5, false, s.segments).iter().find(|b| b.level == 1 && b.attach >= 1.0).unwrap().key
+    }
+
+    #[test]
+    fn every_vertex_names_its_branch() {
+        let s = leafy();
+        let g = grown(&s, 5);
+        let wood = &g.built.parts[0].mesh;
+        assert_eq!(wood.uv2.len(), wood.positions.len(), "one id per wood vertex");
+        let keys: HashSet<u32> = potential(&s, 5, false, s.segments).iter().map(|b| b.key).collect();
+        let wood_keys = named(wood);
+        assert!(wood_keys.is_subset(&keys), "a vertex names a branch the plant has");
+        assert_eq!(wood_keys.len(), keys.len(), "every branch is named by its vertices");
+        for k in [0u32, 1, 0xffff, 0x1_0000, 0xdead_beef, u32::MAX] {
+            assert_eq!(branch_from_uv(branch_uv(k)), k, "{k:#x} survives the channel");
+        }
+        // Leaves name the twig they grow on, and nothing else.
+        let leaves = &g.built.parts[1].mesh;
+        assert_eq!(leaves.uv2.len(), leaves.positions.len());
+        assert!(named(leaves).is_subset(&keys));
+        // The channel reaches the LODs too.
+        for lod in &g.lods {
+            assert_eq!(lod.parts[0].mesh.uv2.len(), lod.parts[0].mesh.positions.len());
+        }
+    }
+
+    #[test]
+    fn a_cut_takes_the_limb_and_leaves_a_socket_at_the_joint() {
+        let s = leafy();
+        let limb = a_limb(&s);
+        let whole = grown(&s, 5);
+        let cut = grow(&s, 5, Clock::grown(), &State::thriving().cut(limb)).unwrap();
+        assert!(cut.built.triangles() < whole.built.triangles(), "less wood");
+        assert!(cut.built.parts[1].mesh.positions.len() < whole.built.parts[1].mesh.positions.len(), "fewer leaves");
+        // Everything that grew from the limb is gone; the limb itself is a stump.
+        let all = potential(&s, 5, false, s.segments);
+        let under: HashSet<u32> = {
+            let parent: std::collections::HashMap<u32, u32> = all.iter().map(|b| (b.key, b.parent)).collect();
+            all.iter()
+                .map(|b| b.key)
+                .filter(|&k| {
+                    let mut c = k;
+                    loop {
+                        if c == limb {
+                            break true;
+                        }
+                        match parent.get(&c) {
+                            Some(&p) if c != TRUNK => c = p,
+                            _ => break false,
+                        }
+                    }
+                })
+                .collect()
+        };
+        let left = named(&cut.built.parts[0].mesh);
+        assert!(left.contains(&limb), "the stump still names the limb");
+        assert!(under.iter().filter(|k| **k != limb).all(|k| !left.contains(k)), "nothing beyond the joint");
+        assert!(named(&cut.built.parts[1].mesh).is_disjoint(&under), "no leaves on what fell");
+        // One `cut` socket, at the joint, named for the branch; no tips under it.
+        let cuts: Vec<&Socket> = cut.sockets.iter().filter(|k| k.kind == SocketKind::Cut).collect();
+        assert_eq!(cuts.len(), 1);
+        assert_eq!(cuts[0].name, format!("cut-{limb:08x}"));
+        assert_eq!(cuts[0].branch, limb);
+        let base = all.iter().find(|b| b.key == limb).unwrap().pts[0];
+        assert!(len(sub(cuts[0].position, base)) < 0.3, "the socket sits at the joint");
+        assert!(cut.sockets.iter().filter(|k| k.kind == SocketKind::Tip).all(|k| !under.contains(&k.branch)));
+        // The trunk cannot be cut at a joint: asking changes nothing.
+        let trunk = grow(&s, 5, Clock::grown(), &State::thriving().cut(TRUNK)).unwrap();
+        assert_eq!(trunk.built.parts[0].mesh.positions, whole.built.parts[0].mesh.positions);
+        // Same seed, same cut, same wound.
+        let again = grow(&s, 5, Clock::grown(), &State::thriving().cut(limb)).unwrap();
+        assert_eq!(again.built.parts[0].mesh.positions, cut.built.parts[0].mesh.positions);
+    }
+
+    #[test]
+    fn the_fallen_part_is_the_limb_grown_on_its_own() {
+        let s = leafy();
+        let limb = a_limb(&s);
+        let whole = grown(&s, 5);
+        let cut = grow(&s, 5, Clock::grown(), &State::thriving().cut(limb)).unwrap();
+        let part = fallen(&s, 5, Clock::grown(), &State::thriving(), limb).unwrap();
+        // What fell plus what stands is the tree, branch for branch (the stump
+        // is named twice: once as the wound, once as the base of what fell).
+        let standing = named(&cut.built.parts[0].mesh);
+        let fell = named(&part.built.parts[0].mesh);
+        let all = named(&whole.built.parts[0].mesh);
+        assert!(fell.contains(&limb));
+        assert_eq!(&standing | &fell, all);
+        assert_eq!(&standing & &fell, [limb].into_iter().collect::<HashSet<u32>>());
+        // It stands on its own base, and it is the same wood, moved: put it
+        // back at the joint and every vertex lands on the whole tree.
+        let base = potential(&s, 5, false, s.segments).iter().find(|b| b.key == limb).unwrap().pts[0];
+        let bits = |p: [f32; 3]| (p[0].to_bits(), p[1].to_bits(), p[2].to_bits());
+        let tree: HashSet<_> = whole.built.parts[0].mesh.positions.iter().map(|p| bits(*p)).collect();
+        let mut off = 0;
+        for p in &part.built.parts[0].mesh.positions {
+            let back = add(*p, base);
+            // Float noise from the subtraction: compare to a hair.
+            if !tree.contains(&bits(back)) {
+                let near = whole.built.parts[0].mesh.positions.iter().any(|q| len(sub(*q, back)) < 1e-4);
+                if !near {
+                    off += 1;
+                }
+            }
+        }
+        assert_eq!(off, 0, "{off} vertices of the fallen part are not where the tree had them");
+        let (min, _) = part.bounds;
+        assert!(min[0] <= 0.0 && min[1] <= 0.0 && min[2] <= 0.0, "the base is at the origin");
+        // The fruit went with it, and so did the leaves.
+        assert_eq!(part.built.parts.len(), 2);
+        assert!(part.sockets.iter().any(|k| k.kind == SocketKind::Tip));
+        // A cut above the joint is still a cut inside the fallen part.
+        let twig = potential(&s, 5, false, s.segments)
+            .iter()
+            .find(|b| b.level == 2 && b.parent == limb)
+            .unwrap()
+            .key;
+        let part2 = fallen(&s, 5, Clock::grown(), &State::thriving().cut(twig), limb).unwrap();
+        assert!(part2.built.triangles() < part.built.triangles());
+        assert!(part2.sockets.iter().any(|k| k.kind == SocketKind::Cut && k.branch == twig));
+        // Asking for what is not there is an error, not an empty file.
+        assert!(fallen(&s, 5, Clock::grown(), &State::thriving(), TRUNK).is_err());
+        assert!(fallen(&s, 5, Clock::at(0.5), &State::thriving(), limb).is_err(), "a seedling has no limb to lose");
+    }
+
+    #[test]
+    fn a_taken_socket_is_gone_until_it_regrows() {
+        let s = Species { fruit: Some(CropRecipe { share: 0.6, ..Default::default() }), ..leafy() };
+        let summer = Clock::at(30.0).in_season(0.5);
+        let first = grow(&s, 5, summer, &State::thriving())
+            .unwrap()
+            .sockets
+            .into_iter()
+            .find(|k| k.kind == SocketKind::Fruit)
+            .unwrap()
+            .name;
+        let has = |clock: Clock, state: &State| grow(&s, 5, clock, state).unwrap().sockets.iter().any(|k| k.name == first);
+        assert!(has(summer, &State::thriving()));
+        let picked = State::thriving().take(&first, Some(34.0));
+        assert!(!has(summer, &picked), "picked");
+        assert!(has(Clock::at(34.0).in_season(0.5), &picked), "and back when the plant is old enough");
+        assert!(!has(Clock::grown().in_season(0.5), &picked), "a plant with no age cannot have grown it back");
+        let forever = State::thriving().take(&first, None);
+        assert!(!has(Clock::at(1000.0).in_season(0.5), &forever), "no regrow time: the game strikes it");
+        // The other sockets are none the wiser.
+        let n = |state: &State| grow(&s, 5, summer, state).unwrap().sockets.len();
+        assert_eq!(n(&picked) + 1, n(&State::thriving()));
     }
 
     #[test]
@@ -1421,6 +1819,17 @@ mod tests {
         assert!(dead.state.withered);
         assert_eq!(dead.to_value()["withered"], true);
         assert!(Planting::from_value(&dead.to_value()).unwrap().state.withered);
+        // Cuts and picks ride the same flat object.
+        let hurt = Planting::from_json(
+            r#"{"name":"oak","seed":5,"cut":[3735928559],"taken":[{"socket":"fruit-0000beef-0","until":20}]}"#,
+        )
+        .unwrap();
+        assert_eq!(hurt.state.cut, vec![0xdead_beef]);
+        assert_eq!(hurt.state.taken[0].until, Some(20.0));
+        let v = hurt.to_value();
+        assert_eq!(v["cut"][0], 3735928559u64);
+        assert_eq!(v["taken"][0]["socket"], "fruit-0000beef-0");
+        assert_eq!(Planting::from_value(&v).unwrap().state, hurt.state);
     }
 
     #[test]

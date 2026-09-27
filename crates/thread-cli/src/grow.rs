@@ -24,7 +24,7 @@ use std::process::ExitCode;
 use chisel::gltf::{write_glb_scene, SceneMesh, SceneNode};
 use chisel::model::{Built, BuiltPart};
 use chisel::MeshData;
-use grove::grow::{grow_planting, Planting, SocketKind};
+use grove::grow::{fallen, grow_planting, Planting, SocketKind};
 use grove::hang::{hang, HangRecipe, Placement};
 
 pub fn cmd_grow(args: &[String]) -> ExitCode {
@@ -34,6 +34,9 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
     let mut life: Option<&String> = None;
     let mut year: Option<&String> = None;
     let mut withered = false;
+    let mut cuts: Vec<u32> = Vec::new();
+    let mut takes: Vec<(String, Option<f32>)> = Vec::new();
+    let mut fallen_of: Option<u32> = None;
     let mut sockets_out: Option<&String> = None;
     let mut views: u32 = 3;
     let mut seed: Option<u32> = None;
@@ -56,6 +59,22 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             "--life" => life = it.next(),
             "--year" => year = it.next(),
             "--withered" => withered = true,
+            "--cut" => {
+                if let Some(id) = it.next().and_then(|v| branch_id(v)) {
+                    cuts.push(id);
+                }
+            }
+            "--take" => {
+                if let Some(v) = it.next() {
+                    // `fruit-0000beef-0` or `fruit-0000beef-0@20` (back at age 20).
+                    let (name, until) = match v.split_once('@') {
+                        Some((n, u)) => (n.to_string(), u.parse().ok()),
+                        None => (v.clone(), None),
+                    };
+                    takes.push((name, until));
+                }
+            }
+            "--fallen" => fallen_of = it.next().and_then(|v| branch_id(v)),
             "--sockets" => sockets_out = it.next(),
             "--seed" => seed = it.next().and_then(|v| v.parse().ok()),
             "--age" => age = it.next().and_then(|v| v.parse().ok()),
@@ -85,7 +104,7 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         }
     }
     let Some(file) = file else {
-        eprintln!("usage: thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json] [--seed n] [--age seasons] [--season 0..1] [--withered] [--life life.png] [--year year.png] [--views n] [--hang thing.glb --hang-kind tip|bloom|fruit --hang-count n --hang-scale s --hang-drop m --hang-level l]");
+        eprintln!("usage: thread grow <recipe.json> [-o tree.glb] [--preview sheet.png] [--sockets tree.sockets.json] [--seed n] [--age seasons] [--season 0..1] [--withered] [--cut <branch>]… [--take <socket>[@age]]… [--fallen <branch>] [--life life.png] [--year year.png] [--views n] [--hang thing.glb --hang-kind tip|bloom|fruit --hang-count n --hang-scale s --hang-drop m --hang-level l]");
         return ExitCode::from(2);
     };
     let text = match std::fs::read_to_string(file) {
@@ -114,6 +133,12 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
     if withered {
         planting.state.withered = true;
     }
+    for id in cuts {
+        planting.state = planting.state.clone().cut(id);
+    }
+    for (name, until) in takes {
+        planting.state = planting.state.clone().take(&name, until);
+    }
     hang_recipe.seed = planting.seed;
     let grown = match grow_planting(&planting) {
         Ok(g) => g,
@@ -132,9 +157,17 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
         None => format!("{:?}", grown.stage).to_lowercase(),
     };
     let when = format!(
-        "{when}, {} of the year{}",
+        "{when}, {} of the year{}{}{}",
         format!("{:?}", grown.phase).to_lowercase(),
-        if planting.state.withered { ", withered" } else { "" }
+        if planting.state.withered { ", withered" } else { "" },
+        match planting.state.cut.len() {
+            0 => String::new(),
+            n => format!(", {n} cut"),
+        },
+        match planting.state.taken.len() {
+            0 => String::new(),
+            n => format!(", {n} taken"),
+        }
     );
 
     // The bare wood: `-o` when nothing hangs, `<stem>.wood.glb` otherwise.
@@ -173,6 +206,13 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             Err(e) => eprintln!("⚠ lod{i} export failed: {e}"),
         }
     }
+    // What the vertex ids mean: every branch, its parent, its joint.
+    let branches_path = format!("{base}.branches.json");
+    if let Ok(json) = serde_json::to_string_pretty(&grown.branches) {
+        if std::fs::write(&branches_path, json).is_ok() {
+            println!("  branches → {branches_path} ({})", grown.branches.len());
+        }
+    }
     let sockets_path = sockets_out.cloned().unwrap_or_else(|| format!("{base}.sockets.json"));
     match serde_json::to_string_pretty(&grown.sockets) {
         Ok(json) => {
@@ -181,6 +221,39 @@ pub fn cmd_grow(args: &[String]) -> ExitCode {
             }
         }
         Err(e) => eprintln!("⚠ sockets: {e}"),
+    }
+
+    // The part a cut would drop: the subtree on its own base, beside the tree.
+    if let Some(id) = fallen_of {
+        match fallen(&planting.species, planting.seed, planting.clock, &planting.state, id) {
+            Ok(part) => {
+                let fp = format!("{base}.fallen-{id:08x}.glb");
+                match chisel::model::export_glb(&part.built) {
+                    Ok(glb) if std::fs::write(&fp, &glb).is_ok() => {
+                        let (min, max) = part.bounds;
+                        println!(
+                            "✓ fallen {id:08x} → {fp} — {} tris, {:.2} × {:.2} × {:.2} m, {} socket(s)",
+                            part.built.triangles(),
+                            max[0] - min[0],
+                            max[1] - min[1],
+                            max[2] - min[2],
+                            part.sockets.len()
+                        );
+                    }
+                    Ok(_) => eprintln!("⚠ cannot write {fp}"),
+                    Err(e) => eprintln!("⚠ fallen export failed: {e}"),
+                }
+                if let Some(shot) = preview {
+                    let fshot = format!("{}.fallen-{id:08x}.png", shot.trim_end_matches(".png"));
+                    let opts = chisel::preview::PreviewOptions { views, ..Default::default() };
+                    match chisel::preview::write_png(&part.built, opts, &fshot) {
+                        Ok(()) => println!("✓ preview → {fshot}"),
+                        Err(e) => eprintln!("⚠ fallen preview failed: {e}"),
+                    }
+                }
+            }
+            Err(e) => eprintln!("✗ fallen: {e}"),
+        }
     }
 
     // The composition: wood + the hung thing, instanced per chosen tip.
@@ -383,6 +456,20 @@ fn row_sheet(shots: &[Planting], path: &str) -> Result<usize, String> {
         chisel::preview::PreviewOptions { width: 1600, height: 460, views: 1, pitch: 8.0, fill: 2.6, ..Default::default() };
     chisel::preview::write_png(&row, opts, path)?;
     Ok(shots.len())
+}
+
+/// A branch id as a person types it: the number from the sockets file, `0x…`,
+/// or a socket's name (`tip-0000beef`, `cut-0000beef`, `fruit-0000beef-1`).
+fn branch_id(v: &str) -> Option<u32> {
+    if let Some(hex) = v.strip_prefix("0x") {
+        return u32::from_str_radix(hex, 16).ok();
+    }
+    if let Ok(n) = v.parse::<u32>() {
+        return Some(n);
+    }
+    let mut parts = v.split('-');
+    let _kind = parts.next()?;
+    u32::from_str_radix(parts.next()?, 16).ok()
 }
 
 /// Apply a placement (scale, then rotate, then translate) to a mesh copy.

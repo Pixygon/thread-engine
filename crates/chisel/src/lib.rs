@@ -40,6 +40,12 @@ pub struct MeshData {
     /// lighten (wear), concave crevices darken (grime) — multiplied into
     /// albedo by every PBR renderer that honours vertex color.
     pub colors: Vec<[f32; 4]>,
+    /// A second UV set (`TEXCOORD_1`), for what a mesh needs to say per vertex
+    /// that is not a texture coordinate — Grove writes each vertex's branch id
+    /// here, low 16 bits in `u`, high 16 in `v`, both exact in f32, so a game
+    /// can hit-test a swing against the wood without asking anyone. Either
+    /// empty or one entry per vertex; the exporter writes it only when full.
+    pub uv2: Vec<[f32; 2]>,
     pub indices: Vec<u32>,
 }
 

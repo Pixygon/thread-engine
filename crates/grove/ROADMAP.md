@@ -68,7 +68,7 @@ in the Quarry — and always comes out the same.
    see "Where it stands".* Turntable next to the concept before it is called
    done (`thread grow --preview`).
 3. **Branch ids in the mesh, cut state, subtree derivation** for the fallen
-   part. Joints only.
+   part. Joints only. ✅ *landed 2026-09-27 — see "Where it stands".*
 4. **Wind channels, the Unity shader, impostors.**
 5. **Species from the Codex**: prose in the Codex → an agent drafts species
    rules → the turntable decides.
@@ -175,3 +175,41 @@ other two new flags.
 Still to do here: blooms and fruit have no *geometry* supplier wired yet (the
 sockets are there and `--hang` fills them from a glb); an evergreen species
 opts out of the year with one flag but nothing yet models needles differently.
+
+### Step 3, 2026-09-27
+
+Harvest, pick and chop are state now, and the state is what the roadmap asked
+for: `{ withered, cut: [branch ids], taken: [{ socket, until }] }` — a short
+list, flat in the recipe file and in the Quarry submission, and every entry
+a *filter* on the plant the seed decided.
+
+**Every vertex names its branch.** `TEXCOORD_1` carries the id — low 16 bits
+in `u`, high 16 in `v`, both exact in f32 — on the wood and on the leaves, at
+every LOD, so a game hit-tests a swing against the mesh and knows which branch
+it struck without asking anyone. `<stem>.branches.json` says what the ids mean
+(parent, level, joint, end), because a hit is only useful once it is a joint.
+Chisel's `MeshData` gained `uv2` for it; the exporter writes the attribute
+only when every vertex has one, so nothing else changed.
+
+**Cuts are at joints only.** A cut names a branch and takes it from where it
+sprouts: what is left on the tree is a stump — the first 5 % of the branch,
+its end capped — with a `cut` socket at the wound facing the way the branch
+went, and nothing beyond it, leaves and fruit included. The trunk has no
+joint and is ignored; felling is a different verb. `fallen(species, seed,
+clock, state, branch)` is the part that dropped: the subtree grown exactly as
+it stood — same seed, same clock, same state, so a cut inside it is still a
+cut and its fruit is still on it — brought to its own base, so a game spawns
+it at the `cut` socket with no rotation and it lines up with the wound. A
+test puts every vertex of the fallen part back at the joint and finds it on
+the whole tree.
+
+**Picks** are a socket name and the age it grows back at (`None` holds until
+the game strikes it); a picked socket is simply not in the list, and the other
+sockets are none the wiser.
+
+`thread grow --cut <id>… --take <socket>[@age]… --fallen <id>`; ids read as a
+number, `0x…`, or a socket name. 48 tests in Grove.
+
+Still to do here: the stump's end is a flat cap, not a wound texture; `cut`
+sockets exist but nothing is hung at them yet (a sap bead, a fungus, a lantern
+hook would all be `--hang-kind cut`).

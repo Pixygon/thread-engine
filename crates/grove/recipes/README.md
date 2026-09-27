@@ -11,7 +11,9 @@ those three whenever anyone needs it. Each file here is one plant:
   the game controls, never wall-clock days); leave it out and the file shows
   the grown plant. `season` is 0..1 and wraps: bud, leaf, bloom, fruit, seed
   drop, bare;
-- `withered` — what has *happened* to it. A state, not a second species.
+- `withered`, `cut`, `taken` — what has *happened* to it. A state, not a
+  second species: dead standing, branches chopped (by id, at the joint they
+  sprout from), sockets picked (by name, with the age they grow back at).
 
 ```sh
 thread grow oak.grow.json -o oak.glb --preview sheet.png   # the turntable
@@ -21,6 +23,9 @@ thread grow oak.grow.json --life life.png                  # six ages, one scale
 thread grow oak.grow.json --year year.png                  # one year, one scale
 thread grow oak.grow.json --season 0.78                    # turning, about to drop
 thread grow lantern-tree.grow.json --withered              # the same tree, dead standing
+thread grow oak.grow.json --cut 0x1a2b3c4d                 # one limb chopped at its joint…
+thread grow oak.grow.json --fallen 0x1a2b3c4d -o oak.glb   # …and the part that fell, on its own base
+thread grow oak.grow.json --take fruit-0000beef-0@20       # one acorn picked, back at age 20
 thread grow lantern-tree.grow.json --hang fruit.glb --hang-kind fruit
 thread grow oak.grow.json --publish                        # the Quarry regrows it
 ```
@@ -49,6 +54,18 @@ arc, `branches` adds laterals along a parent, and `gravity` near zero lets
 `curve` do the gnarl — a big droop plus a lean tips the crown over. `wobble`
 is the wander on top of the arc, spread over the whole branch, so a coarse LOD
 wanders the same way instead of a different way.
+
+Next to every `.glb` come `<stem>.sockets.json` and `<stem>.branches.json`.
+The sockets are typed (`tip`, `bloom`, `fruit`, `cut`) and named after the
+branch that carries them; the branches file says what the ids mean — each
+branch's parent, level, joint and end. **Every vertex names its branch** in
+`TEXCOORD_1` (low 16 bits in `u`, high 16 in `v`; in Unity
+`id = (uint)uv2.x | ((uint)uv2.y << 16)`), the leaves included, so a swing is
+hit-tested against the wood without asking anyone, the branches file turns the
+hit into a joint, and `cut` records it. The tree then grows a stump with a
+`cut` socket at the joint, everything beyond it is gone, and `--fallen <id>`
+grows exactly what fell — same seed, same clock, same leaves and fruit — on
+its own base, so it lines up with the wound.
 
 The life curve is three fields, and the defaults suit a tree:
 `seasons_to_grown` (12) is how many seasons it takes to reach full size,

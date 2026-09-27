@@ -54,7 +54,7 @@ pub mod rand;
 pub use clock::{Clock, Phase, Stage};
 pub use foliage::{leaves, LeafRecipe, LeafSite};
 pub use grow::{
-    grow, grow_planting, CropRecipe, GrowRecipe, Grown, Planting, Socket, SocketKind, Species, State,
-    WitherRecipe,
+    branch_from_uv, branch_uv, fallen, grow, grow_planting, BranchInfo, CropRecipe, GrowRecipe, Grown, Pick, Planting,
+    Socket, SocketKind, Species, State, WitherRecipe,
 };
 pub use hang::{hang, HangRecipe, Placement};

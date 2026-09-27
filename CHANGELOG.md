@@ -4,6 +4,25 @@ All notable changes to **Thread Engine**. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this file is
 materialized from the Pixygon Changelog API — edit there, not here.
 
+## [0.8.0] — 2026-09-27
+
+### Added
+- Every vertex of a tree now names the branch it belongs to, carried in the mesh's second UV set (low 16 bits in u, high 16 in v). A game can hit-test a swing straight against the wood — leaves included, at every LOD — and know exactly which branch it struck without asking the generator anything.
+- A companion `<stem>.branches.json` ships next to every exported model, saying what each branch id means: its parent, level, where it sprouts, where it ends, its radius, and whether it's a stump. That turns a raw hit on the mesh into a cut at the right joint.
+- Chopping is now part of a plant's state. `cut` takes a branch by id at the joint it sprouts from: what's left is a short capped stump with a `cut` socket at the wound facing the way the branch went, and everything beyond it — leaves and fruit included — is gone. The trunk has no joint and is ignored; felling stays a separate idea.
+- `--fallen <id>` grows the part that dropped: the whole subtree exactly as it stood, same seed, same clock, same leaves and fruit, brought onto its own base so a game can spawn it at the `cut` socket with no rotation and it lines up with the wound.
+- Harvesting is state too. `taken` picks a socket by name with the age it grows back at — leave the age out and it stays picked until the game says otherwise. A picked socket is simply absent; its neighbours are none the wiser.
+- New CLI flags on `thread grow`: `--cut <id>…`, `--take <socket>[@age]…` and `--fallen <id>`. Ids read as a plain number, `0x…`, or a socket name, so you can paste whatever the tool just told you.
+
+### Changed
+- A plant's whole mutable state is still a short, flat list — `withered`, `cut`, `taken` — small enough to sync over a network or sit in a world placement, and it reads the same in a recipe file or a Quarry submission. Everything in it filters the plant the seed already decided; nothing grows anything new.
+- `grow()` now takes the state by reference and `State` is no longer `Copy`, since it carries lists. Existing recipe files and callers passing only `withered` keep working unchanged. **(BREAKING)**
+- Stumps are no longer mistaken for branch tips: they get a `cut` socket instead of a `tip` socket and grow no leaves, so nothing sprouts from a wound.
+
+### Improved
+- Exported models carry a second UV set only when every single vertex has one — a half-filled channel is left out entirely rather than shipping coordinates that lie. Models without it export byte-for-byte as before.
+
+
 ## [0.7.0] — 2026-09-27
 
 ### Added
