@@ -72,7 +72,8 @@ in the Quarry — and always comes out the same.
 4. **Wind channels, the Unity shader, impostors.** ✅ *landed 2026-09-27 —
    see "Where it stands".*
 5. **Species from the Codex**: prose in the Codex → an agent drafts species
-   rules → the turntable decides.
+   rules → the turntable decides. ✅ *landed 2026-09-28 — see "Where it
+   stands".*
 
 ## Ground rules for the session
 
@@ -256,3 +257,41 @@ impostor with a normal atlas would; and nothing thins the real mesh's
 *instances* per plant yet (the "handful of individuals per species" the
 runtime-cost note asks for is a placement concern for the Quarry/Unity side,
 which has everything it needs: species, seed, clock, state, and cut ids).
+
+### Step 5, 2026-09-28
+
+`scripts/species.mjs <codex-slug | prose.md | "prose…">` is the loop: an
+agent drafts the rules from the prose, `thread grow` grows them and renders
+the turntable, the life sheet and the year sheet, and a second look at those
+sheets against the prose says accept or revise — as a patch to the recipe —
+for a round or two. It runs on the founder's Claude subscription through the
+local `claude` CLI, the way `pearl ship --local-draft` does; never a direct
+API call. The drafter is given the species contract (every field, its
+meaning, its sane range), the hand-made recipes as worked examples, and the
+prose; the judge is given the prose, the recipe and the sheets, and may only
+Read the images. Fruit and blooms are sockets, so for the judge's sake a plain
+sphere is hung at every one on the turntable — a stand-in, judged for where
+and how many, never for its look.
+
+**The Codex got its first flora entry**, `lantern-tree` (kind species,
+status draft, sealed), restating only what [[lantern-desert]] already says,
+with the recipe paths in its attributes — filed in
+`recipes/lantern-tree.codex.md` so the prose and the rules sit together.
+
+**The proof, and what it taught.** Drafting `lantern-tree` from that entry
+produced a crystal tree independently — veined pale-blue bark, evergreen, tips
+lifting, fruit at the outermost tips all year, a wither block — and the judge
+caught real things in round one (fruit hung inboard, not at the ends; a crown
+that spread like an orchard vase rather than spiring) that round two fixed.
+It is kept beside the hand-tuned one as `lantern-tree-drafted.grow.json`; the
+founder decides which is canon. Two things the first run taught: the drafter
+had been handed the target's own recipe as an example, so its "draft" was a
+copy — the same species (and any file that is the same species in disguise)
+is now left out of the examples; and a judge that cannot see the crop faults
+the crop, hence the stand-ins. Cost of a two-round draft: about 0.6
+usd-equivalent of subscription.
+
+Still to do: the drafter cannot yet ask for a *hung model* (it declares the
+sockets; the world supplies the lantern), and a species entry with
+`attributes.recipe` is a pointer, not a build — publishing to the Quarry from
+the Codex page is the Quarry's next step, not Grove's.

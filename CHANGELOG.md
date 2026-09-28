@@ -4,6 +4,20 @@ All notable changes to **Thread Engine**. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this file is
 materialized from the Pixygon Changelog API — edit there, not here.
 
+## [0.10.0] — 2026-09-28
+
+### Added
+- `node scripts/species.mjs <codex-slug | prose.md | "prose…">` turns written prose into a grow recipe: an agent drafts the species rules, `thread grow` grows them and renders the turntable, life and year sheets, then a second look at those sheets against the prose accepts or revises for a round or two. Sheets land in `target/species/<slug>/` and the recipe beside the hand-made ones, so you can see what grew before you keep it. Drafting runs on your own Claude subscription through the local `claude` CLI — no API key needed.
+- The Lantern Tree is now a species entry in the Codex (`recipes/lantern-tree.codex.md`), with the recipes that grow it — living and withered — recorded in its attributes, so the prose and the rules sit together on one page.
+- `lantern-tree-drafted.grow.json` is the lantern tree as the drafter grew it from the Codex entry alone, without ever seeing the hand-tuned recipe. Kept side by side with the original for comparison.
+
+### Changed
+- The recipes guide now documents the species-from-prose workflow end to end — what the drafter is given, where the proof sheets land, and the reminder that if a plant isn't in the Codex you write its entry first.
+
+### Improved
+- Fruiting and blooming species now show their crop on preview turntables: a plain sphere is hung at every socket as a stand-in, so you can judge where and how many a species bears instead of looking at a bare tree.
+
+
 ## [0.9.0] — 2026-09-27
 
 ### Added

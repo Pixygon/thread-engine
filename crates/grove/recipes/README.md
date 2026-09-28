@@ -43,6 +43,9 @@ scale instead of framing each one to fill its own tile.
   tips (`gravity: -0.16`), veined bark, a little glow. Its lanterns are
   **fruit**: `--hang fruit.glb --hang-kind fruit` hangs one at every fruit
   socket, and out of season there are no fruit sockets, so nothing hangs.
+- `lantern-tree-drafted.grow.json` — the same plant as the drafter grew it
+  from the Codex entry (`lantern-tree.codex.md`), without ever seeing the
+  hand-tuned recipe: kept for comparison; the founder decides which is canon.
 - `withered-tree.grow.json` — **the same species and the same seed as the
   lantern tree**, with `"withered": true`. Not a second recipe: the two files
   differ by a name and one flag, which is how both halves of the map hold the
@@ -84,6 +87,22 @@ single-sided quads — four vertical planes, a face each side — each showing t
 view taken from its own side, with the atlas as a cutout. Studio light is
 baked in, which is what a billboard at that distance wants. It is a plain
 model like any other; nothing downstream needs a special case.
+
+**A species from the Codex** — prose in, a recipe out, the turntable decides:
+
+```sh
+node scripts/species.mjs <codex-slug | prose.md | "prose…"> [--out recipes/x.grow.json] [--rounds 2]
+```
+
+An agent drafts the rules from the prose (the species contract and the three
+recipes here are all it is given), `thread grow` grows them and renders the
+turntable, the life sheet and the year sheet, and a second look at those
+sheets against the prose says accept or revise, as a patch to the recipe.
+Drafting runs on the founder's Claude subscription through the local `claude`
+CLI, the way `pearl ship --local-draft` does. The sheets land in
+`target/species/<slug>/`; the recipe lands here. Nothing is invented: if the
+plant is not in the Codex, write its entry first (`pearl codex push`), then
+draft from the slug — and you are the last judge, not the script.
 
 The life curve is three fields, and the defaults suit a tree:
 `seasons_to_grown` (12) is how many seasons it takes to reach full size,
