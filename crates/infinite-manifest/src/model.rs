@@ -70,6 +70,11 @@ pub struct Node {
     /// Y-rotation in degrees.
     #[serde(default)]
     pub rot: f32,
+    /// Tilt about X, then Z, in degrees (after `rot`). Left out when zero.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub rx: f32,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub rz: f32,
     /// Long axis for the rotational prims: `y` (default), `x`, `z`.
     #[serde(default = "axis_y")]
     pub axis: String,
@@ -97,6 +102,10 @@ pub struct Node {
     /// Lathe profile as flat `r, y` pairs (`prim: "lathe"` only).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub profile: Vec<f32>,
+}
+
+fn is_zero(v: &f32) -> bool {
+    *v == 0.0
 }
 
 fn add_mode() -> String {
@@ -142,6 +151,91 @@ pub struct PartMaterial {
     pub uv_scale: f32,
     #[serde(default = "unnamed_part")]
     pub name: String,
+    /// How the surface takes light, on top of (or instead of) the baked maps:
+    /// a named surface and the physical knobs. Absent fields keep the old look,
+    /// and are left out of the recipe, so no published design changes its id.
+    #[serde(default, flatten)]
+    pub finish: Finish,
+}
+
+/// The physical finish of a part — what glTF calls the material extensions
+/// (clearcoat, sheen, transmission, volume, ior). `surface` names a preset
+/// (`gloss`, `matte`, `plastic`, `fabric`, `metal`, `glass`, `jelly`,
+/// `shine`, `gold`); any field given explicitly wins over the preset.
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
+pub struct Finish {
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub surface: String,
+    /// 0 = mirror, 1 = chalk. Unset: the preset's, else the baked map's (or 1).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub roughness: Option<f32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metallic: Option<f32>,
+    /// A lacquer layer over the surface: 0..1, and how rough that layer is.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub clearcoat: Option<f32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub clearcoat_roughness: Option<f32>,
+    /// Cloth: the soft rim of light on fabric and felt. 0..1.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sheen: Option<f32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sheen_roughness: Option<f32>,
+    /// Glass and jelly: how much light passes through (0..1), the index of
+    /// refraction, how thick the part reads, and the colour light takes on
+    /// over `attenuation_distance` metres inside it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub transmission: Option<f32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ior: Option<f32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thickness: Option<f32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attenuation_color: Option<[f32; 3]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attenuation_distance: Option<f32>,
+    /// The curvature wear baked into vertex colour (edges lighten, crevices
+    /// darken): 1 = as carved stone always had it, 0 = factory-clean.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weathering: Option<f32>,
+}
+
+impl Finish {
+    pub fn is_plain(&self) -> bool {
+        *self == Finish::default()
+    }
+
+    /// The preset's values with every explicit field laid over them.
+    pub fn resolved(&self) -> Finish {
+        let p: Finish = match self.surface.as_str() {
+            "gloss" => Finish { roughness: Some(0.32), clearcoat: Some(1.0), clearcoat_roughness: Some(0.08), sheen: Some(0.3), weathering: Some(0.0), ..Default::default() },
+            "matte" => Finish { roughness: Some(0.78), weathering: Some(0.0), ..Default::default() },
+            "plastic" => Finish { roughness: Some(0.35), clearcoat: Some(0.8), clearcoat_roughness: Some(0.12), weathering: Some(0.0), ..Default::default() },
+            "fabric" => Finish { roughness: Some(0.9), sheen: Some(0.9), sheen_roughness: Some(0.7), weathering: Some(0.0), ..Default::default() },
+            "fuzzy" => Finish { roughness: Some(0.95), sheen: Some(1.0), sheen_roughness: Some(0.85), weathering: Some(0.0), ..Default::default() },
+            "metal" => Finish { roughness: Some(0.26), metallic: Some(0.9), clearcoat: Some(0.6), clearcoat_roughness: Some(0.2), weathering: Some(0.0), ..Default::default() },
+            "gold" => Finish { roughness: Some(0.22), metallic: Some(1.0), clearcoat: Some(0.5), weathering: Some(0.0), ..Default::default() },
+            "shine" => Finish { roughness: Some(0.05), clearcoat: Some(1.0), clearcoat_roughness: Some(0.02), weathering: Some(0.0), ..Default::default() },
+            "glass" => Finish { roughness: Some(0.03), transmission: Some(1.0), thickness: Some(0.3), ior: Some(1.45), clearcoat: Some(1.0), weathering: Some(0.0), ..Default::default() },
+            "jelly" => Finish { roughness: Some(0.08), transmission: Some(0.62), thickness: Some(1.6), ior: Some(1.28), attenuation_distance: Some(1.2), clearcoat: Some(1.0), clearcoat_roughness: Some(0.04), weathering: Some(0.0), ..Default::default() },
+            _ => Finish::default(),
+        };
+        Finish {
+            surface: self.surface.clone(),
+            roughness: self.roughness.or(p.roughness),
+            metallic: self.metallic.or(p.metallic),
+            clearcoat: self.clearcoat.or(p.clearcoat),
+            clearcoat_roughness: self.clearcoat_roughness.or(p.clearcoat_roughness),
+            sheen: self.sheen.or(p.sheen),
+            sheen_roughness: self.sheen_roughness.or(p.sheen_roughness),
+            transmission: self.transmission.or(p.transmission),
+            ior: self.ior.or(p.ior),
+            thickness: self.thickness.or(p.thickness),
+            attenuation_color: self.attenuation_color.or(p.attenuation_color),
+            attenuation_distance: self.attenuation_distance.or(p.attenuation_distance),
+            weathering: self.weathering.or(p.weathering),
+        }
+    }
 }
 
 fn white4() -> [f32; 4] {
@@ -164,6 +258,7 @@ impl Default for PartMaterial {
             uv: auto_uv(),
             uv_scale: half(),
             name: unnamed_part(),
+            finish: Finish::default(),
         }
     }
 }
@@ -193,6 +288,7 @@ impl Model {
                     | "capsule"
                     | "cone"
                     | "torus"
+                    | "ellipsoid"
                     | "lathe"
             ) {
                 return Err(format!("step {i}: unknown prim '{}'", n.prim));
@@ -243,6 +339,8 @@ impl Model {
                         k: n.k,
                         at: [0.0; 3],
                         rot: 0.0,
+                        rx: 0.0,
+                        rz: 0.0,
                         parts: vec![acc, leaf],
                     })
                 }
@@ -294,8 +392,10 @@ fn node_shape(n: &Node) -> Shape {
         prim: prim.to_string(),
         at,
         rot: n.rot,
+        rx: n.rx,
+        rz: n.rz,
         r: n.r,
-        size: (prim == "box").then_some([n.w, n.h, n.d]),
+        size: (prim == "box" || prim == "ellipsoid").then_some([n.w, n.h, n.d]),
         h: n.h,
         r2: n.r2,
         rounded: n.round,

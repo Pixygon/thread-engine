@@ -1295,7 +1295,7 @@ fn parts_for(
         baked: bark.clone(),
         color,
         emissive,
-        double_sided: false,
+        finish: Default::default(), double_sided: false,
     }];
     if let (Some(lm), Some(lr)) = (leaf_mesh, at.s.leaves.as_ref()) {
         // Vertex colour carries the base→tip gradient, so the material is white.
@@ -1305,7 +1305,7 @@ fn parts_for(
             baked: leaf_baked.clone(),
             color: [1.0, 1.0, 1.0, 1.0],
             emissive: lr.emissive,
-            double_sided: true,
+            finish: Default::default(), double_sided: true,
         });
     }
     parts

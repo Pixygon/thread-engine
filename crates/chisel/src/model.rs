@@ -8,6 +8,7 @@
 //! PBR-complete: base color, normal, metallic, roughness, occlusion.
 
 use infinite_manifest::model::{Model, PartMaterial};
+pub use infinite_manifest::model::Finish;
 
 use crate::texture::Baked;
 use crate::{MeshData, MeshOptions, UvMode};
@@ -22,6 +23,8 @@ pub struct BuiltPart {
     pub emissive: f32,
     /// Render both faces: leaves, cloth, thin cards. Solid parts are false.
     pub double_sided: bool,
+    /// The physical finish (preset already resolved): gloss, cloth, glass…
+    pub finish: Finish,
 }
 
 /// A finished model: named parts, each with geometry and materials.
@@ -64,7 +67,8 @@ pub fn build(model: &Model) -> Result<Built, String> {
         .into_iter()
         .map(|rp| {
             let m: &PartMaterial = &rp.material;
-            let mesh = mesh_components(
+            let finish = m.finish.resolved();
+            let mut mesh = mesh_components(
                 &rp.shape,
                 MeshOptions {
                     resolution: m.resolution,
@@ -72,13 +76,23 @@ pub fn build(model: &Model) -> Result<Built, String> {
                     uv_scale: if m.uv_scale > 0.0 { m.uv_scale } else { 0.5 },
                 },
             );
+            // The curvature wear the mesher bakes into vertex colour, scaled:
+            // 1 keeps it (carved stone), 0 is factory-clean (lacquer, plastic).
+            if let Some(w) = finish.weathering {
+                let w = w.clamp(0.0, 1.0);
+                for c in &mut mesh.colors {
+                    for ch in c.iter_mut().take(3) {
+                        *ch = 1.0 - w * (1.0 - *ch);
+                    }
+                }
+            }
             BuiltPart {
                 name: rp.name,
                 mesh,
                 baked: m.texture.as_ref().map(crate::texture::bake),
                 color: m.color,
                 emissive: m.emissive,
-                double_sided: false,
+                finish, double_sided: false,
             }
         })
         .collect();
@@ -138,7 +152,7 @@ pub fn export_glb(built: &Built) -> Result<Vec<u8>, String> {
             baked: p.baked.as_ref(),
             base_color: p.color,
             emissive: p.emissive,
-            double_sided: p.double_sided,
+            finish: p.finish.clone(), double_sided: p.double_sided,
         })
         .collect();
     let nodes: Vec<crate::gltf::SceneNode> = built

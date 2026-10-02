@@ -13,6 +13,7 @@
 //! express, at a resolution the manifest chooses (load-time cost only —
 //! never in the frame loop; a 40³ grid meshes in well under a millisecond).
 
+pub mod analytic;
 pub mod builtin;
 pub mod gltf;
 pub mod impostor;
@@ -59,10 +60,72 @@ pub struct MeshData {
 /// Signed distance from `p` to the shape's surface (negative inside).
 pub fn eval(shape: &Shape, p: [f32; 3]) -> f32 {
     match shape {
-        Shape::Prim(prim) => eval_prim(prim, local(p, prim.at, prim.rot)),
-        Shape::Group(g) => eval_group(g, local(p, g.at, g.rot)),
+        Shape::Prim(prim) => eval_prim(prim, tilted(local(p, prim.at, prim.rot), prim.rx, prim.rz)),
+        Shape::Group(g) => eval_group(g, tilted(local(p, g.at, g.rot), g.rx, g.rz)),
         Shape::Lathe(l) => eval_lathe(l, local(p, l.at, 0.0)),
     }
+}
+
+/// The curvature wear the carve bakes into vertex colour: convex edges
+/// lighten, concave crevices darken. The same laplacian for every path.
+fn wear(shape: &Shape, v: [f32; 3], e: f32) -> [f32; 4] {
+    let d0 = eval(shape, v);
+    let lap = (eval(shape, [v[0] + e, v[1], v[2]])
+        + eval(shape, [v[0] - e, v[1], v[2]])
+        + eval(shape, [v[0], v[1] + e, v[2]])
+        + eval(shape, [v[0], v[1] - e, v[2]])
+        + eval(shape, [v[0], v[1], v[2] + e])
+        + eval(shape, [v[0], v[1], v[2] - e])
+        - 6.0 * d0)
+        / (e * e);
+    let cell = e * 2.0;
+    let shade = (1.0 + 0.28 * (lap * cell * 0.8).tanh()).clamp(0.65, 1.25);
+    [shade, shade, shade, 1.0]
+}
+
+/// Newton-project a point onto the shape's surface (distance 0), at most
+/// one cell away from where it started.
+fn project_to_surface(shape: &Shape, start: [f32; 3], cell: f32) -> [f32; 3] {
+    let mut v = start;
+    let h = cell * 0.05;
+    for _ in 0..4 {
+        let d = eval(shape, v);
+        if d.abs() < cell * 1e-3 {
+            break;
+        }
+        let g = [
+            (eval(shape, [v[0] + h, v[1], v[2]]) - eval(shape, [v[0] - h, v[1], v[2]])) / (2.0 * h),
+            (eval(shape, [v[0], v[1] + h, v[2]]) - eval(shape, [v[0], v[1] - h, v[2]])) / (2.0 * h),
+            (eval(shape, [v[0], v[1], v[2] + h]) - eval(shape, [v[0], v[1], v[2] - h])) / (2.0 * h),
+        ];
+        let gg = g[0] * g[0] + g[1] * g[1] + g[2] * g[2];
+        if !gg.is_finite() || gg < 1e-8 {
+            break;
+        }
+        for c in 0..3 {
+            v[c] -= d * g[c] / gg;
+        }
+    }
+    let moved = ((v[0] - start[0]).powi(2) + (v[1] - start[1]).powi(2) + (v[2] - start[2]).powi(2)).sqrt();
+    if !moved.is_finite() || moved > cell {
+        start
+    } else {
+        v
+    }
+}
+
+/// Undo a part's tilt (about X, then Z) on a point already in its yawed frame.
+fn tilted(q: [f32; 3], rx_deg: f32, rz_deg: f32) -> [f32; 3] {
+    let mut q = q;
+    if rx_deg != 0.0 {
+        let (s, c) = (-rx_deg).to_radians().sin_cos();
+        q = [q[0], q[1] * c - q[2] * s, q[1] * s + q[2] * c];
+    }
+    if rz_deg != 0.0 {
+        let (s, c) = (-rz_deg).to_radians().sin_cos();
+        q = [q[0] * c - q[1] * s, q[0] * s + q[1] * c, q[2]];
+    }
+    q
 }
 
 fn local(p: [f32; 3], at: [f32; 3], rot_deg: f32) -> [f32; 3] {
@@ -98,8 +161,19 @@ fn eval_prim(pr: &Prim, p: [f32; 3]) -> f32 {
             outside + q[0].max(q[1]).max(q[2]).min(0.0) - pr.rounded
         }
         "cylinder" => {
-            let d = [len2(p[0], p[2]) - pr.r, p[1].abs() - pr.h / 2.0];
-            len2(d[0].max(0.0), d[1].max(0.0)) + d[0].max(d[1]).min(0.0)
+            // `rounded` softens both rims (a turned leg, a coaster), inside the size.
+            let rd = pr.rounded.clamp(0.0, pr.r.min(pr.h / 2.0));
+            let d = [len2(p[0], p[2]) - pr.r + rd, p[1].abs() - pr.h / 2.0 + rd];
+            len2(d[0].max(0.0), d[1].max(0.0)) + d[0].max(d[1]).min(0.0) - rd
+        }
+        "ellipsoid" => {
+            // Radii = half the size. The usual bound (exact on the axes, a
+            // close underestimate between), smooth enough to mesh and shade.
+            let s = pr.size.unwrap_or([1.0; 3]);
+            let r = [(s[0] / 2.0).max(1e-4), (s[1] / 2.0).max(1e-4), (s[2] / 2.0).max(1e-4)];
+            let k0 = len3([p[0] / r[0], p[1] / r[1], p[2] / r[2]]);
+            let k1 = len3([p[0] / (r[0] * r[0]), p[1] / (r[1] * r[1]), p[2] / (r[2] * r[2])]).max(1e-6);
+            k0 * (k0 - 1.0) / k1
         }
         "capsule" => {
             let half = (pr.h / 2.0 - pr.r).max(0.0);
@@ -265,8 +339,36 @@ pub fn mesh_with(shape: &Shape, opts: MeshOptions) -> MeshData {
     // ends up faintly quilted). A box is twelve triangles and six perfect
     // normals; take them.
     if let Shape::Prim(p) = shape {
-        if p.prim == "box" && p.rounded == 0.0 {
+        if p.prim == "box" && p.rounded == 0.0 && p.rx == 0.0 && p.rz == 0.0 {
             return exact_box(p, opts.uv_scale);
+        }
+        // Any other lone primitive has a formula: build it from that, exact
+        // and light, instead of sampling it (see analytic.rs).
+        let res = opts.resolution.unwrap_or(DEFAULT_RESOLUTION);
+        if let Some(mut m) = analytic::mesh_prim(p, res) {
+            let (bmin, bmax) = shape.bounds();
+            let longest = (bmax[0] - bmin[0]).max(bmax[1] - bmin[1]).max(bmax[2] - bmin[2]).max(1e-3);
+            let e = longest / res.clamp(8, MAX_RESOLUTION) as f32 * 0.5;
+            for (i, v) in m.positions.clone().into_iter().enumerate() {
+                m.colors[i] = wear(shape, v, e);
+            }
+            project_uvs(&mut m, opts.uv.resolve(shape), opts.uv_scale, center_of(shape));
+            weld(&mut m);
+            return m;
+        }
+    }
+    if let Shape::Lathe(l) = shape {
+        let res = opts.resolution.unwrap_or(DEFAULT_RESOLUTION);
+        if let Some(mut m) = analytic::mesh_lathe(&l.lathe, l.at, res) {
+            let (bmin, bmax) = shape.bounds();
+            let longest = (bmax[0] - bmin[0]).max(bmax[1] - bmin[1]).max(bmax[2] - bmin[2]).max(1e-3);
+            let e = longest / res.clamp(8, MAX_RESOLUTION) as f32 * 0.5;
+            for (i, v) in m.positions.clone().into_iter().enumerate() {
+                m.colors[i] = wear(shape, v, e);
+            }
+            project_uvs(&mut m, opts.uv.resolve(shape), opts.uv_scale, center_of(shape));
+            weld(&mut m);
+            return m;
         }
     }
     let resolution = opts.resolution;
@@ -345,15 +447,23 @@ pub fn mesh_with(shape: &Shape, opts: MeshOptions) -> MeshData {
                     }
                 }
                 if count > 0 {
-                    let v = [
+                    let mean = [
                         sum[0] / count as f32,
                         sum[1] / count as f32,
                         sum[2] / count as f32,
                     ];
+                    // The mean of the crossings sits near the surface, not on
+                    // it: flats quilt and rounded edges go lumpy. Pull it onto
+                    // the zero set with a few Newton steps along the gradient,
+                    // and keep the old spot if that would wander out of the
+                    // cell (a sharp concave corner could fold the mesh).
+                    let v = project_to_surface(shape, mean, cell);
                     cell_vertex[cidx(i, j, k)] = out.positions.len() as u32;
                     out.positions.push(v);
-                    // Smooth normal: normalized SDF gradient (central differences).
-                    let e = cell * 0.5;
+                    // Smooth normal: normalized SDF gradient (central
+                    // differences), sampled tight now the vertex is on the
+                    // surface, so a small rounding reads as a crisp edge.
+                    let e = cell * 0.15;
                     let g = [
                         eval(shape, [v[0] + e, v[1], v[2]]) - eval(shape, [v[0] - e, v[1], v[2]]),
                         eval(shape, [v[0], v[1] + e, v[2]]) - eval(shape, [v[0], v[1] - e, v[2]]),
@@ -916,6 +1026,68 @@ mod tests {
         assert!((d1 - d2).abs() < 1e-4, "{d1} vs {d2}");
         let m = mesh(&vase, Some(40));
         assert!(m.positions.len() > 300);
+    }
+
+    #[test]
+    fn exact_primitive_meshes_sit_on_the_surface_they_describe() {
+        // The analytic path must agree with the SDF: every vertex on the
+        // zero set, every normal along the gradient, every triangle facing
+        // out — for every primitive, on every axis, tilted and turned.
+        let cases = [
+            r#"{ "prim": "box", "size": [0.9, 0.4, 0.6], "rounded": 0.08, "at": [0.3, 0.2, -0.1], "rot": 30 }"#,
+            r#"{ "prim": "box", "size": [0.6, 0.05, 0.3], "rounded": 0.02, "rx": -20, "rz": 15 }"#,
+            r#"{ "prim": "cylinder", "r": 0.2, "h": 0.5, "rounded": 0.04, "axis": "z", "rx": 25 }"#,
+            r#"{ "prim": "cylinder", "r": 0.03, "h": 0.4, "rz": -10, "at": [0.1, 0.2, 0.0] }"#,
+            r#"{ "prim": "cone", "r": 0.3, "r2": 0.1, "h": 0.4, "axis": "x" }"#,
+            r#"{ "prim": "capsule", "r": 0.05, "h": 0.4, "rz": 40 }"#,
+            r#"{ "prim": "sphere", "r": 0.17, "at": [0.0, 0.17, 0.0] }"#,
+            r#"{ "prim": "ellipsoid", "size": [0.6, 0.1, 0.28], "rot": 50, "rx": 17, "rz": -23 }"#,
+            r#"{ "prim": "torus", "r": 0.32, "r2": 0.04, "axis": "z" }"#,
+            r#"{ "lathe": [[0.0, 0.0], [0.08, 0.0], [0.09, 0.17], [0.075, 0.17], [0.065, 0.02], [0.0, 0.02]] }"#,
+        ];
+        for json in cases {
+            let shape: Shape = serde_json::from_str(json).unwrap();
+            let m = mesh_with(&shape, MeshOptions { resolution: Some(48), ..Default::default() });
+            assert!(m.indices.len() >= 36, "{json}: some triangles");
+            let (bmin, bmax) = shape.bounds();
+            let size = (bmax[0] - bmin[0]).max(bmax[1] - bmin[1]).max(bmax[2] - bmin[2]);
+            for (i, v) in m.positions.iter().enumerate() {
+                let d = eval(&shape, *v);
+                assert!(d.abs() < size * 2e-3, "{json}: vertex {i} off the surface by {d}");
+                // Sample inside a triangle that uses this vertex — that point
+                // is on the vertex's own face, even at a sharp rim where the
+                // corner itself has no single gradient.
+                let t = m.indices.chunks_exact(3).find(|t| t.contains(&(i as u32))).unwrap();
+                let w = [0, 1, 2].iter().fold([0.0f32; 3], |acc, k| {
+                    let p = m.positions[t[*k] as usize];
+                    let wt = if t[*k] == i as u32 { 0.9 } else { 0.05 };
+                    [acc[0] + p[0] * wt, acc[1] + p[1] * wt, acc[2] + p[2] * wt]
+                });
+                let e = size * 1e-3;
+                let g = [
+                    eval(&shape, [w[0] + e, w[1], w[2]]) - eval(&shape, [w[0] - e, w[1], w[2]]),
+                    eval(&shape, [w[0], w[1] + e, w[2]]) - eval(&shape, [w[0], w[1] - e, w[2]]),
+                    eval(&shape, [w[0], w[1], w[2] + e]) - eval(&shape, [w[0], w[1], w[2] - e]),
+                ];
+                let gl = (g[0] * g[0] + g[1] * g[1] + g[2] * g[2]).sqrt();
+                if gl > 1e-6 && json.contains("prim") {
+                    let n = m.normals[i];
+                    let dot = (n[0] * g[0] + n[1] * g[1] + n[2] * g[2]) / gl;
+                    assert!(dot > 0.9, "{json}: normal {i} disagrees with the gradient (dot {dot})");
+                }
+            }
+            for t in m.indices.chunks_exact(3) {
+                let (a, b, c) = (m.positions[t[0] as usize], m.positions[t[1] as usize], m.positions[t[2] as usize]);
+                let e1 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+                let e2 = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+                let f = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]];
+                let n = m.normals[t[0] as usize];
+                let area = (f[0] * f[0] + f[1] * f[1] + f[2] * f[2]).sqrt();
+                if area > 1e-9 {
+                    assert!(f[0] * n[0] + f[1] * n[1] + f[2] * n[2] > -1e-9, "{json}: a triangle faces inward");
+                }
+            }
+        }
     }
 
     #[test]

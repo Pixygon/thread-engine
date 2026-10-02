@@ -67,7 +67,7 @@ pub fn impostor(built: &Built, tile: u32) -> Result<Built, String> {
             baked: Some(baked),
             color: [1.0, 1.0, 1.0, 1.0],
             emissive: 0.0,
-            double_sided: false,
+            finish: Default::default(), double_sided: false,
         }],
     })
 }
@@ -120,7 +120,7 @@ mod tests {
     fn eight_views_become_eight_quads_and_a_cutout_atlas() {
         let cube = Built {
             name: "cube".into(),
-            parts: vec![BuiltPart { name: "c".into(), mesh: crate::builtin::cube(), baked: None, color: [0.8, 0.3, 0.2, 1.0], emissive: 0.0, double_sided: false }],
+            parts: vec![BuiltPart { name: "c".into(), mesh: crate::builtin::cube(), baked: None, color: [0.8, 0.3, 0.2, 1.0], emissive: 0.0, finish: Default::default(), double_sided: false }],
         };
         let imp = impostor(&cube, 64).unwrap();
         assert_eq!(imp.parts.len(), 1);

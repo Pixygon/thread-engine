@@ -463,6 +463,8 @@ fn parse_shape_children(children: &[Element]) -> Result<crate::shape::Shape, Str
             k: 0.25,
             at: [0.0; 3],
             rot: 0.0,
+            rx: 0.0,
+            rz: 0.0,
             parts,
         })),
     }
@@ -482,8 +484,8 @@ fn parse_shape_node(el: &Element) -> Result<crate::shape::Shape, String> {
         [0.0; 3]
     };
     match el.tag.as_str() {
-        "sphere" | "cylinder" | "capsule" | "cone" | "torus" | "box" => {
-            let size = if el.tag == "box" {
+        "sphere" | "cylinder" | "capsule" | "cone" | "torus" | "box" | "ellipsoid" => {
+            let size = if el.tag == "box" || el.tag == "ellipsoid" {
                 Some(vec3(Some(
                     el.attrs.get("size").ok_or("shape <box> needs a `size`")?,
                 ))?)
@@ -494,6 +496,8 @@ fn parse_shape_node(el: &Element) -> Result<crate::shape::Shape, String> {
                 prim: el.tag.clone(),
                 at,
                 rot: f("rot", 0.0),
+                rx: f("rx", 0.0),
+                rz: f("rz", 0.0),
                 r: f("r", 0.5),
                 size,
                 h: f("h", 1.0),
@@ -515,6 +519,8 @@ fn parse_shape_node(el: &Element) -> Result<crate::shape::Shape, String> {
                 k: f("k", 0.25),
                 at,
                 rot: f("rot", 0.0),
+                rx: f("rx", 0.0),
+                rz: f("rz", 0.0),
                 parts,
             }))
         }

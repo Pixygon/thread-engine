@@ -37,6 +37,12 @@ pub struct Prim {
     /// Y-rotation, degrees.
     #[serde(default)]
     pub rot: f32,
+    /// Tilt about X then Z, degrees, applied after the Y `rot` (yaw, pitch,
+    /// roll in the part's own frame). Left out of the recipe when zero.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub rx: f32,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub rz: f32,
     /// Primary radius (sphere/cylinder/capsule/cone/torus major).
     #[serde(default = "half")]
     pub r: f32,
@@ -60,6 +66,9 @@ pub struct Prim {
 fn axis_y() -> String {
     "y".into()
 }
+fn is_zero(v: &f32) -> bool {
+    *v == 0.0
+}
 fn is_axis_y(a: &String) -> bool {
     a == "y"
 }
@@ -76,6 +85,12 @@ pub struct Group {
     pub at: [f32; 3],
     #[serde(default)]
     pub rot: f32,
+    /// Tilt about X then Z, degrees, applied after the Y `rot` (yaw, pitch,
+    /// roll in the part's own frame). Left out of the recipe when zero.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub rx: f32,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub rz: f32,
     pub parts: Vec<Shape>,
 }
 
@@ -109,7 +124,7 @@ fn swizzle_extent(e: [f32; 3], axis: &str) -> [f32; 3] {
 }
 
 /// The primitive names this spec version knows.
-pub const PRIMS: &[&str] = &["sphere", "box", "cylinder", "capsule", "cone", "torus"];
+pub const PRIMS: &[&str] = &["sphere", "box", "cylinder", "capsule", "cone", "torus", "ellipsoid"];
 /// The combining ops this spec version knows.
 pub const OPS: &[&str] = &["union", "blend", "cut", "intersect"];
 
@@ -175,11 +190,23 @@ impl Shape {
                     }
                     "capsule" => swizzle_extent([p.r, p.h / 2.0 + p.r, p.r], &p.axis),
                     "torus" => swizzle_extent([p.r + p.r2, p.r2, p.r + p.r2], &p.axis),
+                    "ellipsoid" => {
+                        let s = p.size.unwrap_or([1.0; 3]);
+                        [s[0] / 2.0, s[1] / 2.0, s[2] / 2.0]
+                    }
                     _ => [p.r; 3],
                 };
-                // Y-rotation can grow the xz footprint up to the diagonal.
+                // Y-rotation can grow the xz footprint up to the diagonal; a
+                // tilt can swing any extent anywhere, so take the whole radius.
                 let d = (e[0] * e[0] + e[2] * e[2]).sqrt();
-                let e = if p.rot != 0.0 { [d, e[1], d] } else { e };
+                let e = if p.rx != 0.0 || p.rz != 0.0 {
+                    let l = (e[0] * e[0] + e[1] * e[1] + e[2] * e[2]).sqrt();
+                    [l, l, l]
+                } else if p.rot != 0.0 {
+                    [d, e[1], d]
+                } else {
+                    e
+                };
                 (
                     [p.at[0] - e[0], p.at[1] - e[1], p.at[2] - e[2]],
                     [p.at[0] + e[0], p.at[1] + e[1], p.at[2] + e[2]],
